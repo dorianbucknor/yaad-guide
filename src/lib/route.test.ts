@@ -50,6 +50,19 @@ describe("poseAt", () => {
     expect(Math.abs(pose.angle)).toBe(MAX_TILT_DEG);
   });
 
+  it("leftward descent flips and tilts positive (nose down after mirroring)", () => {
+    const descending = sampleRoute((l) => ({ x: -l, y: l }), 100, 10);
+    const down = poseAt(descending, 0.5);
+    expect(down.flip).toBe(true);
+    expect(down.angle).toBe(MAX_TILT_DEG);
+    const gentle = sampleRoute((l) => ({ x: -l, y: l * 0.2 }), 100, 10);
+    const pose = poseAt(gentle, 0.5);
+    expect(pose.flip).toBe(true);
+    expect(pose.angle).toBeCloseTo((Math.atan(0.2) * 180) / Math.PI);
+    const climbing = sampleRoute((l) => ({ x: -l, y: -l * 0.2 }), 100, 10);
+    expect(poseAt(climbing, 0.5).angle).toBeLessThan(0);
+  });
+
   it("lengths are non-decreasing as progress increases", () => {
     const table = sampleRoute(right, 100, 10);
     let prev = -Infinity;
@@ -88,5 +101,19 @@ describe("route constants", () => {
     expect(ROUTES.narrow.d.length).toBeGreaterThan(0);
     expect([ROUTES.wide.width, ROUTES.wide.height]).toEqual([1200, 1500]);
     expect([ROUTES.narrow.width, ROUTES.narrow.height]).toEqual([400, 1800]);
+  });
+
+  it("route path coordinates lie inside their viewBox", () => {
+    for (const route of [ROUTES.wide, ROUTES.narrow]) {
+      // Absolute M/C commands only, so numbers alternate x, y.
+      expect(route.d).toMatch(/^M[\d\s.MC-]*$/);
+      const numbers = (route.d.match(/-?\d+(\.\d+)?/g) ?? []).map(Number);
+      expect(numbers.length % 2).toBe(0);
+      numbers.forEach((value, i) => {
+        const max = i % 2 === 0 ? route.width : route.height;
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThanOrEqual(max);
+      });
+    }
   });
 });

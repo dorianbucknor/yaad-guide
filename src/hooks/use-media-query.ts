@@ -1,9 +1,14 @@
 import { useCallback, useSyncExternalStore } from "react";
 
-/** Whether a CSS media query currently matches. False on the server. */
+function canMatchMedia(): boolean {
+  return typeof window.matchMedia === "function";
+}
+
+/** Whether a CSS media query currently matches. False on the server or without matchMedia. */
 export function useMediaQuery(query: string): boolean {
   const subscribe = useCallback(
     (onChange: () => void): (() => void) => {
+      if (!canMatchMedia()) return () => {};
       const list = window.matchMedia(query);
       list.addEventListener("change", onChange);
       return () => list.removeEventListener("change", onChange);
@@ -13,7 +18,7 @@ export function useMediaQuery(query: string): boolean {
 
   return useSyncExternalStore(
     subscribe,
-    () => window.matchMedia(query).matches,
+    () => canMatchMedia() && window.matchMedia(query).matches,
     () => false,
   );
 }
