@@ -1,4 +1,8 @@
+import { useId } from "react";
+
 export function Logo({ className }: { className?: string }): React.JSX.Element {
+  // Unique per instance: the logo appears in both the header and the footer.
+  const clipId = useId();
   return (
     <svg
       viewBox="0 0 230 157"
@@ -8,7 +12,7 @@ export function Logo({ className }: { className?: string }): React.JSX.Element {
       aria-label="YaadGuide"
       className={className}
     >
-      <g clipPath="url(#yg-logo-clip)">
+      <g clipPath={`url(#${clipId})`}>
       <path
         d="M138.214 156.437C127.874 155.342 115.946 151.411 106.527 146.011C104.94 145.091 103.251 143.996 102.765 143.573L101.869 142.826V125.309V107.792H102.714C103.43 107.792 103.712 107.966 104.377 108.886C106.579 111.872 112.44 117.72 115.434 119.984C120.502 123.766 125.673 126.404 131.918 128.419C141.849 131.629 151.498 131.928 161.378 129.315C174.687 125.807 186.129 117.67 193.577 106.423C196.111 102.616 199.643 95.1263 200.283 92.1902L200.462 91.369H173.305H146.149V78.4301V65.4911L187.178 65.5409L228.182 65.6155L228.463 67.8549C229.768 77.808 228.745 90.4981 225.852 100.202C221.962 113.39 215.973 123.492 206.4 133.172C195.855 143.797 183.211 150.888 168.033 154.695C161.429 156.338 159.049 156.611 149.732 156.711C143.948 156.761 140.441 156.686 138.214 156.437Z"
         fill="#FAC422"
@@ -23,7 +27,7 @@ export function Logo({ className }: { className?: string }): React.JSX.Element {
       />
       </g>
       <defs>
-        <clipPath id="yg-logo-clip">
+        <clipPath id={clipId}>
           <rect width="229.022" height="156.725" />
         </clipPath>
       </defs>
