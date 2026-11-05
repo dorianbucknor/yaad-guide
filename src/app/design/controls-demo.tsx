@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 
 import {
   Accordion,
@@ -30,27 +30,13 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Toggle } from "@/components/ui/toggle";
+import { useIsClient } from "@/hooks/use-is-client";
 
 const CATEGORIES = [
   { label: "Stay", value: "stay" },
   { label: "Move", value: "move" },
   { label: "Vibe", value: "vibe" },
 ];
-
-const subscribe = () => () => {};
-
-/**
- * True in the browser, false on the server. The calendar reads the current date
- * internally, which Next's Cache Components rejects during prerender, so it is
- * rendered on the client only. Reuse this pattern for any date-based component.
- */
-function useIsClient() {
-  return useSyncExternalStore(
-    subscribe,
-    () => true,
-    () => false,
-  );
-}
 
 /** Form controls on one page, so their size can be checked at mobile and desktop widths. */
 export function ControlsDemo() {
