@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -108,6 +108,7 @@ export function QuickStart(): React.JSX.Element {
   const router = useRouter();
   const setDraft = useDraftStore((s) => s.setDraft);
   const [step, setStep] = useState<QuickStartStep>(0);
+  const stepsRef = useRef<HTMLDivElement>(null);
   const [{ resolver, touch }] = useState(createTouchTracking);
 
   const form = useForm<QuickStartValues, unknown, QuickStartDraft>({
@@ -120,7 +121,7 @@ export function QuickStart(): React.JSX.Element {
   const { control, formState, handleSubmit, setValue, setError, clearErrors, trigger } = form;
 
   // Touching a card fills its defaults; from then on its fields are required.
-  // Touch runs on every focus, so it only updates the form when something changes.
+  // Touch runs on every change, so it only updates the form when something is new.
   const clearFormError = (): void => {
     if (formState.errors.root) clearErrors("root");
   };
@@ -146,12 +147,20 @@ export function QuickStart(): React.JSX.Element {
     flushSync(() => setStep(firstInvalidStep(errors)));
   };
 
+  // Back and Next can disappear when the step changes (first and last steps),
+  // so focus moves to the new card's heading instead of dropping to <body>.
+  const goTo = (target: QuickStartStep): void => {
+    flushSync(() => setStep(target));
+    stepsRef.current?.children[target]?.querySelector<HTMLElement>("h2")?.focus();
+  };
   const next = async (): Promise<void> => {
     const fields = STEP_FIELDS[step];
     if (fields && !(await trigger(fields, { shouldFocus: true }))) return;
-    setStep((s) => (s < 3 ? ((s + 1) as QuickStartStep) : s)); // s + 1 stays within 1..3 here.
+    if (step < 3) goTo((step + 1) as QuickStartStep); // step + 1 is within 1..3 here.
   };
-  const back = (): void => setStep((s) => (s > 0 ? ((s - 1) as QuickStartStep) : s)); // s - 1 stays within 0..2 here.
+  const back = (): void => {
+    if (step > 0) goTo((step - 1) as QuickStartStep); // step - 1 is within 0..2 here.
+  };
 
   const cards = [
     <MoveCard key="move" control={control} onTouch={touchMove} />,
@@ -181,9 +190,13 @@ export function QuickStart(): React.JSX.Element {
           Step {step + 1} of {STEP_COUNT}
         </ProgressLabel>
       </Progress>
+      {/* Announces step changes below md; display: none (silent) from md up, where all cards show. */}
+      <p aria-live="polite" className="sr-only md:hidden">
+        Step {step + 1} of {STEP_COUNT}
+      </p>
 
       {/* One DOM for both layouts: below md only the current step shows, so values survive step changes. */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div ref={stepsRef} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {cards.map((card, i) => (
           <div key={card.key} className={cn(i === step ? "block" : "hidden", "md:block")}>
             {card}

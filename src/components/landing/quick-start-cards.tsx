@@ -32,7 +32,7 @@ export type QuickStartValues = DeepPartial<QuickStartDraft>;
 
 interface CardProps {
   control: Control<QuickStartValues>;
-  /** Marks the card as used, so its fields become required. */
+  /** Called on every change inside the card; the first one makes its fields required. */
   onTouch: () => void;
 }
 
@@ -178,27 +178,15 @@ function SelectField<T extends string>({
   );
 }
 
-function QuickStartCard({
-  title,
-  onTouch,
-  children,
-}: {
-  title: string;
-  onTouch?: () => void;
-  children: React.ReactNode;
-}): React.JSX.Element {
+function QuickStartCard({ title, children }: { title: string; children: React.ReactNode }): React.JSX.Element {
   return (
-    <Card
-      // React bubbles events out of portals: ignore focus inside popups (calendar,
-      // select list), which would re-render the form mid-click.
-      onFocusCapture={(e) => {
-        if (e.currentTarget.contains(e.target)) onTouch?.();
-      }}
-      className="h-full rounded-[20px] [--card-spacing:--spacing(5)] md:[--card-spacing:--spacing(6)]"
-    >
+    <Card className="h-full rounded-[20px] [--card-spacing:--spacing(5)] md:[--card-spacing:--spacing(6)]">
       <CardHeader>
         <CardTitle>
-          <h2 className="text-lg">{title}</h2>
+          {/* Focus target when Back/Next changes the step on mobile. */}
+          <h2 tabIndex={-1} className="text-lg outline-none">
+            {title}
+          </h2>
         </CardTitle>
       </CardHeader>
       <CardContent>{children}</CardContent>
@@ -212,9 +200,8 @@ interface ControllerArgs<V> {
 }
 
 /**
- * Maps a Controller's render arguments to a control's props. A change also
- * touches the card: focus normally does that first, but Safari does not focus
- * buttons on click.
+ * Maps a Controller's render arguments to a control's props. A change (never
+ * mere focus) touches the card, so tabbing past a card leaves it optional.
  */
 function bind<V>({ field, fieldState }: ControllerArgs<V>, onTouch: () => void): ControlProps<V> {
   return {
@@ -231,7 +218,7 @@ function bind<V>({ field, fieldState }: ControllerArgs<V>, onTouch: () => void):
 
 export function MoveCard({ control, onTouch }: CardProps): React.JSX.Element {
   return (
-    <QuickStartCard title="Getting around" onTouch={onTouch}>
+    <QuickStartCard title="Getting around">
       <FieldGroup>
         <Controller
           control={control}
@@ -276,7 +263,10 @@ export function MoveCard({ control, onTouch }: CardProps): React.JSX.Element {
                   type="time"
                   className="tabular-nums"
                   value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.value === "" ? undefined : e.target.value)}
+                  onChange={(e) => {
+                    onTouch();
+                    field.onChange(e.target.value === "" ? undefined : e.target.value);
+                  }}
                   onBlur={field.onBlur}
                   aria-invalid={invalid(fieldState.error)}
                 />
@@ -298,7 +288,7 @@ const STAY_COUNTS = [
 
 export function StayCard({ control, onTouch }: CardProps): React.JSX.Element {
   return (
-    <QuickStartCard title="Where you'll stay" onTouch={onTouch}>
+    <QuickStartCard title="Where you'll stay">
       <FieldGroup>
         <Controller
           control={control}
@@ -357,7 +347,7 @@ export function StayCard({ control, onTouch }: CardProps): React.JSX.Element {
 
 export function VibeCard({ control, onTouch }: CardProps): React.JSX.Element {
   return (
-    <QuickStartCard title="Things to do" onTouch={onTouch}>
+    <QuickStartCard title="Things to do">
       <Controller
         control={control}
         name="interests"

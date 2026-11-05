@@ -196,6 +196,8 @@ function CalendarDayButton({
 
   return (
     <Button
+      // YaadGuide: attach the ref so the focus effect above moves DOM focus (arrow-key navigation).
+      ref={ref}
       variant="ghost"
       size="icon"
       data-day={day.date.toLocaleDateString(locale?.code)}
