@@ -74,6 +74,7 @@ export function RouteStop({
   return (
     <div
       id={stop.key}
+      tabIndex={-1}
       className={cn(
         "relative flex w-[68%] scroll-mt-20 gap-2 md:absolute md:w-[42%] md:gap-5",
         stop.place,

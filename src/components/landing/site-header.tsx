@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MenuIcon } from "lucide-react";
 
 import { Logo } from "@/components/landing/logo";
@@ -25,6 +25,27 @@ const NAV_LINKS = [
 export function SiteHeader(): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const close = (): void => setOpen(false);
+  const pendingAnchor = useRef<string | null>(null);
+
+  // The sheet is modal (scroll locked, focus trapped), so a native anchor jump
+  // during the click is undone by the unlock and focus returns to the menu
+  // trigger. Defer the jump until the sheet has fully closed instead.
+  const goToAnchor = (event: React.MouseEvent<HTMLAnchorElement>, id: string): void => {
+    event.preventDefault();
+    pendingAnchor.current = id;
+    close();
+  };
+
+  const landPendingAnchor = (isOpen: boolean): void => {
+    if (isOpen || pendingAnchor.current === null) return;
+    const target = document.getElementById(pendingAnchor.current);
+    pendingAnchor.current = null;
+    if (!target) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
+    target.focus({ preventScroll: true });
+    history.replaceState(null, "", `#${target.id}`);
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
@@ -56,7 +77,7 @@ export function SiteHeader(): React.JSX.Element {
 
         <div className="flex items-center gap-1 md:hidden">
           <ThemeToggle />
-          <Sheet open={open} onOpenChange={setOpen}>
+          <Sheet open={open} onOpenChange={setOpen} onOpenChangeComplete={landPendingAnchor}>
             <SheetTrigger
               render={<Button variant="ghost" size="icon" aria-label="Open menu" />}
             >
@@ -72,7 +93,7 @@ export function SiteHeader(): React.JSX.Element {
                   <a
                     key={href}
                     href={href}
-                    onClick={close}
+                    onClick={(event) => goToAnchor(event, href.slice(1))}
                     className={buttonVariants({ variant: "ghost", className: "justify-start" })}
                   >
                     {label}
