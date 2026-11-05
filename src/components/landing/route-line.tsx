@@ -7,8 +7,8 @@ import type { RouteDef } from "@/lib/route";
  * section; the solid overlay is the stretch already driven. Its pathLength is
  * 1, so the section shows a fraction `f` by setting dashoffset to `1 - f`.
  *
- * The SVG stretches to the stage (preserveAspectRatio="none"). From md up the
- * stage has the route's aspect ratio, so nothing stretches; below md the stage
+ * The SVG stretches to the stage (preserveAspectRatio="none"). From lg up the
+ * stage has the route's aspect ratio, so nothing stretches; below lg the stage
  * height follows the stop text, so the narrow road stretches vertically.
  */
 export function RouteLine({

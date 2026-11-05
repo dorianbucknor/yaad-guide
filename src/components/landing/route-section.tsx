@@ -34,7 +34,7 @@ type Measured = {
 };
 
 /**
- * On the fixed desktop stage the tuned ROUTE_STOPS apply. Below md the stops
+ * On the fixed desktop stage the tuned ROUTE_STOPS apply. Below lg the stops
  * are in normal flow, so where they sit on the road depends on the text: each
  * stop is reached where the road meets the top of its image row.
  */
@@ -112,7 +112,7 @@ function placeCab(cab: HTMLElement, measured: Measured, pose: CabPose): void {
  * straight to the DOM through refs.
  */
 export function RouteSection(): React.JSX.Element {
-  const wide = useMediaQuery("(min-width: 768px)");
+  const wide = useMediaQuery("(min-width: 1024px)");
   const route = wide ? ROUTES.wide : ROUTES.narrow;
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -163,7 +163,7 @@ export function RouteSection(): React.JSX.Element {
   useScrollProgress(scrollRef, apply);
 
   // Measure on mount, when the route changes (breakpoint crossing) and when
-  // the stage resizes (below md its height follows the text), then re-apply
+  // the stage resizes (below lg its height follows the text), then re-apply
   // the current progress so the cab lands on the new track immediately.
   useLayoutEffect(() => {
     const stage = stageRef.current;
@@ -190,13 +190,14 @@ export function RouteSection(): React.JSX.Element {
     >
       <div className="mx-auto max-w-6xl px-4 py-16 md:px-6 md:py-32">
         {/*
-          From md up: a fixed stage with ROUTES.wide's aspect (1200x1500) and
-          stops placed on it. Below md: stops in normal flow (so large text can
-          never overlap or spill) and the narrow road stretched beside them.
+          From lg up: a fixed stage with ROUTES.wide's aspect (1200x1920) and
+          stops placed on it (between md and lg the stops' text and images are
+          too tall for the stage). Below lg: stops in normal flow (so large text
+          can never overlap or spill) and the narrow road stretched beside them.
         */}
         <div
           ref={stageRef}
-          className="relative flex flex-col gap-24 pb-16 md:block md:aspect-[1200/1500] md:pb-0"
+          className="relative flex flex-col gap-24 pb-16 lg:block lg:aspect-[1200/1920] lg:pb-0"
         >
           {/*
             Scroll is measured on this box, which runs 40svh past the road's end,

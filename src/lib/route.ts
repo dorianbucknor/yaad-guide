@@ -84,14 +84,16 @@ export function progressAtY(table: RouteTable, y: number): number | null {
 }
 
 // Tuned by eye in the browser. Coordinates stay inside each viewBox. The wide
-// road weaves around MOVE (top left), STAY (right) and VIBE (bottom left). The
+// road weaves around MOVE (top left, y 0 to about 430), STAY (right half,
+// y 614 to about 1160) and VIBE (left half, from y 1248), crossing x 600
+// only in the gaps between them. The
 // narrow one wiggles in a band right of the single text column (x 325-355)
 // and is stretched to the column's height, so it never crosses the text.
 export const ROUTES: { wide: RouteDef; narrow: RouteDef } = {
   wide: {
-    d: "M680 100 C880 80 1060 150 1020 310 C980 460 520 400 300 540 C160 630 360 800 540 860 C720 920 1100 880 1040 1030 C980 1160 660 1110 620 1240 C590 1340 760 1420 920 1430",
+    d: "M720 120 C900 90 1080 170 1040 330 C1000 470 700 520 520 560 C300 620 220 820 300 960 C380 1100 500 1160 600 1200 C760 1260 1080 1280 1040 1450 C1000 1600 700 1600 680 1720 C670 1800 780 1880 920 1880",
     width: 1200,
-    height: 1500,
+    height: 1920,
   },
   narrow: {
     d: "M340 30 C370 250 310 450 340 600 C370 750 310 1050 340 1200 C370 1350 310 1550 340 1770",
@@ -105,6 +107,6 @@ export const ROUTES: { wide: RouteDef; narrow: RouteDef } = {
 // image rows (progressAtY) and falls back to these values.
 export const ROUTE_STOPS: { move: number; stay: number; vibe: number } = {
   move: 0.08,
-  stay: 0.46,
-  vibe: 0.84,
+  stay: 0.4,
+  vibe: 0.76,
 };

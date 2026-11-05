@@ -125,7 +125,7 @@ describe("route constants", () => {
   it("route paths are non-empty", () => {
     expect(ROUTES.wide.d.length).toBeGreaterThan(0);
     expect(ROUTES.narrow.d.length).toBeGreaterThan(0);
-    expect([ROUTES.wide.width, ROUTES.wide.height]).toEqual([1200, 1500]);
+    expect([ROUTES.wide.width, ROUTES.wide.height]).toEqual([1200, 1920]);
     expect([ROUTES.narrow.width, ROUTES.narrow.height]).toEqual([400, 1800]);
   });
 

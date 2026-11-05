@@ -438,8 +438,9 @@ export function TripCard({ control, rootError, submitting }: TripCardProps): Rea
 
   return (
     <QuickStartCard title="Your trip">
-      <div className="flex h-full flex-col gap-5">
-        <dl className="flex flex-col gap-3">
+      {/* Stacked below md (the last mobile step); from md up the summary sits left and the action right. */}
+      <div className="flex h-full flex-col gap-5 md:flex-row md:items-end md:gap-8">
+        <dl className="flex min-w-0 flex-col gap-3 md:flex-1">
           {rows.map((row) => (
             <div key={row.label}>
               <dt className="font-medium">{row.label}</dt>
@@ -447,14 +448,16 @@ export function TripCard({ control, rootError, submitting }: TripCardProps): Rea
             </div>
           ))}
         </dl>
-        {rootError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {rootError}
-          </p>
-        ) : null}
-        <Button type="submit" variant="secondary" size="lg" className="mt-auto w-full" disabled={submitting}>
-          Create itinerary
-        </Button>
+        <div className="mt-auto flex flex-col gap-3 md:w-60 md:shrink-0">
+          {rootError ? (
+            <p role="alert" className="text-sm text-destructive">
+              {rootError}
+            </p>
+          ) : null}
+          <Button type="submit" variant="secondary" size="lg" className="w-full" disabled={submitting}>
+            Create itinerary
+          </Button>
+        </div>
       </div>
     </QuickStartCard>
   );

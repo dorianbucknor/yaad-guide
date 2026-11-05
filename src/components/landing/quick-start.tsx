@@ -195,10 +195,20 @@ export function QuickStart(): React.JSX.Element {
         Step {step + 1} of {STEP_COUNT}
       </p>
 
-      {/* One DOM for both layouts: below md only the current step shows, so values survive step changes. */}
-      <div ref={stepsRef} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/*
+        One DOM for both layouts: below md only the current step shows, so values survive step changes.
+        From md up the three planning cards share a row (lg) and the trip card sits centered underneath.
+      */}
+      <div ref={stepsRef} className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {cards.map((card, i) => (
-          <div key={card.key} className={cn(i === step ? "block" : "hidden", "md:block")}>
+          <div
+            key={card.key}
+            className={cn(
+              i === step ? "block" : "hidden",
+              "md:block",
+              i === 3 && "md:col-span-2 md:mx-auto md:w-full md:max-w-3xl lg:col-span-3",
+            )}
+          >
             {card}
           </div>
         ))}

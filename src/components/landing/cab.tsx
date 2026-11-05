@@ -11,14 +11,14 @@ export function Cab({ ref }: { ref: Ref<HTMLDivElement> }): React.JSX.Element {
     <div
       ref={ref}
       aria-hidden="true"
-      className="pointer-events-none absolute top-0 left-0 z-10 w-[80px] opacity-0 will-change-transform md:w-[144px]"
+      className="pointer-events-none absolute top-0 left-0 z-10 w-[80px] opacity-0 will-change-transform lg:w-[144px]"
     >
       <Image
         src="/landing/cab.webp"
         alt=""
         width={817}
         height={512}
-        sizes="(min-width: 768px) 144px, 80px"
+        sizes="(min-width: 1024px) 144px, 80px"
         className="h-auto w-full"
       />
     </div>
