@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BedDoubleIcon, CarFrontIcon, PalmtreeIcon } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const PILLARS = [
   { icon: BedDoubleIcon, label: "Hotels and villas" },
@@ -40,7 +41,11 @@ export function VendorCta(): React.JSX.Element {
           </ul>
           <Link
             href="/auth/vendor"
-            className={buttonVariants({ size: "lg", className: "mt-10" })}
+            // Larger than the shared lg size (36px from md up): a page-level call to action.
+            className={cn(
+              buttonVariants({ size: "lg" }),
+              "mt-10 h-12 px-8 text-base md:h-14 md:px-10 md:text-lg",
+            )}
           >
             Become a vendor
           </Link>

@@ -65,6 +65,8 @@ export function Hero({
             buttonVariants({ variant: "outline", size: "lg" }),
             // Solid enough over the photo for 4.5:1 in dark mode (the outline variant's dark fill measured 4.47:1).
             "mt-8 text-foreground dark:bg-background/80",
+            // Larger than the shared lg size (36px from md up): a page-level call to action.
+            "h-12 px-8 text-base md:h-14 md:px-10 md:text-lg",
           )}
         >
           Learn more
