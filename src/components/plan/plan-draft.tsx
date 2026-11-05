@@ -14,21 +14,13 @@ import {
   VEHICLE_LABELS,
   type QuickStartDraft,
 } from "@/lib/schemas/quick-start";
+import { formatTime12h } from "@/lib/format";
 import { hydrateDraft, useDraftStore } from "@/stores/draft-store";
 
 /** Local-time display of a "YYYY-MM-DD" string (no timezone shift). */
 function day(iso: string): string {
   const parsed = parseISO(iso);
   return isValid(parsed) ? format(parsed, "d MMM yyyy") : iso;
-}
-
-/** "14:30" as "2:30 PM", matching the 12-hour time input the quick-start shows. */
-function time(hhmm: string): string {
-  const [hours, minutes] = hhmm.split(":").map(Number);
-  if (hours === undefined || minutes === undefined || Number.isNaN(hours) || Number.isNaN(minutes)) {
-    return hhmm;
-  }
-  return format(new Date(2000, 0, 1, hours, minutes), "h:mm a");
 }
 
 function plural(count: number, word: string): string {
@@ -69,7 +61,7 @@ function Summary({ draft }: { draft: QuickStartDraft }): React.JSX.Element {
             {VEHICLE_LABELS[move.vehicle]}
           </p>
           <p className="text-muted-foreground">
-            Pickup {day(move.pickupDate)} at {time(move.pickupTime)}
+            Pickup {day(move.pickupDate)} at {formatTime12h(move.pickupTime)}
           </p>
         </Section>
       ) : null}

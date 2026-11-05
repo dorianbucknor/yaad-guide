@@ -18,6 +18,7 @@ import { Field, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { formatTime12h } from "@/lib/format";
 import {
   AREAS,
   INTERESTS,
@@ -415,7 +416,7 @@ export function TripCard({ control, rootError, submitting }: TripCardProps): Rea
         move?.passengers !== undefined && plural(move.passengers, "passenger"),
         move?.vehicle && VEHICLE_LABELS[move.vehicle],
         move?.pickupDate && shortDate(move.pickupDate),
-        move?.pickupTime,
+        move?.pickupTime && formatTime12h(move.pickupTime),
       ]),
     },
     {
