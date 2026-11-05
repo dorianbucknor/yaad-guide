@@ -170,7 +170,7 @@ export function QuickStart(): React.JSX.Element {
       key="trip"
       control={control}
       rootError={formState.errors.root?.message}
-      submitting={formState.isSubmitting || formState.isSubmitSuccessful}
+      submitting={formState.isSubmitting}
     />,
   ];
 
