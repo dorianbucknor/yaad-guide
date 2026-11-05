@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 /*
  * Layout contract: `children` (the quick-start) hangs below the hero by
@@ -50,14 +50,13 @@ export function Hero({
         <p className="mt-4 max-w-xl text-lg text-balance md:text-xl">
           Design your vacation to enjoy Jamaica, how you desire.
         </p>
-        <Button
-          variant="outline"
-          size="lg"
-          className="mt-8 text-foreground"
-          render={<a href="#route" />}
+        {/* A link styled as a button: Base UI's Button would add type="button" to the anchor and log an error in dev. */}
+        <a
+          href="#route"
+          className={buttonVariants({ variant: "outline", size: "lg", className: "mt-8 text-foreground" })}
         >
           Learn more
-        </Button>
+        </a>
       </div>
 
       <div className="relative z-20 mx-auto mb-[calc(var(--hero-overhang)*-1)] max-w-6xl px-4 animate-quick-start-in motion-reduce:animate-none md:px-6">
