@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { MenuIcon } from "lucide-react";
 
-import { Logo } from "@/components/landing/logo";
+import { Logo, Wordmark } from "@/components/landing/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -61,8 +61,9 @@ export function SiteHeader(): React.JSX.Element {
         the actions measure. Below md: logo and menu at either end.
       */}
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:grid md:grid-cols-[1fr_auto_1fr] md:px-6">
-        <Link href="/" aria-label="YaadGuide home" className="flex min-h-11 items-center justify-self-start">
+        <Link href="/" aria-label="YaadGuide home" className="flex min-h-11 items-center gap-2 justify-self-start">
           <Logo className="h-9 w-auto" />
+          <Wordmark className="text-xl md:text-2xl" />
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">

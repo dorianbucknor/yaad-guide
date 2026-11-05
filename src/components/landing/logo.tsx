@@ -1,5 +1,23 @@
 import { useId } from "react";
 
+import { cn } from "@/lib/utils";
+
+/**
+ * "YaadGuide" set beside the logo, in the logo's colors. Light: "Yaad" primary
+ * (#0A7A49, 5.10:1 on the page, 4.62:1 on muted) and "Guide" foreground (#042E1C).
+ * Dark: "Yaad" primary (#4CC38A, 6.71:1 on the page, 4.63:1 on muted) and "Guide"
+ * sun (#FAC422, 9.19:1 and 6.35:1). Yellow is never text on a light background.
+ * Decorative for assistive tech: the surrounding link carries the name.
+ */
+export function Wordmark({ className }: { className?: string }): React.JSX.Element {
+  return (
+    <span aria-hidden="true" className={cn("font-heading font-bold tracking-tight", className)}>
+      <span className="text-primary">Yaad</span>
+      <span className="text-foreground dark:text-sun">Guide</span>
+    </span>
+  );
+}
+
 export function Logo({ className }: { className?: string }): React.JSX.Element {
   // Unique per instance: the logo appears in both the header and the footer.
   const clipId = useId();

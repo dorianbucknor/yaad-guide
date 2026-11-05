@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MailIcon, MapPinIcon, PhoneIcon } from "lucide-react";
 
-import { Logo } from "@/components/landing/logo";
+import { Logo, Wordmark } from "@/components/landing/logo";
 
 // All placeholder links until those pages exist.
 const LINK_GROUPS = [
@@ -24,8 +24,9 @@ export function SiteFooter(): React.JSX.Element {
     <footer className="border-t border-border bg-muted">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:px-6">
         <div>
-          <Link href="/" aria-label="YaadGuide home" className="inline-flex min-h-11 items-center rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+          <Link href="/" aria-label="YaadGuide home" className="inline-flex min-h-11 items-center gap-2.5 rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
             <Logo className="h-10 w-auto" />
+            <Wordmark className="text-2xl md:text-3xl" />
           </Link>
           <p className="mt-4 max-w-[30ch] text-muted-foreground">
             Your digital travel agent for Jamaica.
