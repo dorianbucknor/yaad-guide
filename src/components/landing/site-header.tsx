@@ -35,7 +35,7 @@ export function SiteHeader(): React.JSX.Element {
         Skip to main content
       </a>
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
-        <Link href="/" aria-label="YaadGuide home" className="flex items-center">
+        <Link href="/" aria-label="YaadGuide home" className="flex min-h-11 items-center">
           <Logo className="h-9 w-auto" />
         </Link>
 

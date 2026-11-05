@@ -24,7 +24,7 @@ export function SiteFooter(): React.JSX.Element {
     <footer className="border-t border-border bg-muted">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:px-6">
         <div>
-          <Link href="/" aria-label="YaadGuide home" className="inline-flex rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
+          <Link href="/" aria-label="YaadGuide home" className="inline-flex min-h-11 items-center rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50">
             <Logo className="h-10 w-auto" />
           </Link>
           <p className="mt-4 max-w-[30ch] text-muted-foreground">
