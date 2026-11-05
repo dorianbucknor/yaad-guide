@@ -31,18 +31,24 @@ export function Hero({
         />
         {/* Scrim: brand-dark at 55%. Measured white text vs the lightest photo pixel under it (canvas, 1360px wide): sub-line 5.56:1 (needs 4.5), headline 5.59:1 (needs 3). Same photo and scrim in light and dark. 40% fails (4.04). */}
         <div className="absolute inset-0 bg-brand-dark/55" />
-        {/* Plane: resting spot is partly tucked behind the headline's upper right. */}
+        {/*
+          Plane: centered at rest (left-1/2 plus the translate property, which
+          the animation's transform composes with), sized by --hero-plane-width
+          in globals.css. Its white fuselage sits above the headline so white
+          text never lands on white; only the dark wing tips reach the text.
+        */}
         <Image
           src="/landing/plane.webp"
           alt=""
           loading="eager"
           width={947}
           height={478}
-          className="pointer-events-none absolute top-4 right-[-2%] w-[50vw] max-w-[440px] animate-plane-fly motion-reduce:animate-none md:top-6 md:right-[2%] md:w-[30vw]"
+          className="pointer-events-none absolute top-2 left-1/2 w-(--hero-plane-width) max-w-none -translate-x-1/2 animate-plane-fly motion-reduce:animate-none"
         />
       </div>
 
-      <div className="relative z-20 mx-auto flex max-w-6xl flex-col items-center px-4 pt-24 pb-12 text-center text-white md:px-6 md:pt-36">
+      {/* Top padding follows the plane's height (width x 478/947), so the headline starts below the fuselage at every width. */}
+      <div className="relative z-20 mx-auto flex max-w-6xl flex-col items-center px-4 pt-[calc(var(--hero-plane-width)*0.42)] pb-12 text-center text-white md:px-6">
         <h1
           id="hero-heading"
           className="max-w-3xl text-5xl font-bold tracking-tight text-balance [text-shadow:0_2px_16px_rgb(4_46_28/0.55)] md:text-7xl"

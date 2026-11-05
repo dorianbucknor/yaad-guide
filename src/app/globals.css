@@ -74,10 +74,16 @@
   --animate-plane-fly: plane-fly 1.6s ease-out both;
   --animate-quick-start-in: quick-start-in 0.5s ease-out 1.4s both;
 
+  /*
+   * The plane's nose points up and to the right (about 24 degrees above level),
+   * so it enters from the lower left, tail first in space, and glides nose-first
+   * to its resting spot. The offset is in vw on both axes so the travel angle
+   * matches the nose at every width.
+   */
   @keyframes plane-fly {
     from {
       opacity: 0;
-      transform: translate(14vw, -16vh) scale(0.4);
+      transform: translate(-30vw, 13vw) scale(0.35);
     }
     to {
       opacity: 1;
@@ -152,6 +158,8 @@
   --chart-5: oklch(0.633 0.056 162.6); /* #6B9580 */
   /* How far the hero's quick-start card hangs below the hero. The section after the hero needs pt-[var(--hero-overhang)]. */
   --hero-overhang: 12rem;
+  /* Hero plane size, the one place to tune it: about 92vw at 390px, 66vw at 1366px, never wider than 60rem. */
+  --hero-plane-width: min(calc(55.6vw + 8.9rem), 60rem);
   --radius: 0.75rem; /* controls 12px. Cards use rounded-2xl; large canvases use rounded-4xl or more. */
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.268 0.057 160);
