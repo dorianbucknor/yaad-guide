@@ -69,6 +69,32 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Landing hero intro. Base styles are the resting state; animations only add motion. */
+@theme {
+  --animate-plane-fly: plane-fly 1.6s ease-out both;
+  --animate-quick-start-in: quick-start-in 0.5s ease-out 1.4s both;
+
+  @keyframes plane-fly {
+    from {
+      opacity: 0;
+      transform: translate(14vw, -16vh) scale(0.4);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes quick-start-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
 /*
  * YaadGuide tokens. Hex values and contrast ratios are documented in DESIGN.md.
  * Every foreground/background pair below was checked for WCAG AA (4.5:1 text, 3:1 UI).
@@ -124,6 +150,8 @@
   --chart-3: oklch(0.532 0.137 250.4); /* #1D6FB8 */
   --chart-4: oklch(0.555 0.146 49); /* #B45309 */
   --chart-5: oklch(0.633 0.056 162.6); /* #6B9580 */
+  /* How far the hero's quick-start card hangs below the hero. The section after the hero needs pt-[var(--hero-overhang)]. */
+  --hero-overhang: 12rem;
   --radius: 0.75rem; /* controls 12px. Cards use rounded-2xl; large canvases use rounded-4xl or more. */
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.268 0.057 160);
