@@ -126,10 +126,10 @@ Rule: **shadcn/ui is the base for everything.** Install primitives through the s
 
 | Component | Built from | Notes |
 |---|---|---|
-| `SiteHeader` / `BottomTabBar` | navigation-menu, button, sheet | Header on desktop; four-tab bar on mobile (home, itinerary, search, profile) |
+| `SiteHeader` / `BottomTabBar` | button, sheet | `SiteHeader` is built (`src/components/landing/site-header.tsx`): sticky, skip link first, menu sheet below `md`. `BottomTabBar` (four tabs on mobile: home, itinerary, search, profile) is not built yet |
 | `PillarCard` | card, button | STAY, MOVE, VIBE entry points |
-| `RouteLine` | custom SVG | The signature element; respects reduced motion |
-| `PlanningRail` | card, toggle-group, select, calendar | The left-to-right planning steps from the landing page, without v1-excluded steps (no flights, cruise, car rental, packages) |
+| `RouteLine` | custom SVG | The signature element; built for the landing page route section (`route-line.tsx`). With reduced motion the line is fully drawn and the cab rests at the route end |
+| `PlanningRail` | card, toggle-group, select, calendar | Not built. On the landing page the quick-start (`quick-start.tsx`) is the planning entry instead. No v1-excluded steps (no flights, cruise, car rental, packages) |
 | `ListingRow` / `ListingCard` | card, badge, avatar | Photo, name, type tag, trusted badge, rating, price, location |
 | `TrustedBadge` | badge | Shown only for admin-approved vendors; icon plus text |
 | `SponsoredLabel` | badge | Always visible on sponsored listings |
@@ -191,6 +191,13 @@ Domain-specific states:
 - **Dates and the calendar:** anything that reads the current date (the shadcn `Calendar`, date pickers) fails Next's prerender under Cache Components if it renders on the server. Render it on the client only, with the `useIsClient` pattern in `src/app/design/controls-demo.tsx`, and reserve its height so the page does not jump. Only a production build (`npm run build`) shows this; the dev server does not.
 - **Combined test:** the "Test tooltip and toast" button on `/design` shows a tooltip on hover or focus and a toast on click.
 - **Brand primary:** the founder set `#0A7A49` as brand primary, replacing the original `#0E9A5D`.
+- **Landing page** (`src/app/page.tsx`, sections in `src/components/landing/`): header, hero with the quick-start, route section, vendor call to action, app coming soon, footer. Content width is `max-w-6xl` (1152px) to match the existing sections, inside the 1200px maximum.
+  - Hero: scrim is `brand-dark` at 55%; measured white text against the lightest photo pixel: sub-line 5.56:1, headline 5.59:1 (40% failed at 4.04). The "Learn more" link uses `dark:bg-background/80` in dark mode (the outline variant's fill measured 4.47:1). The plane's resting spot is final: partly tucked behind the headline's upper right.
+  - `--hero-overhang` (12rem, in `globals.css`): the quick-start hangs below the hero by this amount, and the route section starts with the same top padding.
+  - Quick-start: four cards from `md` up, a step-by-step flow with Back and Next below `md`. A card counts once touched; a failed submit jumps to the first invalid step. It writes the draft to `localStorage` (`yg-draft`) and opens `/plan`.
+  - Route section: the cab follows scroll progress along the SVG route (transform written in an animation frame, only while on screen); stop images fade in as the cab reaches each stop. Reduced motion: the plane is at rest, the quick-start is visible, the cab sits at the route end.
+  - App coming soon: a `brand-dark` canvas with 40px radius in both themes; in dark mode, where the page background is the same color, a thin `brand-light` border at 30% keeps it distinct. No store buttons.
+  - Links styled as buttons use `buttonVariants` on `<a>` or `next/link`, not `<Button render={<a />}>`: Base UI's `Button` adds `type="button"` or `role="button"` to the anchor and logs an error in dev.
 
 ## Open items
 
@@ -198,4 +205,5 @@ Domain-specific states:
 - Components not yet used or measured for the 44px rule: slider, carousel controls, pagination, navigation menu, breadcrumb links, sidebar items, and the dialog, sheet and drawer close buttons.
 - The `/design` page was checked in Chrome: desktop width in light and dark mode, and a 390px wide view where all 16 buttons measure 44px with no horizontal scroll. Tooltip and toast were checked on desktop only (hover and click). The System theme option and touch behavior were not checked.
 - Two lint errors in shadcn-generated files: `src/components/ui/carousel.tsx` and `src/hooks/use-mobile.ts` (setState inside an effect).
-- Logo asset and final photography.
+- Final photography. The logo asset is done (`src/components/landing/logo.tsx`, inline SVG).
+- Landing page at 320px wide with text at 200%: the header, hero headline, quick-start chips and the vendor button overflow sideways (fine at 390px with 200% text). Needs a design decision, for example smaller gutters and type steps below 360px.
