@@ -55,8 +55,13 @@ export function SiteHeader(): React.JSX.Element {
       >
         Skip to main content
       </a>
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:px-6">
-        <Link href="/" aria-label="YaadGuide home" className="flex min-h-11 items-center">
+      {/*
+        From md up a three-column grid: the two 1fr side columns are equal, so the
+        nav in the auto middle column sits at the true center whatever the logo and
+        the actions measure. Below md: logo and menu at either end.
+      */}
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:grid md:grid-cols-[1fr_auto_1fr] md:px-6">
+        <Link href="/" aria-label="YaadGuide home" className="flex min-h-11 items-center justify-self-start">
           <Logo className="h-9 w-auto" />
         </Link>
 
@@ -66,14 +71,18 @@ export function SiteHeader(): React.JSX.Element {
               {label}
             </a>
           ))}
-          <Link href="/auth/vendor" className={buttonVariants({ variant: "ghost" })}>
+        </nav>
+
+        {/* Become a vendor is the filled button here; yellow stays reserved for the quick-start's Create itinerary. */}
+        <div className="hidden items-center gap-1 justify-self-end md:flex">
+          <Link href="/auth/vendor" className={buttonVariants()}>
             Become a vendor
           </Link>
           <ThemeToggle />
-          <Link href="/auth/sign-in" className={buttonVariants()}>
+          <Link href="/auth/sign-in" className={buttonVariants({ variant: "outline" })}>
             Sign in
           </Link>
-        </nav>
+        </div>
 
         <div className="flex items-center gap-1 md:hidden">
           <ThemeToggle />
@@ -99,14 +108,10 @@ export function SiteHeader(): React.JSX.Element {
                     {label}
                   </a>
                 ))}
-                <Link
-                  href="/auth/vendor"
-                  onClick={close}
-                  className={buttonVariants({ variant: "ghost", className: "justify-start" })}
-                >
+                <Link href="/auth/vendor" onClick={close} className={buttonVariants({ className: "mt-2" })}>
                   Become a vendor
                 </Link>
-                <Link href="/auth/sign-in" onClick={close} className={buttonVariants()}>
+                <Link href="/auth/sign-in" onClick={close} className={buttonVariants({ variant: "outline" })}>
                   Sign in
                 </Link>
               </nav>
