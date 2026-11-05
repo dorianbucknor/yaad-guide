@@ -64,7 +64,7 @@ export function useScrollProgress(
     };
 
     const listen = (): void => {
-      if (listening) return;
+      if (listening || failed) return;
       listening = true;
       window.addEventListener("scroll", schedule, { passive: true });
       window.addEventListener("resize", schedule);
@@ -99,7 +99,9 @@ export function useScrollProgress(
       }
 
       measure();
+      if (failed) return;
       observer = new IntersectionObserver((entries) => {
+        if (failed) return;
         const entry = entries[entries.length - 1];
         if (!entry) return;
         if (entry.isIntersecting) {
