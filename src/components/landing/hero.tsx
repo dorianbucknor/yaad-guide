@@ -1,6 +1,7 @@
 import Image from "next/image";
 
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /*
  * Layout contract: `children` (the quick-start) hangs below the hero by
@@ -53,7 +54,11 @@ export function Hero({
         {/* A link styled as a button: Base UI's Button would add type="button" to the anchor and log an error in dev. */}
         <a
           href="#route"
-          className={buttonVariants({ variant: "outline", size: "lg", className: "mt-8 text-foreground" })}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            // Solid enough over the photo for 4.5:1 in dark mode (the outline variant's dark fill measured 4.47:1).
+            "mt-8 text-foreground dark:bg-background/80",
+          )}
         >
           Learn more
         </a>
