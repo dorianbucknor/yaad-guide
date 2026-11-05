@@ -19,7 +19,7 @@ type Stop = {
   mark: string;
   title: string;
   body: string;
-  /** Where the stop sits on the stage. Single column below md. */
+  /** Where the stop sits on the stage from md up. Below md stops are in normal flow. */
   place: string;
   images: StopImage[];
 };
@@ -31,7 +31,7 @@ export const STOPS: Stop[] = [
     mark: "MOVE",
     title: "A ride from the airport, a driver for the day",
     body: "Airport transfers and personal drivers. Tell us when you land or where you're headed, and a local driver takes it from there.",
-    place: "top-0 left-0",
+    place: "md:top-0 md:left-0",
     images: [
       { src: "/landing/cab.webp", width: 817, height: 512, sizes: "(min-width: 768px) 150px, 25vw", className: "w-[34%]" },
       { src: "/landing/coach.webp", width: 850, height: 483, sizes: "(min-width: 768px) 150px, 25vw", className: "w-[34%]" },
@@ -43,7 +43,7 @@ export const STOPS: Stop[] = [
     mark: "STAY",
     title: "A place to stay",
     body: "Hotels and villas across the island, from Negril to Port Antonio. Pick the area that suits your trip.",
-    place: "top-[37%] left-0 md:top-[32%] md:right-0 md:left-auto",
+    place: "md:top-[32%] md:right-0",
     images: [
       { src: "/landing/hotel.webp", width: 286, height: 321, sizes: "(min-width: 768px) 200px, 40vw", className: "w-[52%] md:w-[36%]" },
     ],
@@ -53,7 +53,7 @@ export const STOPS: Stop[] = [
     mark: "VIBE",
     title: "Food, parties and things to do",
     body: "Rivers, beaches, jerk chicken and parties. Add what you want to do and eat, day by day.",
-    place: "top-[74%] left-0 md:top-[64%]",
+    place: "md:top-[64%] md:left-0",
     images: [
       { src: "/landing/beach.webp", width: 1200, height: 1521, sizes: "(min-width: 768px) 220px, 40vw", className: "w-[52%] md:w-[46%]" },
     ],
@@ -75,14 +75,14 @@ export function RouteStop({
     <div
       id={stop.key}
       className={cn(
-        "absolute flex w-[74%] scroll-mt-20 gap-3 md:w-[42%] md:gap-5",
+        "relative flex w-[68%] scroll-mt-20 gap-2 md:absolute md:w-[42%] md:gap-5",
         stop.place,
       )}
     >
       {/* Pillar mark: the only uppercase lettering, part of the illustration. */}
       <span
         aria-hidden="true"
-        className="shrink-0 rotate-180 font-heading text-4xl leading-none font-bold tracking-wide text-primary/30 select-none [writing-mode:vertical-rl] md:text-6xl"
+        className="shrink-0 rotate-180 font-heading leading-none font-bold tracking-wide text-primary/30 select-none [writing-mode:vertical-rl] max-md:text-3xl md:text-6xl"
       >
         {stop.mark}
       </span>

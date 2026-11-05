@@ -4,6 +4,7 @@ import {
   ROUTES,
   ROUTE_STOPS,
   poseAt,
+  progressAtY,
   sampleRoute,
   type RoutePoint,
 } from "./route";
@@ -84,6 +85,31 @@ describe("poseAt", () => {
   it("treats NaN progress as the start", () => {
     const pose = poseAt(sampleRoute(right, 100, 10), NaN);
     expect(pose.x).toBe(0);
+  });
+});
+
+describe("progressAtY", () => {
+  const down = sampleRoute((l) => ({ x: 0, y: l }), 100, 10);
+
+  it("returns the first progress where the road reaches y", () => {
+    expect(progressAtY(down, 0)).toBe(0);
+    expect(progressAtY(down, 25)).toBeCloseTo(0.3);
+    expect(progressAtY(down, 100)).toBe(1);
+  });
+
+  it("uses the first crossing on a road that comes back up", () => {
+    const zigzag = sampleRoute(
+      (l) => ({ x: l, y: l <= 50 ? l : 100 - l }),
+      100,
+      10,
+    );
+    expect(progressAtY(zigzag, 30)).toBeCloseTo(0.3);
+  });
+
+  it("returns null when the road never reaches y or input is not finite", () => {
+    expect(progressAtY(down, 101)).toBeNull();
+    expect(progressAtY(down, NaN)).toBeNull();
+    expect(progressAtY(sampleRoute(() => ({ x: 0, y: 0 }), 0, 10), 0)).toBeNull();
   });
 });
 

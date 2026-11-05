@@ -73,9 +73,20 @@ export function poseAt(table: RouteTable, progress: number): CabPose {
   };
 }
 
+/**
+ * The first progress (0-1) at which the road reaches `y` (in the table's
+ * units), or null if it never does, the table is empty, or `y` is not finite.
+ */
+export function progressAtY(table: RouteTable, y: number): number | null {
+  if (!Number.isFinite(y) || table.total <= 0) return null;
+  const hit = table.samples.find((sample) => sample.y >= y);
+  return hit ? hit.length / table.total : null;
+}
+
 // Tuned by eye in the browser. Coordinates stay inside each viewBox. The wide
-// road weaves around MOVE (top left), STAY (right) and VIBE (bottom left); the
-// narrow one runs beside the single column and swings across the gaps.
+// road weaves around MOVE (top left), STAY (right) and VIBE (bottom left). The
+// narrow one wiggles in a band right of the single text column (x 325-355)
+// and is stretched to the column's height, so it never crosses the text.
 export const ROUTES: { wide: RouteDef; narrow: RouteDef } = {
   wide: {
     d: "M680 100 C880 80 1060 150 1020 310 C980 460 520 400 300 540 C160 630 360 800 540 860 C720 920 1100 880 1040 1030 C980 1160 660 1110 620 1240 C590 1340 760 1420 920 1430",
@@ -83,13 +94,15 @@ export const ROUTES: { wide: RouteDef; narrow: RouteDef } = {
     height: 1500,
   },
   narrow: {
-    d: "M350 50 C360 150 360 220 330 300 C290 380 90 360 80 450 C70 540 330 520 350 640 C365 740 365 880 345 960 C320 1060 90 1040 80 1130 C70 1220 330 1200 350 1320 C365 1440 365 1560 345 1640 C335 1700 300 1740 260 1760",
+    d: "M340 30 C370 250 310 450 340 600 C370 750 310 1050 340 1200 C370 1350 310 1550 340 1770",
     width: 400,
     height: 1800,
   },
 };
 
-// Progress at which the cab reaches each stop's images, on both routes.
+// Progress at which the cab reaches each stop's images on the wide route. The
+// narrow layout flows with its text, so it derives these from the measured
+// image rows (progressAtY) and falls back to these values.
 export const ROUTE_STOPS: { move: number; stay: number; vibe: number } = {
   move: 0.08,
   stay: 0.46,
