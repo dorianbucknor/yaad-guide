@@ -21,6 +21,15 @@ function day(iso: string): string {
   return format(parseISO(iso), "d MMM yyyy");
 }
 
+/** "14:30" as "2:30 PM", matching the 12-hour time input the quick-start shows. */
+function time(hhmm: string): string {
+  const [hours, minutes] = hhmm.split(":").map(Number);
+  if (hours === undefined || minutes === undefined || Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return hhmm;
+  }
+  return format(new Date(2000, 0, 1, hours, minutes), "h:mm a");
+}
+
 function plural(count: number, word: string): string {
   return `${count} ${word}${count === 1 ? "" : "s"}`;
 }
@@ -59,7 +68,7 @@ function Summary({ draft }: { draft: QuickStartDraft }): React.JSX.Element {
             {VEHICLE_LABELS[move.vehicle]}
           </p>
           <p className="text-muted-foreground">
-            Pickup {day(move.pickupDate)} at {move.pickupTime}
+            Pickup {day(move.pickupDate)} at {time(move.pickupTime)}
           </p>
         </Section>
       ) : null}
