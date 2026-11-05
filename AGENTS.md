@@ -19,7 +19,8 @@ YaadGuide ("Your Digital Travel Agent") is a multi-sided marketplace and itinera
 - Build: `npm run build`
 - Start: `npm run start`
 - Lint: `npm run lint`
-- Typecheck, test: TODO(bootstrap): no `typecheck` or `test` script exists yet, so the stop hook cannot run a typecheck until `typecheck` is added to `package.json`.
+- Typecheck: `npm run typecheck`
+- Test: `npm run test` (Vitest)
 
 ## Conventions
 
