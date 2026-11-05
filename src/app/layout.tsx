@@ -23,8 +23,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "YaadGuide",
-  description: "Your Digital Travel Agent",
+  title: "YaadGuide — Your Digital Travel Agent",
+  description:
+    "Plan your Jamaica trip in one place: places to stay, rides from the airport and drivers, and things to do.",
 };
 
 // Runs before first paint so a saved dark preference does not flash light.
