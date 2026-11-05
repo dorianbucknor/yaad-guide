@@ -35,6 +35,7 @@ export function Hero({
         <Image
           src="/landing/plane.webp"
           alt=""
+          loading="eager"
           width={947}
           height={478}
           className="pointer-events-none absolute top-4 right-[-2%] w-[50vw] max-w-[440px] animate-plane-fly motion-reduce:animate-none md:top-6 md:right-[2%] md:w-[30vw]"
