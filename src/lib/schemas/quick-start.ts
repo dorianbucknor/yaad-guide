@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import { z } from "zod";
 
 export const VEHICLES = ["sedan", "suv", "minivan", "wagon", "bus", "coach"] as const;
@@ -69,7 +69,14 @@ export const INTERESTS: readonly { id: string; label: string }[] = [
 const interestIds = new Set(INTERESTS.map((i) => i.id));
 const areaIds = new Set(AREAS.map((a) => a.id));
 
-const dateString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date");
+const dateString = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date")
+  // The pattern alone admits impossible dates such as 2026-02-31.
+  .refine((v) => {
+    const parsed = parseISO(v);
+    return isValid(parsed) && format(parsed, "yyyy-MM-dd") === v;
+  }, "Enter a valid date");
 const timeString = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Enter a valid time");
 
 export const quickStartShape = z.object({

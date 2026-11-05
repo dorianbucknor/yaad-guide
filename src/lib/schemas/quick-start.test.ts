@@ -169,6 +169,20 @@ describe("quickStartShape", () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it.each([
+    ["rejects 2026-02-31", "2026-02-31", false],
+    ["rejects 2026-13-45", "2026-13-45", false],
+    ["accepts 2026-02-28", "2026-02-28", true],
+    ["accepts a leap day 2028-02-29", "2028-02-29", true],
+    ["rejects 2027-02-29", "2027-02-29", false],
+  ])("%s", (_name, pickupDate, ok) => {
+    const result = quickStartShape.safeParse({
+      move: { ...validMove, pickupDate },
+      interests: [],
+    });
+    expect(result.success).toBe(ok);
+  });
 });
 
 describe("areas and interests", () => {

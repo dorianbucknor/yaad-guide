@@ -1,6 +1,6 @@
 "use client";
 
-import { format, parseISO } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 import Link from "next/link";
 import { useEffect } from "react";
 
@@ -18,7 +18,8 @@ import { hydrateDraft, useDraftStore } from "@/stores/draft-store";
 
 /** Local-time display of a "YYYY-MM-DD" string (no timezone shift). */
 function day(iso: string): string {
-  return format(parseISO(iso), "d MMM yyyy");
+  const parsed = parseISO(iso);
+  return isValid(parsed) ? format(parsed, "d MMM yyyy") : iso;
 }
 
 /** "14:30" as "2:30 PM", matching the 12-hour time input the quick-start shows. */
