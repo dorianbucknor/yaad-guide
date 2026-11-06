@@ -11,7 +11,7 @@ A signed-in vendor can complete a MOVE vendor profile (business details, vehicle
 - Scope is MOVE only. The profile, document, status, review and transfer machinery is category-agnostic so STAY and VIBE add a details table and a form each.
 - Admin review is in scope. Vendors are told the result in the app only. Transactional email is a later piece (recorded in `PRD.md`).
 - One account can have up to three vendor profiles, one per category, unique on (account, category).
-- A MOVE vendor can register several vehicles but operates one at a time (the active vehicle). A vehicle can change owner only through an admin-reviewed transfer, which a new owner requests.
+- A MOVE vendor can register several vehicles but operates one at a time (the active vehicle). A vehicle can change owner only through a transfer: the new owner requests it, the current owner agrees or declines, and only then does an admin approve or reject.
 - The primary region is informational. It never limits where a driver can work; service areas belong to listings.
 - Every document that lapses (JTB license, insurance, fitness certificate) has a required expiry date.
 - The form is a stepped flow that saves a draft at each step, so a vendor can leave and resume from `/vendor`.
@@ -35,8 +35,8 @@ All tables have row-level security and the audit trigger from `audit_log`. Autho
 - Ownership by type: government ID belongs to the account, JTB license to the profile, insurance and fitness to the vehicle. A check constraint enforces which columns each type sets.
 
 **`vehicle_transfers`**
-- `id`, `vehicle_id`, `from_profile_id`, `to_profile_id`, `status` (`requested`, `approved`, `rejected`), `note`, `requested_by`, `reviewed_by`, `reviewed_at`.
-- The new owner requests by plate. Approval moves `vendor_vehicles.vendor_profile_id`, clears `is_active`, and sets the vehicle's documents back to unverified for the new owner.
+- `id`, `vehicle_id`, `from_profile_id`, `to_profile_id`, `status` (`requested`, `owner_agreed`, `owner_declined`, `approved`, `rejected`), `note`, `requested_by`, `owner_responded_at`, `reviewed_by`, `reviewed_at`.
+- The new owner requests by plate. The current owner sees the request on `/vendor` and agrees or declines. Only an `owner_agreed` transfer reaches the admin. Approval moves `vendor_vehicles.vendor_profile_id`, clears `is_active`, and sets the vehicle's documents back to unverified for the new owner.
 
 **Storage**
 - Private bucket `vendor-documents`, path `<account_id>/<document_id>.<ext>`. PDF, JPG or PNG, 5 MB maximum, enforced by the bucket and by client-side checks.
@@ -49,9 +49,11 @@ All tables have row-level security and the audit trigger from `audit_log`. Autho
   - `submit_vendor_profile(profile_id)`: owner only, status `draft` or `rejected`. Requires the government ID, the JTB license, at least one vehicle with insurance and fitness certificates, and an active vehicle, with no required document expired. Sets `pending`. A repeat call does nothing.
   - `review_vendor_profile(profile_id, decision, note)`: admin only, status `pending`. `rejected` requires a note. Sets the status, reviewer and time. A repeat call does nothing.
   - `set_active_vehicle(vehicle_id)`: owner only. The vehicle needs verified insurance and fitness certificates that have not expired.
-  - `request_vehicle_transfer(plate)` and `review_vehicle_transfer(transfer_id, decision, note)`: the second is admin only.
+  - `request_vehicle_transfer(plate)`: any vendor profile owner, for a vehicle held by another profile; one open request per vehicle.
+  - `respond_vehicle_transfer(transfer_id, agree)`: the current owner only, status `requested`.
+  - `review_vehicle_transfer(transfer_id, decision, note)`: admin only, status `owner_agreed` only.
   - `verify_vendor_document(document_id, verified)`: admin only.
-- A rejected government ID rejects every profile of that account with the reason.
+- A rejected government ID rejects every profile of that account with the reason. The vendor replaces the ID once and resubmits each profile.
 - Every decision writes an `audit_log` row.
 - Admins read all rows through the existing `admin` role check on `app_metadata`.
 
@@ -68,7 +70,7 @@ After submit the profile shows Pending and is locked. On rejection the vendor se
 
 ## Admin flow (`/admin/vendors`)
 
-- A queue of `pending` profiles, oldest first, and a tab for transfer requests.
+- A queue of `pending` profiles, oldest first, and a tab for transfer requests that the current owner has agreed to.
 - The detail page shows the profile, its vehicles and each document through a signed URL. Expiry dates are shown and expired ones are highlighted.
 - **Approve** and **Reject** (reject needs a written reason). Each document can be marked verified.
 
@@ -91,6 +93,8 @@ After submit the profile shows Pending and is locked. On rejection the vendor se
 - A duplicate plate is rejected by the unique index. Two simultaneous activations cannot both succeed because of the partial unique index.
 - Double submit and double decision are no-ops.
 - Documents of a vehicle cannot be moved to another profile except through an approved transfer.
+- A transfer request the current owner never answers stays `requested`; the new owner can withdraw it. An owner who is unreachable is handled by the admin outside the app for now.
+- A vendor cannot activate or edit a vehicle that has an open transfer request against it until the request is answered.
 
 ## Testing
 
