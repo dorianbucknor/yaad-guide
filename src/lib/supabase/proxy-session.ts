@@ -9,7 +9,17 @@ export async function updateSession(
   request: NextRequest,
 ): Promise<{ response: NextResponse; claims: Claims | null }> {
   let response = NextResponse.next({ request });
-  const { url, publishableKey } = getSupabaseEnv();
+
+  let env: ReturnType<typeof getSupabaseEnv>;
+  try {
+    env = getSupabaseEnv();
+  } catch (error) {
+    // A missing env var must not take the whole site down: treat everyone as
+    // signed out so public pages still render.
+    console.error(error);
+    return { response, claims: null };
+  }
+  const { url, publishableKey } = env;
 
   const supabase = createServerClient(url, publishableKey, {
     cookies: {
