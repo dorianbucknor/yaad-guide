@@ -96,6 +96,29 @@ export const documentMetaSchema = z
 
 export const transferRequestSchema = z.object({ plate: plateSchema });
 
+export const profileReviewSchema = z
+  .object({
+    profileId: z.uuid(),
+    decision: z.enum(["approved", "rejected"]),
+    note: z.string().trim().max(500, "Keep the reason under 500 characters.").optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.decision === "rejected" && !value.note) {
+      ctx.addIssue({ code: "custom", path: ["note"], message: "Give a reason." });
+    }
+  });
+
+export const transferReviewSchema = z.object({
+  transferId: z.uuid(),
+  decision: z.enum(["approved", "rejected"]),
+  note: z.string().trim().max(500).optional(),
+});
+
+export const identityRejectSchema = z.object({
+  accountId: z.uuid(),
+  note: z.string().trim().min(1, "Give a reason.").max(500, "Keep the reason under 500 characters."),
+});
+
 export type BusinessInput = z.input<typeof businessSchema>;
 export type VehicleInput = z.input<typeof vehicleSchema>;
 export type DocumentMetaInput = z.input<typeof documentMetaSchema>;
