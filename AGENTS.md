@@ -57,3 +57,20 @@ YaadGuide ("Your Digital Travel Agent") is a multi-sided marketplace and itinera
 - Scripts expected in `package.json`: `dev`, `build`, `test`, `typecheck`, `lint`. A hook runs `typecheck` and `lint` when an agent stops and shows any failure as a message to the user without blocking (80s limit per script). Another hook warns when `ARCHITECTURE.md` is edited without updating `ARCHITECTURE-ESSENTIAL.md`.
 - Skills for this stack: `nextjs-app-router` (routing, data, caching, server actions), `backend-integration` (auth, BaaS or custom API behind an adapter), `web-testing` (Vitest, Testing Library, Playwright), `conventions` (git and TypeScript rules).
 - Check the installed Next.js version's docs before relying on caching or routing defaults, since they have changed between major versions.
+
+## Workflow & Action Restrictions
+- Do NOT run full builds or tests unless explicitly asked.
+- Do NOT re-read files that were already modified or read in the current session.
+- Do NOT perform exploratory directory listings if specific file paths are given.
+- Always use quiet flags for CLI commands (`--quiet`, `-q`, `--reporter=dot`).
+
+## Token Use
+- Finish the work first, then test as little as possible. One verification at the end of a job, not after every step or fix round.
+- Do NOT start the dev or production server, or open a browser, unless the user asks or the change is visual and cannot be judged from code. Then use ONE server session per job: start it once, check everything, stop it, and free the port. No re-runs "to be sure".
+- Default subagents to Sonnet. Use Opus only when the user asks for it. Never use Opus for routine edits, reviews of small diffs, or browser checks.
+- Do not add a separate review round for small or cosmetic changes. Reserve reviewer subagents for large or risky changes, and run at most one review plus one fix pass.
+- Keep subagent prompts short: the task, the file paths, the rules that apply. Do not paste the plan, spec or earlier reports into a prompt; point to the file path instead. Do not repeat the same constraint block in every prompt.
+- Ask subagents to reply in about ten lines and to write long detail to a report file. Do not read report files unless a decision depends on them.
+- Prefer small targeted commands: `git diff --stat`, `head`, `--short`, `--oneline`. Never dump whole files or full diffs into context when a line range or a stat will do.
+- Do not hand-check things the repo tooling already checks (typecheck and lint run automatically when an agent stops).
+- When a job is large, split it into batches and stop between batches to let the user restart. A very long session re-reads its whole history on every turn.

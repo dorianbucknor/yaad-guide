@@ -17,6 +17,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+Auth needs a Supabase project. Copy `.env.example` to `.env.local` and fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (never the service-role key). In the Supabase dashboard: turn on **Confirm email**, enable the Google provider, enable the Phone provider and add test phone numbers (real SMS needs a provider), and add `http://localhost:3000/**` to the redirect URLs. Migrations are in `supabase/migrations/`; apply them with `npx supabase db push` after review. `npx supabase test db` runs the SQL tests against a local stack (needs Docker).
+
 | Script | What it does |
 | --- | --- |
 | `npm run dev` | Dev server |
@@ -31,7 +33,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Landing page** (`/`): hero with the plane on the V-shaped photo edge, quick-start planner (dates, travelers, vehicle, area, interests), a scroll-driven route section, vendor call to action, app coming soon, footer.
 - **Trip draft**: the quick-start is validated with zod (`src/lib/schemas/quick-start.ts`) and saved in the browser under `yg-draft` (zustand `persist`).
 - **`/plan`**: stub page that reads the saved draft.
-- **`/auth/sign-in`, `/auth/vendor`**: placeholder pages.
+- **Auth** (`/auth/*`): email/password and Google sign-in and sign-up, email confirmation, password reset, phone verification, and vendor sign-up (`/auth/vendor`). Roles are `traveler`, `vendor` and `admin`; `src/proxy.ts` guards `/profile`, `/plan/checkout`, `/vendor` and `/admin`.
+- **`/profile`**: name, phone and profile photo. **`/vendor`**: vendor home (business details and documents come next).
 - Light and dark themes.
 
 ## Project layout

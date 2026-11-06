@@ -1,20 +1,26 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 
-import { buttonVariants } from "@/components/ui/button";
+import { AuthShell } from "@/components/auth/auth-shell";
+import { LoginForm } from "@/components/auth/login-form";
+import { WithNext } from "@/components/auth/with-next";
 
 export const metadata: Metadata = {
   title: "Sign in | YaadGuide",
 };
 
-export default function Page(): React.JSX.Element {
+export default function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}): React.JSX.Element {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
-      <p className="text-muted-foreground">This page is coming soon.</p>
-      <Link href="/" className={buttonVariants({ variant: "outline" })}>
-        Back to home
-      </Link>
-    </main>
+    <AuthShell>
+      <Suspense fallback={null}>
+        <WithNext searchParams={searchParams}>
+          {(next) => <LoginForm next={next} />}
+        </WithNext>
+      </Suspense>
+    </AuthShell>
   );
 }

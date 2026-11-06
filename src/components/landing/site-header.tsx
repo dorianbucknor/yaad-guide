@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { MenuIcon } from "lucide-react";
 
+import { AccountMenu } from "@/components/auth/account-menu";
 import { Logo, Wordmark } from "@/components/landing/logo";
+import { signOutAction } from "@/lib/auth/actions";
+import { vendorEntryHref } from "@/lib/auth/vendor-entry";
+import type { HeaderViewer } from "@/lib/auth/header-viewer";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -25,8 +29,14 @@ const NAV_LINKS = [
 
 const VENDOR_CLASS = "font-bold text-brand-dark dark:text-foreground";
 
-export function SiteHeader(): React.JSX.Element {
+export function SiteHeader({
+  viewer = null,
+}: {
+  viewer?: HeaderViewer | null;
+}): React.JSX.Element {
   const [open, setOpen] = useState(false);
+  const showVendorLink = viewer === null || viewer.role === "traveler";
+  const vendorHref = vendorEntryHref(viewer !== null);
   const close = (): void => setOpen(false);
   const pendingAnchor = useRef<string | null>(null);
 
@@ -79,13 +89,19 @@ export function SiteHeader(): React.JSX.Element {
 
         {/* Sign in is the filled button; Become a vendor is a bold ghost link. Yellow stays reserved for the quick-start's Create itinerary. */}
         <div className="hidden items-center gap-1 justify-self-end md:flex">
-          <Link href="/auth/vendor" className={buttonVariants({ variant: "ghost", className: VENDOR_CLASS })}>
-            Become a vendor
-          </Link>
+          {showVendorLink ? (
+            <Link href={vendorHref} className={buttonVariants({ variant: "ghost", className: VENDOR_CLASS })}>
+              Become a vendor
+            </Link>
+          ) : null}
           <ThemeToggle />
-          <Link href="/auth/sign-in" className={buttonVariants()}>
-            Sign in
-          </Link>
+          {viewer ? (
+            <AccountMenu viewer={viewer} />
+          ) : (
+            <Link href="/auth/sign-in" className={buttonVariants()}>
+              Sign in
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-1 md:hidden">
@@ -112,12 +128,32 @@ export function SiteHeader(): React.JSX.Element {
                     {label}
                   </a>
                 ))}
-                <Link href="/auth/vendor" onClick={close} className={buttonVariants({ variant: "ghost", className: cn(VENDOR_CLASS, "mt-2") })}>
-                  Become a vendor
-                </Link>
-                <Link href="/auth/sign-in" onClick={close} className={buttonVariants()}>
-                  Sign in
-                </Link>
+                {showVendorLink ? (
+                  <Link href={vendorHref} onClick={close} className={buttonVariants({ variant: "ghost", className: cn(VENDOR_CLASS, "mt-2") })}>
+                    Become a vendor
+                  </Link>
+                ) : null}
+                {viewer ? (
+                  <>
+                    <Link href="/profile" onClick={close} className={buttonVariants({ variant: "ghost", className: "justify-start" })}>
+                      Profile
+                    </Link>
+                    {viewer.role !== "traveler" ? (
+                      <Link href="/vendor" onClick={close} className={buttonVariants({ variant: "ghost", className: "justify-start" })}>
+                        Vendor home
+                      </Link>
+                    ) : null}
+                    <form action={signOutAction}>
+                      <Button type="submit" variant="outline" className="w-full">
+                        Sign out
+                      </Button>
+                    </form>
+                  </>
+                ) : (
+                  <Link href="/auth/sign-in" onClick={close} className={buttonVariants()}>
+                    Sign in
+                  </Link>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
