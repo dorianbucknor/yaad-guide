@@ -42,8 +42,8 @@ One row per `auth.users` row, created by a trigger at sign-up.
 ### Roles
 
 - A trigger writes `role` into `app_metadata` on insert and on role change.
-- Vendors sign up through `/auth/vendor`, which sets role `vendor` at sign-up through a server action. The role cannot be switched later from the app.
-- RLS blocks client changes to `profiles.role`.
+- Vendors sign up through `/auth/vendor`. After email confirmation (or the Google return), `/auth/vendor/complete` calls the database function `claim_vendor_role()`. It is a security-definer function that upgrades only `traveler` to `vendor` for the calling user, is idempotent, and never touches `admin`. It is the only app path that changes a role, and sign-up metadata is never trusted for roles.
+- Client updates to `profiles` are limited by column grants to `first_name`, `last_name` and `profile_photo_link`, so `role`, phone fields and `profile_status` cannot be written by the client.
 
 ### RLS
 
@@ -97,8 +97,8 @@ Server actions return `{ ok: false, error }` with friendly messages for wrong pa
 ## Setup (owner, dashboard)
 
 - Hosted project: turn on Confirm email; set Site URL and redirect URLs; Google provider enabled (done).
-- Phone: test phone numbers only until an SMS provider is chosen.
-- `.env.local`: `NEXT_PUBLIC_SUPABASE_URL` and the publishable key.
+- Phone: enable the Phone provider in the dashboard and add test phone numbers with fixed codes; real SMS waits until a provider is chosen.
+- `.env.local`: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (rename the existing `SUPABASE_ANON_KEY`, which the browser cannot read).
 
 ## Launch checklist (not built now)
 
