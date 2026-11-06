@@ -32,11 +32,27 @@ const AUTH_NEEDS_SESSION = ["/auth/phone", "/auth/vendor/complete"];
 
 const NEEDS_SESSION = ["/profile", "/plan/checkout", "/vendor", "/admin"];
 
+/**
+ * Next routes on the decoded path, so match on it too: `/vend%6Fr` must be
+ * guarded like `/vendor`. Duplicate slashes collapse; a malformed escape keeps
+ * the raw path.
+ */
+function normalizePath(pathname: string): string {
+  let decoded = pathname;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    // malformed escape: fall through with the raw path
+  }
+  return decoded.replace(/\/{2,}/g, "/");
+}
+
 export function decideAccess(
-  pathname: string,
+  rawPathname: string,
   viewer: Viewer,
   search = "",
 ): Decision {
+  const pathname = normalizePath(rawPathname);
   const signInRedirect: Decision = {
     type: "redirect",
     to: `/auth/sign-in?next=${encodeURIComponent(pathname + search)}`,

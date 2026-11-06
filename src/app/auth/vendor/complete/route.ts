@@ -16,6 +16,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/error?reason=vendor", request.url));
   }
 
+  // The role lives in the JWT: refresh so the proxy sees `vendor` right away.
+  await supabase.auth.refreshSession();
+
   // A verified phone is on auth.users.phone; a pending change is not.
   const to = data.user.phone ? "/vendor" : "/auth/phone?next=%2Fvendor";
   return NextResponse.redirect(new URL(to, request.url));

@@ -44,6 +44,13 @@ const rows: Row[] = [
   ["/", guest, undefined, allow],
   ["/plan", guest, undefined, allow],
   ["/profiles-of-note", guest, undefined, allow],
+  ["/vend%6Fr", traveler, undefined, forbidden],
+  ["/%61dmin/users", vendor, undefined, forbidden],
+  ["/%61dmin", guest, undefined, redirect("/auth/sign-in?next=%2Fadmin")],
+  ["//vendor", traveler, undefined, forbidden],
+  ["/vendor/", traveler, undefined, forbidden],
+  ["/pro%66ile", guest, undefined, redirect("/auth/sign-in?next=%2Fprofile")],
+  ["/%E0%A4%A", guest, undefined, allow],
 ];
 
 describe("decideAccess", () => {

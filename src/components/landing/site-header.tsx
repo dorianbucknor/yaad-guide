@@ -7,6 +7,7 @@ import { MenuIcon } from "lucide-react";
 import { AccountMenu } from "@/components/auth/account-menu";
 import { Logo, Wordmark } from "@/components/landing/logo";
 import { signOutAction } from "@/lib/auth/actions";
+import { vendorEntryHref } from "@/lib/auth/vendor-entry";
 import type { HeaderViewer } from "@/lib/auth/header-viewer";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,6 +36,7 @@ export function SiteHeader({
 }): React.JSX.Element {
   const [open, setOpen] = useState(false);
   const showVendorLink = viewer === null || viewer.role === "traveler";
+  const vendorHref = vendorEntryHref(viewer !== null);
   const close = (): void => setOpen(false);
   const pendingAnchor = useRef<string | null>(null);
 
@@ -88,7 +90,7 @@ export function SiteHeader({
         {/* Sign in is the filled button; Become a vendor is a bold ghost link. Yellow stays reserved for the quick-start's Create itinerary. */}
         <div className="hidden items-center gap-1 justify-self-end md:flex">
           {showVendorLink ? (
-            <Link href="/auth/vendor" className={buttonVariants({ variant: "ghost", className: VENDOR_CLASS })}>
+            <Link href={vendorHref} className={buttonVariants({ variant: "ghost", className: VENDOR_CLASS })}>
               Become a vendor
             </Link>
           ) : null}
@@ -127,7 +129,7 @@ export function SiteHeader({
                   </a>
                 ))}
                 {showVendorLink ? (
-                  <Link href="/auth/vendor" onClick={close} className={buttonVariants({ variant: "ghost", className: cn(VENDOR_CLASS, "mt-2") })}>
+                  <Link href={vendorHref} onClick={close} className={buttonVariants({ variant: "ghost", className: cn(VENDOR_CLASS, "mt-2") })}>
                     Become a vendor
                   </Link>
                 ) : null}
