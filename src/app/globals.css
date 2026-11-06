@@ -83,7 +83,7 @@
   @keyframes plane-fly {
     from {
       opacity: 0;
-      transform: translate(-30vw, 13vw) scale(0.35);
+      transform: translate(-30vw, 13.4vw) scale(0.35);
     }
     to {
       opacity: 1;
