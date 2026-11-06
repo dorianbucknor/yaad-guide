@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(10);
 
 insert into auth.users (id, aud, role, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000d1', 'authenticated', 'authenticated', 'd1@example.com', '{}'),
@@ -25,6 +25,11 @@ select lives_ok($$insert into storage.objects (bucket_id, name) values ('vendor-
   'a vendor uploads into their own folder');
 select throws_ok($$insert into storage.objects (bucket_id, name) values ('vendor-documents', '00000000-0000-0000-0000-0000000000d2/doc1.png')$$,
   '42501', null, 'a vendor cannot upload into another folder');
+
+update storage.objects set metadata = '{"swapped":true}'::jsonb
+  where bucket_id = 'vendor-documents' and name = '00000000-0000-0000-0000-0000000000d1/doc1.png';
+select is((select metadata from storage.objects where name = '00000000-0000-0000-0000-0000000000d1/doc1.png'),
+  null, 'a vendor cannot overwrite a file they already uploaded');
 
 select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-0000000000d2","role":"authenticated","app_metadata":{"role":"vendor"}}', true);

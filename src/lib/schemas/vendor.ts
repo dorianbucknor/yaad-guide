@@ -39,7 +39,7 @@ const plateSchema = z
       .string()
       .min(2, "Enter the plate number.")
       .max(10, "A plate is 10 characters or fewer.")
-      .regex(/^[A-Z0-9-]+$/, "Use letters, numbers and dashes only."),
+      .regex(/^[A-Z0-9]+$/, "Use letters and numbers only."),
   );
 
 export const businessSchema = z.object({

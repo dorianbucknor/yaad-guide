@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(34);
+select plan(36);
 
 -- Accounts: c1 owner, c2 requester, c3 two profiles, c9 admin.
 insert into auth.users (id, aud, role, email, raw_user_meta_data) values
@@ -20,11 +20,11 @@ insert into public.vendor_vehicles (id, vendor_profile_id, vehicle_type, make, m
   ('21000000-0000-0000-0000-000000000002', '11000000-0000-0000-0000-000000000001', 'Sedan', 'Honda', 'Fit', 2019, 'CD5678', 4);
 
 insert into public.vendor_documents (account_id, vendor_profile_id, vehicle_id, doc_type, storage_path, expires_on) values
-  ('00000000-0000-0000-0000-0000000000c1', null, null, 'government_id', 'c1/id.png', null),
-  ('00000000-0000-0000-0000-0000000000c1', '11000000-0000-0000-0000-000000000001', null, 'jtb_license', 'c1/jtb.png', current_date + 365),
-  ('00000000-0000-0000-0000-0000000000c1', null, '21000000-0000-0000-0000-000000000001', 'insurance', 'c1/ins.png', current_date + 365),
-  ('00000000-0000-0000-0000-0000000000c1', null, '21000000-0000-0000-0000-000000000001', 'fitness', 'c1/fit.png', current_date + 365),
-  ('00000000-0000-0000-0000-0000000000c3', null, null, 'government_id', 'c3/id.png', null);
+  ('00000000-0000-0000-0000-0000000000c1', null, null, 'government_id', '00000000-0000-0000-0000-0000000000c1/id.png', null),
+  ('00000000-0000-0000-0000-0000000000c1', '11000000-0000-0000-0000-000000000001', null, 'jtb_license', '00000000-0000-0000-0000-0000000000c1/jtb.png', current_date + 365),
+  ('00000000-0000-0000-0000-0000000000c1', null, '21000000-0000-0000-0000-000000000001', 'insurance', '00000000-0000-0000-0000-0000000000c1/ins.png', current_date + 365),
+  ('00000000-0000-0000-0000-0000000000c1', null, '21000000-0000-0000-0000-000000000001', 'fitness', '00000000-0000-0000-0000-0000000000c1/fit.png', current_date + 365),
+  ('00000000-0000-0000-0000-0000000000c3', null, null, 'government_id', '00000000-0000-0000-0000-0000000000c3/id.png', null);
 update public.vendor_documents set verified = true where account_id = '00000000-0000-0000-0000-0000000000c3';
 
 -- ---------------------------------------------------------------- c1
@@ -75,22 +75,24 @@ select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-0000000000c9","role":"authenticated","app_metadata":{"role":"admin"}}', true);
 select throws_ilike($$select public.review_vendor_profile('11000000-0000-0000-0000-000000000001', 'rejected', '  ')$$,
   '%reason%', 'a rejection needs a reason');
+select throws_ilike($$select public.review_vendor_profile('11000000-0000-0000-0000-000000000001', 'approved', null)$$,
+  '%check%', 'a profile cannot be approved while its documents are unchecked');
+select lives_ok($$select public.verify_vendor_document(id, true) from public.vendor_documents where account_id = '00000000-0000-0000-0000-0000000000c1'$$,
+  'admin verifies documents');
 select is((select public.review_vendor_profile('11000000-0000-0000-0000-000000000001', 'approved', null)), 'approved',
   'admin approves a pending profile');
 select is((select reviewed_by from public.vendor_profiles where id = '11000000-0000-0000-0000-000000000001'),
   '00000000-0000-0000-0000-0000000000c9'::uuid, 'reviewer is recorded');
 select is((select public.review_vendor_profile('11000000-0000-0000-0000-000000000001', 'approved', null)), 'approved',
   'a repeat review is a no-op');
-select lives_ok($$select public.verify_vendor_document(id, true) from public.vendor_documents where account_id = '00000000-0000-0000-0000-0000000000c1'$$,
-  'admin verifies documents');
 
 -- Approved profile: a new vehicle needs verified certificates before it can be active.
 reset role;
 insert into public.vendor_vehicles (id, vendor_profile_id, vehicle_type, make, model, year, plate, passenger_capacity) values
   ('21000000-0000-0000-0000-000000000003', '11000000-0000-0000-0000-000000000001', 'Bus', 'Toyota', 'Coaster', 2018, 'EF9012', 20);
 insert into public.vendor_documents (account_id, vehicle_id, doc_type, storage_path, expires_on) values
-  ('00000000-0000-0000-0000-0000000000c1', '21000000-0000-0000-0000-000000000003', 'insurance', 'c1/ins3.png', current_date + 200),
-  ('00000000-0000-0000-0000-0000000000c1', '21000000-0000-0000-0000-000000000003', 'fitness', 'c1/fit3.png', current_date + 200);
+  ('00000000-0000-0000-0000-0000000000c1', '21000000-0000-0000-0000-000000000003', 'insurance', '00000000-0000-0000-0000-0000000000c1/ins3.png', current_date + 200),
+  ('00000000-0000-0000-0000-0000000000c1', '21000000-0000-0000-0000-000000000003', 'fitness', '00000000-0000-0000-0000-0000000000c1/fit3.png', current_date + 200);
 set local role authenticated;
 select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-0000000000c1","role":"authenticated","app_metadata":{"role":"vendor"}}', true);
@@ -120,7 +122,7 @@ select is((select verified from public.vendor_documents where account_id = '0000
 select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-0000000000c2","role":"authenticated","app_metadata":{"role":"vendor"}}', true);
 select isnt((select public.request_vehicle_transfer(' ab 1234 ')), null, 'a vendor requests a vehicle by plate');
-select throws_ilike($$select public.request_vehicle_transfer('AB1234')$$,
+select throws_ilike($$select public.request_vehicle_transfer('ab-1234')$$,
   '%already open%', 'a second request for the same vehicle is refused');
 select throws_ilike($$select public.respond_vehicle_transfer((select id from public.vehicle_transfers limit 1), true)$$,
   '%owner%', 'the requester cannot answer for the owner');
@@ -145,6 +147,8 @@ select lives_ok($$select public.review_vehicle_transfer((select id from public.v
 -- Withdrawal: c1 asks for the vehicle back; only c1 can withdraw.
 select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-0000000000c1","role":"authenticated","app_metadata":{"role":"vendor"}}', true);
+select is((select count(*) from public.vendor_vehicles where id = '21000000-0000-0000-0000-000000000001'), 0::bigint,
+  'the former owner can no longer read the vehicle once the transfer is closed');
 select isnt((select public.request_vehicle_transfer('AB1234')), null, 'the old owner can request the vehicle back');
 select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-0000000000c2","role":"authenticated","app_metadata":{"role":"vendor"}}', true);
@@ -161,8 +165,8 @@ reset role;
 select is((select vendor_profile_id from public.vendor_vehicles where id = '21000000-0000-0000-0000-000000000001'),
   '11000000-0000-0000-0000-000000000002'::uuid, 'the vehicle moved to the new profile');
 select ok(not exists (
-  select 1 from public.vendor_documents where vehicle_id = '21000000-0000-0000-0000-000000000001' and verified
-), 'the vehicle''s documents need review again');
+  select 1 from public.vendor_documents where vehicle_id = '21000000-0000-0000-0000-000000000001'
+), 'the previous owner''s certificates are cleared so the new owner uploads their own');
 select ok(exists (
   select 1 from public.audit_log
   where table_name = 'vehicle_transfers' and action = 'UPDATE' and new_values ->> 'status' = 'approved'

@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(22);
+select plan(24);
 
 -- Users: b1 and b2 vendors, b9 admin.
 insert into auth.users (id, aud, role, email, raw_user_meta_data) values
@@ -21,6 +21,9 @@ select is((select plate from public.vendor_vehicles where id = '20000000-0000-00
 select throws_ok($$insert into public.vendor_vehicles (vendor_profile_id, vehicle_type, make, model, year, plate, passenger_capacity)
   values ('10000000-0000-0000-0000-000000000002', 'Bus', 'X', 'Y', 2020, ' ab1234 ', 20)$$,
   '23505', null, 'a plate in another spelling is a duplicate');
+select throws_ok($$insert into public.vendor_vehicles (vendor_profile_id, vehicle_type, make, model, year, plate, passenger_capacity)
+  values ('10000000-0000-0000-0000-000000000002', 'Bus', 'X', 'Y', 2020, 'ab-12.34', 20)$$,
+  '23505', null, 'dashes and dots do not make a different plate');
 
 update public.vendor_vehicles set is_active = true where id = '20000000-0000-0000-0000-000000000001';
 select throws_ok($$insert into public.vendor_vehicles (vendor_profile_id, vehicle_type, make, model, year, plate, passenger_capacity, is_active)
@@ -31,13 +34,13 @@ select throws_ok($$insert into public.vendor_profiles (account_id, category, pri
   '23505', null, 'one profile per account and category');
 
 select throws_ok($$insert into public.vendor_documents (account_id, vehicle_id, doc_type, storage_path)
-  values ('00000000-0000-0000-0000-0000000000b1', '20000000-0000-0000-0000-000000000001', 'government_id', 'x/y.png')$$,
+  values ('00000000-0000-0000-0000-0000000000b1', '20000000-0000-0000-0000-000000000001', 'government_id', '00000000-0000-0000-0000-0000000000b1/y.png')$$,
   '23514', null, 'a government ID cannot carry a vehicle');
 select throws_ok($$insert into public.vendor_documents (account_id, doc_type, storage_path, expires_on)
-  values ('00000000-0000-0000-0000-0000000000b1', 'insurance', 'x/y.png', '2027-01-01')$$,
+  values ('00000000-0000-0000-0000-0000000000b1', 'insurance', '00000000-0000-0000-0000-0000000000b1/y.png', '2027-01-01')$$,
   '23514', null, 'insurance needs a vehicle');
 select throws_ok($$insert into public.vendor_documents (account_id, vendor_profile_id, doc_type, storage_path)
-  values ('00000000-0000-0000-0000-0000000000b1', '10000000-0000-0000-0000-000000000001', 'jtb_license', 'x/y.png')$$,
+  values ('00000000-0000-0000-0000-0000000000b1', '10000000-0000-0000-0000-000000000001', 'jtb_license', '00000000-0000-0000-0000-0000000000b1/y.png')$$,
   '23514', null, 'a JTB license needs an expiry date');
 
 -- Act as vendor b1.
@@ -59,6 +62,9 @@ select throws_ok($$insert into public.vendor_vehicles (vendor_profile_id, vehicl
 select lives_ok($$insert into public.vendor_documents (id, account_id, doc_type, storage_path)
   values ('30000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000b1', 'government_id', '00000000-0000-0000-0000-0000000000b1/30000000-0000-0000-0000-000000000001.png')$$,
   'vendor records their government ID');
+select throws_ok($$insert into public.vendor_documents (account_id, doc_type, storage_path)
+  values ('00000000-0000-0000-0000-0000000000b1', 'government_id', '00000000-0000-0000-0000-0000000000b2/stolen.png')$$,
+  '23514', null, 'a document row cannot point into another account''s folder');
 select throws_ok($$update public.vendor_documents set verified = true where id = '30000000-0000-0000-0000-000000000001'$$,
   '42501', null, 'vendor cannot mark a document verified');
 
@@ -76,7 +82,7 @@ update public.vendor_vehicles set make = 'Changed' where id = '20000000-0000-000
 select is((select make from public.vendor_vehicles where id = '20000000-0000-0000-0000-000000000001'),
   'Toyota', 'a pending profile''s vehicle cannot be edited');
 select throws_ok($$insert into public.vendor_documents (account_id, vendor_profile_id, doc_type, storage_path, expires_on)
-  values ('00000000-0000-0000-0000-0000000000b1', '10000000-0000-0000-0000-000000000001', 'jtb_license', 'x/y.png', '2027-01-01')$$,
+  values ('00000000-0000-0000-0000-0000000000b1', '10000000-0000-0000-0000-000000000001', 'jtb_license', '00000000-0000-0000-0000-0000000000b1/y.png', '2027-01-01')$$,
   '42501', null, 'a pending profile cannot add documents');
 
 -- Admin reads everything.

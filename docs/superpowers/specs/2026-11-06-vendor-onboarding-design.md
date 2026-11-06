@@ -27,7 +27,7 @@ All tables have row-level security and the audit trigger from `audit_log`. Autho
 
 **`vendor_vehicles`**
 - `id`, `vendor_profile_id`, `vehicle_type` (Sedan, SUV, Minivan, Station Wagon/Hatchback, Bus, Coach), `make`, `model`, `year`, `plate`, `passenger_capacity`, `is_active`.
-- `plate` is stored trimmed, upper-cased and with inner spaces removed, and is unique across the platform.
+- `plate` is stored as upper-case letters and digits only (spaces, dashes and dots removed), and is unique across the platform.
 - A partial unique index allows one `is_active` row per profile.
 
 **`vendor_documents`**
@@ -36,18 +36,18 @@ All tables have row-level security and the audit trigger from `audit_log`. Autho
 
 **`vehicle_transfers`**
 - `id`, `vehicle_id`, `from_profile_id`, `to_profile_id`, `status` (`requested`, `owner_agreed`, `owner_declined`, `approved`, `rejected`), `note`, `requested_by`, `owner_responded_at`, `reviewed_by`, `reviewed_at`.
-- The new owner requests by plate. The current owner sees the request on `/vendor` and agrees or declines. Only an `owner_agreed` transfer reaches the admin. Approval moves `vendor_vehicles.vendor_profile_id`, clears `is_active`, and sets the vehicle's documents back to unverified for the new owner.
+- The new owner requests by plate. The current owner sees the request on `/vendor` and agrees or declines. Only an `owner_agreed` transfer reaches the admin. Approval moves `vendor_vehicles.vendor_profile_id`, clears `is_active`, and deletes the vehicle's insurance and fitness rows, so the new owner uploads their own certificates (the old owner's files stay in the old owner's folder; the audit log keeps the deleted rows).
 
 **Storage**
 - Private bucket `vendor-documents`, path `<account_id>/<document_id>.<ext>`. PDF, JPG or PNG, 5 MB maximum, enforced by the bucket and by client-side checks.
-- Vendors read and write only their own folder. Admins view documents through short-lived signed URLs created on the server after a role check. Nothing is public.
+- Vendors read and write only their own folder. Files are never overwritten in place (there is no storage update policy): a replacement is a new file under a new name, so a verified document cannot be swapped for different bytes. A document row's `storage_path` must sit directly inside its account's folder (check constraint). Admins view documents through short-lived signed URLs created on the server after a role check. Nothing is public.
 
 ## Security
 
 - Vendors read and write only their own rows, and only while the profile is `draft` or `rejected`. After submission the profile is locked until an admin decides.
 - Vendors cannot write `status`, `review_note`, `submitted_at`, `reviewed_*`, `verified` or `is_active` on vehicles directly. Column-level grants plus these security-definer functions are the only paths:
   - `submit_vendor_profile(profile_id)`: owner only, status `draft` or `rejected`. Requires the government ID, the JTB license, at least one vehicle with insurance and fitness certificates, and an active vehicle, with no required document expired. Sets `pending`. A repeat call does nothing.
-  - `review_vendor_profile(profile_id, decision, note)`: admin only, status `pending`. `rejected` requires a note. Sets the status, reviewer and time. A repeat call does nothing.
+  - `review_vendor_profile(profile_id, decision, note)`: admin only, status `pending`. `rejected` requires a note; `approved` requires the government ID, the JTB license and the active vehicle's insurance and fitness certificates to be checked (`verified`) and unexpired. Sets the status, reviewer and time. A repeat call does nothing.
   - `set_active_vehicle(vehicle_id)`: owner only. The vehicle needs verified insurance and fitness certificates that have not expired.
   - `request_vehicle_transfer(plate)`: any vendor profile owner, for a vehicle held by another profile; one open request per vehicle.
   - `respond_vehicle_transfer(transfer_id, agree)`: the current owner only, status `requested`.

@@ -36,6 +36,9 @@ describe("vehicleSchema", () => {
     const result = vehicleSchema.parse({ ...goodVehicle, plate: "ab 12" });
     expect(result.plate).toBe("AB12");
   });
+  it("strips dashes so spellings match", () => {
+    expect(vehicleSchema.parse({ ...goodVehicle, plate: "ab-12 34" }).plate).toBe("AB1234");
+  });
   it("rejects years outside 1980 to next year", () => {
     const next = new Date().getFullYear() + 1;
     expect(vehicleSchema.safeParse({ ...goodVehicle, year: 1979 }).success).toBe(false);

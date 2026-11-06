@@ -113,6 +113,9 @@ set search_path = ''
 as $$
 declare
   v_profile public.vendor_profiles;
+  v_active uuid;
+  v_missing text[] := '{}';
+  v_type text;
 begin
   if not public.is_admin() then
     raise exception 'forbidden' using errcode = '42501';
@@ -134,6 +137,43 @@ begin
   end if;
   if v_profile.status <> 'pending' then
     raise exception 'only a pending profile can be reviewed';
+  end if;
+
+  if p_decision = 'approved' then
+    select id into v_active from public.vendor_vehicles
+    where vendor_profile_id = p_profile_id and is_active;
+
+    if not exists (
+      select 1 from public.vendor_documents
+      where account_id = v_profile.account_id and doc_type = 'government_id' and verified
+    ) then
+      v_missing := array_append(v_missing, 'the government ID'::text);
+    end if;
+    if not exists (
+      select 1 from public.vendor_documents
+      where vendor_profile_id = p_profile_id and doc_type = 'jtb_license'
+        and verified and expires_on >= current_date
+    ) then
+      v_missing := array_append(v_missing, 'the JTB license'::text);
+    end if;
+    if v_active is null then
+      v_missing := array_append(v_missing, 'an active vehicle'::text);
+    else
+      foreach v_type in array array['insurance', 'fitness'] loop
+        if not exists (
+          select 1 from public.vendor_documents
+          where vehicle_id = v_active and doc_type = v_type
+            and verified and expires_on >= current_date
+        ) then
+          v_missing := array_append(v_missing, ('the ' || v_type || ' certificate')::text);
+        end if;
+      end loop;
+    end if;
+
+    if array_length(v_missing, 1) is not null then
+      raise exception 'Check these first (checked and not expired): %',
+        array_to_string(v_missing, ', ');
+    end if;
   end if;
 
   update public.vendor_profiles
@@ -255,7 +295,7 @@ set search_path = ''
 as $$
 declare
   v_uid uuid := auth.uid();
-  v_plate text := upper(regexp_replace(trim(coalesce(p_plate, '')), '\s+', '', 'g'));
+  v_plate text := upper(regexp_replace(coalesce(p_plate, ''), '[^A-Za-z0-9]', '', 'g'));
   v_to uuid;
   v_vehicle public.vendor_vehicles;
   v_id uuid;
@@ -383,8 +423,9 @@ begin
     update public.vendor_vehicles
     set vendor_profile_id = v_transfer.to_profile_id, is_active = false
     where id = v_transfer.vehicle_id;
-    update public.vendor_documents set verified = false
-    where vehicle_id = v_transfer.vehicle_id;
+    -- The new owner uploads their own certificates; the old owner's files
+    -- stay under the old owner's folder and are not reused.
+    delete from public.vendor_documents where vehicle_id = v_transfer.vehicle_id;
   end if;
 
   update public.vehicle_transfers

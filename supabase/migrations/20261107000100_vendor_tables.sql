@@ -74,6 +74,13 @@ create table public.vendor_documents (
   ),
   constraint vendor_documents_expiry check (
     doc_type = 'government_id' or expires_on is not null
+  ),
+  -- The file must sit directly in the uploader's own folder, so an admin's
+  -- signed link can never open another account's file.
+  constraint vendor_documents_own_folder check (
+    storage_path like account_id::text || '/%'
+    and storage_path not like '%/%/%'
+    and storage_path not like '%..%'
   )
 );
 
@@ -118,7 +125,7 @@ language plpgsql
 set search_path = ''
 as $$
 begin
-  new.plate := upper(regexp_replace(trim(new.plate), '\s+', '', 'g'));
+  new.plate := upper(regexp_replace(new.plate, '[^A-Za-z0-9]', '', 'g'));
   return new;
 end;
 $$;
@@ -248,6 +255,7 @@ as $$
   select exists (
     select 1 from public.vehicle_transfers t
     where t.vehicle_id = p_vehicle_id
+      and t.status in ('requested', 'owner_agreed')
       and (t.requested_by = (select auth.uid())
            or public.owns_profile(t.from_profile_id)
            or public.owns_profile(t.to_profile_id))

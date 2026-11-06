@@ -31,18 +31,9 @@ create policy vendor_documents_insert_own on storage.objects
     and public.account_unlocked((select auth.uid()))
   );
 
-create policy vendor_documents_update_own on storage.objects
-  for update to authenticated
-  using (
-    bucket_id = 'vendor-documents'
-    and (storage.foldername(name))[1] = (select auth.uid())::text
-    and public.account_unlocked((select auth.uid()))
-  )
-  with check (
-    bucket_id = 'vendor-documents'
-    and (storage.foldername(name))[1] = (select auth.uid())::text
-    and public.account_unlocked((select auth.uid()))
-  );
+-- No update policy on purpose: a file is never overwritten in place, so a
+-- verified document cannot be swapped for different bytes at the same path.
+-- A replacement is a new file under a new name.
 
 create policy vendor_documents_delete_own on storage.objects
   for delete to authenticated
