@@ -35,12 +35,14 @@ Derived from ARCHITECTURE.md, updated 2026-11-06. It mirrors ARCHITECTURE.md: up
 - Components that read the current date (calendar, date pickers) render on the client only (`useIsClient`), or the production build fails. Always run `npm run build` after adding one.
 - Brand primary is `#0A7A49`. Do not use it for text or borders on dark surfaces (2.76:1); use the dark-mode tokens.
 - Every Supabase table has row-level security.
-- All auth routes live under `/auth`. Vendor onboarding data is held in the browser until sign-up is confirmed, then added to the profile.
+- All auth routes live under `/auth`. The vendor creates the account first, then completes a vendor profile in a stepped flow that saves a draft at each step; the profile is locked while pending admin review.
 - Roles are `traveler`, `vendor`, `admin`. `admin` is assigned in the database only. The role lives in `profiles.role` and is mirrored into `app_metadata.role`; the only app path that changes it is `claim_vendor_role()` (traveler to vendor). Clients can write only name and photo on `profiles`.
 - `src/proxy.ts` refreshes the session and guards routes by role; server code reads claims with `getClaims()` and uses `getUser()` before sensitive changes.
 - Phone numbers are verified with Supabase's phone-change flow: vendors during onboarding, travelers before checkout; changing the number re-verifies.
 - One account (name, phone, email, government ID) can have up to three vendor profiles, one per category; unique on account plus category. Verification, listings, ratings and reviews are per vendor profile.
-- Vendors may build drafts while unverified; listings go live only after admin approval of that vendor profile.
+- Vendor profile status is `draft`, `pending`, `approved` or `rejected`. Vendors can edit only while `draft` or `rejected`; submit and review run through security-definer functions. Vendors may build draft listings before approval; listings go live only after admin approval of that vendor profile.
+- Verification documents sit in the private `vendor-documents` bucket (PDF, JPG or PNG, 5 MB) and are viewed by admins through short-lived signed URLs. Insurance, fitness certificates and the JTB license carry a required expiry date. The government ID is account-level, the JTB license is per profile, and insurance and fitness belong to a vehicle.
+- A MOVE vendor can register several vehicles but has one active at a time; plates are unique across the platform, and a vehicle changes owner only through a transfer that the new owner requests and an admin approves. The primary region is informational and never limits where a vendor works.
 - Fees, commissions and sponsored pricing are configurable values, never hard-coded: planning fee US$20, MOVE commission 10%, STAY and VIBE commission 10% (placeholder), sponsored US$3.50 per week.
 - Planning fee is per trip, waived for VIBE-only trips. Commission is skipped on listings that already include one.
 - Vendor contact details and the exact map pin of a STAY or VIBE listing are hidden until a booking is confirmed.
