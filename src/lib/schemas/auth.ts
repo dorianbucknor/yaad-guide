@@ -78,6 +78,8 @@ export const phoneOtpSchema = z.object({
   code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code."),
 });
 
+export const phoneVerifySchema = phoneNumberSchema.extend(phoneOtpSchema.shape);
+
 export const profileSchema = z.object({
   firstName: nameSchema,
   lastName: nameSchema,

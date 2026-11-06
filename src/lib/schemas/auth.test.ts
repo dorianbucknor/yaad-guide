@@ -5,6 +5,7 @@ import {
   passwordSchema,
   phoneOtpSchema,
   phoneSchema,
+  phoneVerifySchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
@@ -116,6 +117,17 @@ describe("signInSchema and resetPasswordSchema", () => {
         password: "password1",
         confirmPassword: "password2",
       }).success,
+    ).toBe(false);
+  });
+});
+
+describe('phoneVerifySchema', () => {
+  it('normalizes the phone and requires a six-digit code', () => {
+    expect(
+      phoneVerifySchema.parse({ phone: '876 555 1234', code: '123456' }),
+    ).toEqual({ phone: '+18765551234', code: '123456' });
+    expect(
+      phoneVerifySchema.safeParse({ phone: '876 555 1234', code: '12' }).success,
     ).toBe(false);
   });
 });
