@@ -76,7 +76,7 @@ Deep forest green, never black. Surfaces step lighter as they rise.
 - **Body and UI:** Figtree, friendly and highly legible at small sizes.
 - Both load through `next/font/google` in `src/app/layout.tsx` and are mapped in `globals.css`: `--font-heading` is Bricolage Grotesque and `--font-sans` is Figtree. `h1` to `h4` use the heading font by default. Pairing confirmed by the founder.
 - Geist Mono is loaded for code and token names on the design page.
-- Scale (mobile to desktop): body 16px with line-height 1.5, small 14px (never below 12px), headings on a modular scale of about 1.25 to 1.333. Hero headline is the largest element on the page.
+se- Scale (mobile to desktop): body 16px with line-height 1.5, small 14px (never below 12px), headings on a modular scale of about 1.25 to 1.333. Hero headline is the largest element on the page.
 - Line length under 75 characters. Sentence case everywhere. No ALL-CAPS labels except the vertical MOVE / STAY / VIBE pillar marks, where the lettering is part of the illustration.
 - Numbers (prices, dates) use tabular figures so lists align.
 

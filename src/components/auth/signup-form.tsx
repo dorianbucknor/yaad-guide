@@ -110,7 +110,7 @@ export function SignupForm({
         </FieldGroup>
       </form>
       <FieldSeparator>Or continue with</FieldSeparator>
-      <GoogleButton next={next} label="Sign up with Google" />
+      <GoogleButton  next={next} label="Sign up with Google" />
       <FieldDescription className="text-center">
         Already have an account?{" "}
         <Link
