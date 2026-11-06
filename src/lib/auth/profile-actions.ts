@@ -26,7 +26,10 @@ export async function updateProfileAction(input: unknown): Promise<ActionResult>
       last_name: parsed.data.lastName,
     })
     .eq("id", data.user.id);
-  if (error) return { ok: false, error: SAVE_FAILED };
+  if (error) {
+    console.error(`Profile update failed: ${error.message}`);
+    return { ok: false, error: SAVE_FAILED };
+  }
 
   revalidatePath("/profile");
   return { ok: true };
@@ -47,7 +50,10 @@ export async function updateProfilePhotoAction(
     .from("profiles")
     .update({ profile_photo_link: path })
     .eq("id", data.user.id);
-  if (error) return { ok: false, error: SAVE_FAILED };
+  if (error) {
+    console.error(`Profile photo update failed: ${error.message}`);
+    return { ok: false, error: SAVE_FAILED };
+  }
 
   revalidatePath("/profile");
   return { ok: true };

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -16,9 +16,11 @@ import { TextField } from "./text-field";
 export function ProfileForm({
   firstName,
   lastName,
+  phoneMissing = false,
 }: {
   firstName: string;
   lastName: string;
+  phoneMissing?: boolean;
 }): React.JSX.Element {
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -32,14 +34,34 @@ export function ProfileForm({
     defaultValues: { firstName, lastName },
   });
 
-  const onSubmit = handleSubmit((values) => {
-    setFormError(null);
-    startTransition(async () => {
-      const result = await updateProfileAction(values);
-      if (result.ok) toast.success("Profile saved");
-      else setFormError(applyFailure(result, setError));
-    });
-  });
+  // Prompt once on load for anything required that is still empty.
+  useEffect(() => {
+    const missing: string[] = [];
+    if (!firstName) missing.push("first name");
+    if (!lastName) missing.push("last name");
+    if (phoneMissing) missing.push("phone number");
+    if (missing.length > 0) {
+      toast.warning(`Complete your profile: add your ${missing.join(", ")}.`, {
+        id: "profile-incomplete",
+      });
+    }
+  }, [firstName, lastName, phoneMissing]);
+
+  const onSubmit = handleSubmit(
+    (values) => {
+      setFormError(null);
+      startTransition(async () => {
+        const result = await updateProfileAction(values);
+        if (result.ok) toast.success("Profile saved");
+        else {
+          const message = applyFailure(result, setError);
+          setFormError(message);
+          if (message) toast.error(message);
+        }
+      });
+    },
+    () => toast.error("Please fill in the required fields."),
+  );
 
   return (
     <form onSubmit={onSubmit} noValidate>

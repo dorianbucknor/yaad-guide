@@ -13,7 +13,7 @@ export const passwordSchema = z
 export const nameSchema = z
   .string()
   .trim()
-  .min(1, "Required.")
+  .min(1, "This field is required.")
   .max(60, "Must be 60 characters or fewer.")
   .regex(/^[\p{L}\p{M}][\p{L}\p{M}\s'.-]*$/u, "Use letters only.");
 

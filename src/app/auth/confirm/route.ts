@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (error) {
+    console.error(`Email link failed: ${error instanceof Error ? error.message : String(error)}`);
     return NextResponse.redirect(new URL("/auth/error?reason=confirm", request.url));
   }
   return NextResponse.redirect(new URL(next, request.url));

@@ -139,6 +139,9 @@ export async function signInWithGoogleAction(
       redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(target)}`,
     },
   });
-  if (error || !data.url) redirect("/auth/error?reason=oauth");
+  if (error || !data.url) {
+    console.error(`Google sign-in start failed: ${error?.message ?? "no redirect url"}`);
+    redirect("/auth/error?reason=oauth");
+  }
   redirect(data.url);
 }

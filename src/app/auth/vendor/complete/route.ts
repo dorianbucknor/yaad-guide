@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
 
   const { error } = await supabase.rpc("claim_vendor_role");
   if (error) {
+    console.error(`claim_vendor_role failed: ${error.message}`);
     return NextResponse.redirect(new URL("/auth/error?reason=vendor", request.url));
   }
 

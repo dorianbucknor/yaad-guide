@@ -1,8 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { toAuthMessage } from "./errors";
 
 describe("toAuthMessage", () => {
+  beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
   it("gives the same message for a wrong password and an unknown user", () => {
     expect(toAuthMessage({ code: "user_not_found" })).toBe(
       toAuthMessage({ code: "invalid_credentials" }),

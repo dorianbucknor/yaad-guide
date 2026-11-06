@@ -1,3 +1,5 @@
+import { connection } from "next/server";
+
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -20,6 +22,7 @@ export async function getHeaderViewer(): Promise<HeaderViewer | null> {
     return null;
   }
 
+  await connection();
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims as Record<string, unknown> | undefined;

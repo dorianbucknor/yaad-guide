@@ -22,6 +22,6 @@ const BY_CODE: Record<string, string> = {
 export function toAuthMessage(
   error: { code?: string; message?: string } | null | undefined,
 ): string {
-  if (!error?.code) return GENERIC;
-  return BY_CODE[error.code] ?? GENERIC;
+  console.error(`Auth error (${error?.code ?? "no code"}): ${error?.message ?? "unknown"}`);
+  return (error?.code && BY_CODE[error.code]) || GENERIC;
 }

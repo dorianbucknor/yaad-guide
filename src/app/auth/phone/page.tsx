@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { AuthShell } from "@/components/auth/auth-shell";
@@ -15,6 +16,7 @@ async function PhoneStep({
 }: {
   searchParams: Promise<{ next?: string }>;
 }): Promise<React.JSX.Element> {
+  await connection();
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const pending = (data?.claims?.user_metadata as Record<string, unknown> | undefined)
