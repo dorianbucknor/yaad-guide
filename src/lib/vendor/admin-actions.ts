@@ -17,13 +17,19 @@ const GENERIC = "Something went wrong. Please try again.";
 type Client = Awaited<ReturnType<typeof createClient>>;
 type Failure = { ok: false; error: string; fieldErrors?: Record<string, string> };
 
-/** Confirms the caller is an admin with the server, not from a cached token. */
-async function requireAdmin(): Promise<{ supabase: Client } | { failure: Failure }> {
+type Permission =
+  | "vendors.review"
+  | "documents.verify"
+  | "identity.reject"
+  | "transfers.review";
+
+/** Asks the database, which reads the caller's live role, not the token. */
+async function requirePermission(
+  permission: Permission,
+): Promise<{ supabase: Client } | { failure: Failure }> {
   const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  if (data.user?.app_metadata?.role !== "admin") {
-    return { failure: { ok: false, error: FORBIDDEN } };
-  }
+  const { data: allowed } = await supabase.rpc("authorize", { p_permission: permission });
+  if (allowed !== true) return { failure: { ok: false, error: FORBIDDEN } };
   return { supabase };
 }
 
@@ -36,7 +42,7 @@ function failure(context: string, error: { message: string; code?: string }): Fa
 }
 
 export async function reviewProfileAction(input: unknown): Promise<ActionResult> {
-  const session = await requireAdmin();
+  const session = await requirePermission("vendors.review");
   if ("failure" in session) return session.failure;
 
   const parsed = profileReviewSchema.safeParse(input);
@@ -57,7 +63,7 @@ export async function verifyDocumentAction(
   documentId: string,
   verified: boolean,
 ): Promise<ActionResult> {
-  const session = await requireAdmin();
+  const session = await requirePermission("documents.verify");
   if ("failure" in session) return session.failure;
   if (!z.uuid().safeParse(documentId).success) return { ok: false, error: GENERIC };
 
@@ -72,7 +78,7 @@ export async function verifyDocumentAction(
 }
 
 export async function rejectIdentityAction(input: unknown): Promise<ActionResult> {
-  const session = await requireAdmin();
+  const session = await requirePermission("identity.reject");
   if ("failure" in session) return session.failure;
 
   const parsed = identityRejectSchema.safeParse(input);
@@ -92,7 +98,7 @@ export async function rejectIdentityAction(input: unknown): Promise<ActionResult
 export async function signedDocumentUrlAction(
   documentId: string,
 ): Promise<ActionResult<{ url: string }>> {
-  const session = await requireAdmin();
+  const session = await requirePermission("documents.verify");
   if ("failure" in session) return session.failure;
   if (!z.uuid().safeParse(documentId).success) return { ok: false, error: GENERIC };
 
@@ -114,7 +120,7 @@ export async function signedDocumentUrlAction(
 }
 
 export async function reviewTransferAction(input: unknown): Promise<ActionResult> {
-  const session = await requireAdmin();
+  const session = await requirePermission("transfers.review");
   if ("failure" in session) return session.failure;
 
   const parsed = transferReviewSchema.safeParse(input);

@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 type Result = { data?: unknown; error?: { message: string; code?: string } | null };
 
 const state = vi.hoisted(() => ({
-  role: "admin" as string | null,
+  /** What the live database check says (the token below always claims admin). */
+  allowed: true as boolean,
+  signedIn: true as boolean,
+  asked: [] as string[],
   results: {} as Record<string, Result>,
   rpcs: [] as { name: string; args: unknown }[],
   signed: [] as string[],
@@ -16,7 +19,7 @@ vi.mock("@/lib/supabase/server", () => ({
     auth: {
       getUser: async () => ({
         data: {
-          user: state.role ? { id: "admin-1", app_metadata: { role: state.role } } : null,
+          user: state.signedIn ? { id: "admin-1", app_metadata: { role: "admin" } } : null,
         },
       }),
     },
@@ -29,6 +32,10 @@ vi.mock("@/lib/supabase/server", () => ({
       }),
     },
     rpc: async (name: string, args: unknown) => {
+      if (name === "authorize") {
+        state.asked.push((args as { p_permission: string }).p_permission);
+        return { data: state.allowed && state.signedIn, error: null };
+      }
       state.rpcs.push({ name, args });
       return state.results[`rpc.${name}`] ?? { data: null, error: null };
     },
@@ -53,7 +60,9 @@ import {
 const ID = "11111111-1111-4111-8111-111111111111";
 
 beforeEach(() => {
-  state.role = "admin";
+  state.allowed = true;
+  state.signedIn = true;
+  state.asked = [];
   state.results = {};
   state.rpcs = [];
   state.signed = [];
@@ -69,15 +78,33 @@ describe("admin actions", () => {
     ["signedDocumentUrlAction", () => signedDocumentUrlAction(ID)],
     ["reviewTransferAction", () => reviewTransferAction({ transferId: ID, decision: "approved" })],
   ])("%s refuses a vendor without touching the database", async (_name, call) => {
-    state.role = "vendor";
+    state.allowed = false;
     const result = await call();
     expect(result.ok).toBe(false);
     expect(state.rpcs).toEqual([]);
     expect(state.signed).toEqual([]);
   });
 
+  it("refuses a demoted admin whose token still says admin", async () => {
+    state.allowed = false;
+    const result = await reviewProfileAction({ profileId: ID, decision: "approved" });
+    expect(result.ok).toBe(false);
+    expect(state.rpcs).toEqual([]);
+  });
+
+  it.each([
+    ["vendors.review", () => reviewProfileAction({ profileId: ID, decision: "approved" })],
+    ["documents.verify", () => verifyDocumentAction(ID, true)],
+    ["identity.reject", () => rejectIdentityAction({ accountId: ID, note: "Unreadable" })],
+    ["documents.verify", () => signedDocumentUrlAction(ID)],
+    ["transfers.review", () => reviewTransferAction({ transferId: ID, decision: "approved" })],
+  ])("asks for the %s permission", async (permission, call) => {
+    await call();
+    expect(state.asked).toEqual([permission]);
+  });
+
   it("refuses a signed-out caller", async () => {
-    state.role = null;
+    state.signedIn = false;
     const result = await reviewProfileAction({ profileId: ID, decision: "approved" });
     expect(result.ok).toBe(false);
     expect(state.rpcs).toEqual([]);
