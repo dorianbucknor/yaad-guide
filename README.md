@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YaadGuide
 
-## Getting Started
+Your Digital Travel Agent for Jamaica. YaadGuide is a multi-sided marketplace and itinerary planner for Free Independent Travelers. Travelers build itineraries across **MOVE** (transport), **STAY** (lodging) and **VIBE** (experiences and dining) and book them. Local vendors list services through a dashboard. All prices are in USD.
 
-First, run the development server:
+Status: v1 web app in progress. The landing page and a `/plan` stub are built; booking, vendor dashboard and payments are not.
+
+## Stack
+
+Next.js 16 (App Router, Cache Components), React, TypeScript (strict), Tailwind CSS v4, shadcn/ui on Base UI, react-hook-form + zod 4, zustand 5, Vitest. Planned: Supabase, WiPay, Vercel.
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | What it does |
+| --- | --- |
+| `npm run dev` | Dev server |
+| `npm run build` / `npm run start` | Production build and server |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run test` | Vitest |
+| `npm run images:landing` | Resize source images into `public/landing/` |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## What exists today
 
-## Learn More
+- **Landing page** (`/`): hero with the plane on the V-shaped photo edge, quick-start planner (dates, travelers, vehicle, area, interests), a scroll-driven route section, vendor call to action, app coming soon, footer.
+- **Trip draft**: the quick-start is validated with zod (`src/lib/schemas/quick-start.ts`) and saved in the browser under `yg-draft` (zustand `persist`).
+- **`/plan`**: stub page that reads the saved draft.
+- **`/auth/sign-in`, `/auth/vendor`**: placeholder pages.
+- Light and dark themes.
 
-To learn more about Next.js, take a look at the following resources:
+## Project layout
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/app/                 routes (/, /plan, /auth/*)
+src/components/landing/  landing sections
+src/components/plan/     plan page pieces
+src/components/ui/       shadcn/ui components (add via the shadcn CLI)
+src/lib/                 schemas, route geometry, formatting
+src/stores/              zustand draft store
+src/hooks/               scroll progress, media query, client-only helpers
+scripts/                 image preparation
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes for contributors
 
-## Deploy on Vercel
+- Cache Components is on. Anything reading dates or `localStorage` must render client-only (see `useIsClient`), or the production build fails.
+- Do not expose vendor contact details before a booking is confirmed. Fees and commissions come from configuration, never hard-coded.
+- Never commit secrets (Supabase service-role key, WiPay keys, Google API keys).
+- Commit, branch and PR rules are in the `conventions` skill (`.claude/skills/conventions`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Docs
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [`PRD.md`](PRD.md) product scope
+- [`ARCHITECTURE-ESSENTIAL.md`](ARCHITECTURE-ESSENTIAL.md) architecture digest, and [`ARCHITECTURE.md`](ARCHITECTURE.md) in full
+- [`DESIGN.md`](DESIGN.md) design system and open design decisions
+- [`AGENTS.md`](AGENTS.md) instructions for AI coding agents
