@@ -1,4 +1,4 @@
-Derived from ARCHITECTURE.md, updated 2026-11-05. It mirrors ARCHITECTURE.md: update it in the same change whenever ARCHITECTURE.md changes.
+Derived from ARCHITECTURE.md, updated 2026-11-06. It mirrors ARCHITECTURE.md: update it in the same change whenever ARCHITECTURE.md changes.
 
 # Architecture (essential)
 
@@ -36,7 +36,9 @@ Derived from ARCHITECTURE.md, updated 2026-11-05. It mirrors ARCHITECTURE.md: up
 - Brand primary is `#0A7A49`. Do not use it for text or borders on dark surfaces (2.76:1); use the dark-mode tokens.
 - Every Supabase table has row-level security.
 - All auth routes live under `/auth`. Vendor onboarding data is held in the browser until sign-up is confirmed, then added to the profile.
-- Roles are `traveler`, `vendor`, `admin`. `admin` is assigned in the database only.
+- Roles are `traveler`, `vendor`, `admin`. `admin` is assigned in the database only. The role lives in `profiles.role` and is mirrored into `app_metadata.role`; the only app path that changes it is `claim_vendor_role()` (traveler to vendor). Clients can write only name and photo on `profiles`.
+- `src/proxy.ts` refreshes the session and guards routes by role; server code reads claims with `getClaims()` and uses `getUser()` before sensitive changes.
+- Phone numbers are verified with Supabase's phone-change flow: vendors during onboarding, travelers before checkout; changing the number re-verifies.
 - One account (name, phone, email, government ID) can have up to three vendor profiles, one per category; unique on account plus category. Verification, listings, ratings and reviews are per vendor profile.
 - Vendors may build drafts while unverified; listings go live only after admin approval of that vendor profile.
 - Fees, commissions and sponsored pricing are configurable values, never hard-coded: planning fee US$20, MOVE commission 10%, STAY and VIBE commission 10% (placeholder), sponsored US$3.50 per week.
