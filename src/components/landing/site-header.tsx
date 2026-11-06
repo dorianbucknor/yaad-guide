@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { MenuIcon } from "lucide-react";
 
 import { Logo, Wordmark } from "@/components/landing/logo";
+import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -21,6 +22,8 @@ const NAV_LINKS = [
   { href: "#stay", label: "Stay" },
   { href: "#vibe", label: "Vibe" },
 ] as const;
+
+const VENDOR_CLASS = "font-bold text-brand-dark dark:text-foreground";
 
 export function SiteHeader(): React.JSX.Element {
   const [open, setOpen] = useState(false);
@@ -48,7 +51,7 @@ export function SiteHeader(): React.JSX.Element {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border bg-white dark:bg-background">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-3 focus:text-sm focus:font-medium focus:text-primary-foreground"
@@ -62,8 +65,8 @@ export function SiteHeader(): React.JSX.Element {
       */}
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 md:grid md:grid-cols-[1fr_auto_1fr] md:px-6">
         <Link href="/" aria-label="YaadGuide home" className="flex min-h-11 items-center gap-2 justify-self-start">
-          <Logo className="h-9 w-auto" />
-          <Wordmark className="text-xl md:text-2xl" />
+          <Logo className="h-7 w-auto" />
+          <Wordmark className="text-lg md:text-xl" />
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
@@ -74,13 +77,13 @@ export function SiteHeader(): React.JSX.Element {
           ))}
         </nav>
 
-        {/* Become a vendor is the filled button here; yellow stays reserved for the quick-start's Create itinerary. */}
+        {/* Sign in is the filled button; Become a vendor is a bold ghost link. Yellow stays reserved for the quick-start's Create itinerary. */}
         <div className="hidden items-center gap-1 justify-self-end md:flex">
-          <Link href="/auth/vendor" className={buttonVariants()}>
+          <Link href="/auth/vendor" className={buttonVariants({ variant: "ghost", className: VENDOR_CLASS })}>
             Become a vendor
           </Link>
           <ThemeToggle />
-          <Link href="/auth/sign-in" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/auth/sign-in" className={buttonVariants()}>
             Sign in
           </Link>
         </div>
@@ -109,10 +112,10 @@ export function SiteHeader(): React.JSX.Element {
                     {label}
                   </a>
                 ))}
-                <Link href="/auth/vendor" onClick={close} className={buttonVariants({ className: "mt-2" })}>
+                <Link href="/auth/vendor" onClick={close} className={buttonVariants({ variant: "ghost", className: cn(VENDOR_CLASS, "mt-2") })}>
                   Become a vendor
                 </Link>
-                <Link href="/auth/sign-in" onClick={close} className={buttonVariants({ variant: "outline" })}>
+                <Link href="/auth/sign-in" onClick={close} className={buttonVariants()}>
                   Sign in
                 </Link>
               </nav>
