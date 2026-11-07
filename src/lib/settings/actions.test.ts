@@ -4,7 +4,12 @@ type Identity = { provider: string };
 type Result = { data?: unknown; error?: { message: string; code?: string } | null };
 
 const state = vi.hoisted(() => ({
-  user: null as { id: string; email: string; identities: { provider: string }[] } | null,
+  user: null as {
+    id: string;
+    email: string;
+    identities: { provider: string }[];
+    app_metadata?: Record<string, unknown>;
+  } | null,
   signInError: null as { message: string; code?: string } | null,
   phoneVerified: true,
   calls: [] as string[],
@@ -213,6 +218,29 @@ describe("savePreferenceAction", () => {
     expect(state.upserts).toEqual([
       { account_id: "u1", category: "offers", channel: "email", enabled: true },
     ]);
+  });
+});
+
+describe("with an archived account", () => {
+  beforeEach(() => {
+    state.user = { ...passwordUser(["email"]), app_metadata: { archived: true } };
+  });
+
+  it.each([
+    ["changePassword", () => changePasswordAction({ ...newPassword, currentPassword: "x" })],
+    ["changeEmail", () => changeEmailAction({ email: "new@example.com" })],
+    ["signOutOthers", () => signOutOthersAction()],
+    ["archive", () => archiveAccountAction({ confirmation: "DELETE", password: "x" })],
+    ["savePreference", () => savePreferenceAction({ category: "offers", channel: "email", enabled: true })],
+  ])("%s is refused and changes nothing", async (_name, run) => {
+    const result = await run();
+    expect(result.ok).toBe(false);
+    expect(state.calls).toEqual(["getUser"]);
+  });
+
+  it("still lets the person restore or keep deleting", async () => {
+    expect((await restoreAccountAction()).ok).toBe(true);
+    expect((await keepDeletingAction()).ok).toBe(true);
   });
 });
 

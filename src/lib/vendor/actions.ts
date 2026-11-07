@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { ARCHIVED_MESSAGE, isArchivedUser } from "@/lib/auth/archived";
 import { fromZod, type ActionResult } from "@/lib/auth/result";
 import {
   businessSchema,
@@ -30,6 +31,7 @@ async function requireUser(): Promise<
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   if (!data.user) return { failure: { ok: false, error: SIGN_IN_AGAIN } };
+  if (isArchivedUser(data.user)) return { failure: { ok: false, error: ARCHIVED_MESSAGE } };
   return { supabase, userId: data.user.id };
 }
 

@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(18);
+select plan(20);
 
 insert into auth.users (id, aud, role, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000c1', 'authenticated', 'authenticated', 'c1@example.com', '{"first_name":"Cee","last_name":"One"}'),
@@ -11,6 +11,12 @@ insert into auth.users (id, aud, role, email, raw_user_meta_data) values
 insert into public.vendor_profiles (id, account_id, category, primary_region) values
   ('10000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000c1', 'move', 'St. Ann');
 update public.vendor_profiles set status = 'approved' where id = '10000000-0000-0000-0000-0000000000c1';
+
+-- c3 has a vendor profile and a vehicle, so deleting the user cascades through them.
+insert into public.vendor_profiles (id, account_id, category, primary_region) values
+  ('10000000-0000-0000-0000-0000000000c3', '00000000-0000-0000-0000-0000000000c3', 'move', 'Kingston');
+insert into public.vendor_vehicles (id, vendor_profile_id, vehicle_type, make, model, year, plate, passenger_capacity) values
+  ('20000000-0000-0000-0000-0000000000c3', '10000000-0000-0000-0000-0000000000c3', 'SUV', 'Toyota', 'Noah', 2020, 'ZZ0003', 7);
 
 -- Act as c1.
 set local role authenticated;
@@ -54,6 +60,21 @@ reset role;
 select is((select count(*)::int from public.audit_log
   where table_name = 'profiles' and row_id = '00000000-0000-0000-0000-0000000000c3'
     and (old_values is not null or new_values is not null)), 0, 'audit values for the account are blanked');
+
+-- Deleting the user writes fresh DELETE audit rows holding personal values.
+delete from auth.users where id = '00000000-0000-0000-0000-0000000000c3';
+select ok((select count(*) from public.audit_log
+  where table_name in ('profiles', 'vendor_profiles', 'vendor_vehicles')
+    and action = 'DELETE'
+    and row_id in ('00000000-0000-0000-0000-0000000000c3', '10000000-0000-0000-0000-0000000000c3', '20000000-0000-0000-0000-0000000000c3')
+    and old_values is not null) > 0, 'deleting the user leaves new audit rows with values');
+set local role service_role;
+select public.scrub_audit_for_account('00000000-0000-0000-0000-0000000000c3');
+reset role;
+select is((select count(*)::int from public.audit_log
+  where table_name in ('profiles', 'vendor_profiles', 'vendor_vehicles')
+    and row_id in ('00000000-0000-0000-0000-0000000000c3', '10000000-0000-0000-0000-0000000000c3', '20000000-0000-0000-0000-0000000000c3')
+    and (old_values is not null or new_values is not null)), 0, 'a scrub after the delete blanks those rows too');
 
 select * from finish();
 rollback;

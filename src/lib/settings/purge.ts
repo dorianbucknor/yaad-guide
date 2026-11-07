@@ -66,6 +66,11 @@ async function removeFolder(client: PurgeClient, bucket: string, prefix: string)
   }
 }
 
+async function scrubAudit(client: PurgeClient, id: string): Promise<void> {
+  const { error } = await client.rpc("scrub_audit_for_account", { p_account_id: id });
+  if (error) fail("Scrubbing audit rows failed", error);
+}
+
 async function purgeOne(client: PurgeClient, id: string): Promise<boolean> {
   // Re-check right before deleting: a restore may have raced the job.
   const { data: profile, error } = await client
@@ -77,15 +82,15 @@ async function purgeOne(client: PurgeClient, id: string): Promise<boolean> {
   if (!profile || profile.profile_status !== "archived" || !profile.archived_at) return false;
   if (Date.now() - new Date(profile.archived_at).getTime() < WINDOW_MS) return false;
 
-  const { error: scrubError } = await client.rpc("scrub_audit_for_account", {
-    p_account_id: id,
-  });
-  if (scrubError) fail("Scrubbing audit rows failed", scrubError);
+  await scrubAudit(client, id);
 
   for (const bucket of BUCKETS) await removeFolder(client, bucket, id);
 
   const { error: deleteError } = await client.auth.admin.deleteUser(id);
   if (deleteError) fail("Deleting the user failed", deleteError);
+
+  // The delete cascades and the audit triggers record the old values: scrub those too.
+  await scrubAudit(client, id);
   return true;
 }
 

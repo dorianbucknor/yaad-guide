@@ -77,6 +77,14 @@ describe("purgeArchivedAccounts", () => {
     expect(log.indexOf("rpc:scrub_audit_for_account:a1")).toBeLessThan(log.indexOf("deleteUser:a1"));
   });
 
+  it("scrubs the audit log again after the user is deleted", async () => {
+    const { client, log } = makeFake({ due: ["a1"], profiles: { a1: archived(8) } });
+    await purgeArchivedAccounts(client);
+    expect(log.lastIndexOf("rpc:scrub_audit_for_account:a1")).toBeGreaterThan(
+      log.indexOf("deleteUser:a1"),
+    );
+  });
+
   it("skips an account that is no longer archived", async () => {
     const { client, log } = makeFake({
       due: ["a1"],

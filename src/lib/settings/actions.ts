@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
+import { ARCHIVED_MESSAGE, isArchivedUser } from "@/lib/auth/archived";
 import { toAuthMessage } from "@/lib/auth/errors";
 import { fromZod, type ActionResult } from "@/lib/auth/result";
 import {
@@ -24,12 +25,16 @@ type SessionUser = { id: string; email: string | null; hasPassword: boolean };
 type Failure = { ok: false; error: string; fieldErrors?: Record<string, string> };
 
 /** Verifies the user with the server (not just the token). */
-async function requireUser(): Promise<
-  { supabase: Client; user: SessionUser } | { failure: Failure }
-> {
+async function requireUser(
+  allowArchived = false,
+): Promise<{ supabase: Client; user: SessionUser } | { failure: Failure }> {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   if (!data.user) return { failure: { ok: false, error: SIGN_IN_AGAIN } };
+  // Server actions are routed by id, not path, so the proxy cannot stop them.
+  if (!allowArchived && isArchivedUser(data.user)) {
+    return { failure: { ok: false, error: ARCHIVED_MESSAGE } };
+  }
   return {
     supabase,
     user: {
@@ -156,7 +161,7 @@ export async function archiveAccountAction(
 }
 
 export async function restoreAccountAction(): Promise<ActionResult> {
-  const session = await requireUser();
+  const session = await requireUser(true);
   if ("failure" in session) return session.failure;
 
   const { error } = await session.supabase.rpc("restore_account");
@@ -168,7 +173,7 @@ export async function restoreAccountAction(): Promise<ActionResult> {
 }
 
 export async function keepDeletingAction(): Promise<ActionResult> {
-  const session = await requireUser();
+  const session = await requireUser(true);
   if ("failure" in session) return session.failure;
   await session.supabase.auth.signOut({ scope: "global" });
   return { ok: true };
