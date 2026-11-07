@@ -25,10 +25,11 @@ Pillars: **STAY** (accommodation), **MOVE** (transport), **VIBE** (events, attra
 - One person, one login. The account holds name, phone, email and government ID, which are the same whatever they sell.
 - Up to three vendor profiles per account, one per category (MOVE, STAY or VIBE). Each profile has a category, a business name, its own verification status, its own listings, ratings and reviews. The rule is one profile per category per person, which also means a person can sign up for MOVE only once. The business name is optional and need not differ between profiles; uniqueness is on person plus category, not on the name.
 - Signs up with email/password or Google, with role `vendor`.
-- Starts from "Become a vendor" (`/auth/vendor`): fills in the information required for their vendor type, which is held in the browser, then signs up. Nothing is saved until sign-up is confirmed, and then it is added to their profile. TODO(bootstrap): fields per vendor type and handling of documents.
+- Starts from "Become a vendor" (`/auth/vendor`): creates the account (name, email, password or Google, phone, verified by a code), then completes a vendor profile in a stepped flow at `/vendor` that saves a draft at each step, so the vendor can leave and resume. The vendor submits the profile for review when every required item is in; it is locked while pending. A rejected profile shows the admin's reason and the vendor fixes and resubmits. Vendors see approval, rejection and reasons in the app; email notices come later (see Won't).
 - Builds draft listings before approval. Listings are visible and bookable only after an admin approves that vendor profile (approval is per profile, not per person).
 - Verification documents (reviewed manually by an admin):
-  - MOVE (drivers): JTB license, government ID, vehicle details, and both an insurance certificate and a fitness certificate. Vehicle types: Sedan, SUV, Minivan, Station Wagon/Hatchback, Bus, Coach.
+  - MOVE (drivers): JTB license, government ID, and at least one vehicle (type, make, model, year, plate, passenger capacity) with its own insurance certificate and fitness certificate. Vehicle types: Sedan, SUV, Minivan, Station Wagon/Hatchback, Bus, Coach. A driver can register several vehicles but operates one at a time; the active vehicle needs approved certificates. A plate is unique across the platform, and a vehicle changes owner only through a transfer that the new owner requests, the current owner agrees to, and an admin approves. The driver names a primary region, which is informational and never limits where they can work.
+  - Every document that lapses (JTB license, insurance, fitness certificate) is uploaded with its expiry date. Files are PDF, JPG or PNG, up to 5 MB, kept private and viewed by admins only.
   - STAY (hosts): government ID, proof of ownership or management, JTB license or registration; business registration optional. The host pins the property's exact location on a Google map (geopoint); the map appears only in that pin picker.
   - VIBE events: government ID and a JCF permit, required for every event for now. VIBE vendors also pin the venue's exact location on a map (geopoint).
   - VIBE attractions and dining: government ID, plus a business registration or permit where one applies (TODO(bootstrap): confirm what each needs).
@@ -82,7 +83,7 @@ Pillars: **STAY** (accommodation), **MOVE** (transport), **VIBE** (events, attra
 - **v3**: cruise port day-excursion planner, car-pooling and shared transit, OpenTable integration, native mobile apps, JTB API integration, PR and influencer tooling, flights and cruise tickets, car rental, all-inclusive packages.
 - **v3 (landing page upgrade)**: a 3D scene built with Three.js. A 3D cab that drives along the route as the visitor scrolls, and a 3D plane that flies in on page load, replacing the 2D PNG versions used in v1. Needs licensed 3D models (glTF) for both; v1 uses 2D images and an SVG path.
 - **v4**: external calendar sync (for example Airbnb iCal).
-- **Later**: in-app messaging between travelers and vendors; self-serve sponsored listing purchase.
+- **Later**: in-app messaging between travelers and vendors; self-serve sponsored listing purchase; transactional emails (vendor approval or rejection, document expiry reminders, booking notices), which need a transactional email provider and templates.
 - "Download the App" on the web is a "coming soon" placeholder in v1.
 
 ## Success criteria
