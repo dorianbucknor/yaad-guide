@@ -31,7 +31,7 @@ export async function updateProfileAction(input: unknown): Promise<ActionResult>
     return { ok: false, error: SAVE_FAILED };
   }
 
-  revalidatePath("/profile");
+  revalidatePath("/settings/personal");
   return { ok: true };
 }
 
@@ -55,6 +55,6 @@ export async function updateProfilePhotoAction(
     return { ok: false, error: SAVE_FAILED };
   }
 
-  revalidatePath("/profile");
+  revalidatePath("/settings/personal");
   return { ok: true };
 }

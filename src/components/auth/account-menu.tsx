@@ -36,7 +36,7 @@ export function AccountMenu({ viewer }: { viewer: HeaderViewer }): React.JSX.Ele
           <DropdownMenuLabel>{viewer.firstName}</DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/profile" />}>Profile</DropdownMenuItem>
+        <DropdownMenuItem render={<Link href="/settings" />}>Settings</DropdownMenuItem>
         {viewer.role !== "traveler" ? (
           <DropdownMenuItem render={<Link href="/vendor" />}>Vendor home</DropdownMenuItem>
         ) : null}
