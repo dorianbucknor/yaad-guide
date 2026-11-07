@@ -8,6 +8,7 @@ insert into auth.users (id, aud, role, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000c2', 'authenticated', 'authenticated', 'c2@example.com', '{}'),
   ('00000000-0000-0000-0000-0000000000c3', 'authenticated', 'authenticated', 'c3@example.com', '{}'),
   ('00000000-0000-0000-0000-0000000000c9', 'authenticated', 'authenticated', 'root@example.com', '{}');
+update public.profiles set role = 'admin' where id = '00000000-0000-0000-0000-0000000000c9';
 
 insert into public.vendor_profiles (id, account_id, category, primary_region, status) values
   ('11000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000c1', 'move', 'St. Ann', 'draft'),

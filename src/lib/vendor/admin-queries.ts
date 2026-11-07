@@ -37,9 +37,8 @@ export type AdminProfileDetail = {
 async function adminClient() {
   await connection();
   const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  if (data.user?.app_metadata?.role !== "admin") return null;
-  return supabase;
+  const { data: allowed } = await supabase.rpc("authorize", { p_permission: "vendors.review" });
+  return allowed === true ? supabase : null;
 }
 
 const fullName = (p: { first_name: string; last_name: string } | undefined): string =>

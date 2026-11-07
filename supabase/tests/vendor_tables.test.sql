@@ -7,6 +7,7 @@ insert into auth.users (id, aud, role, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000b1', 'authenticated', 'authenticated', 'v1@example.com', '{"first_name":"Vee","last_name":"One"}'),
   ('00000000-0000-0000-0000-0000000000b2', 'authenticated', 'authenticated', 'v2@example.com', '{"first_name":"Vee","last_name":"Two"}'),
   ('00000000-0000-0000-0000-0000000000b9', 'authenticated', 'authenticated', 'admin@example.com', '{}');
+update public.profiles set role = 'admin' where id = '00000000-0000-0000-0000-0000000000b9';
 
 -- Fixtures as superuser: a profile and a vehicle for each vendor.
 insert into public.vendor_profiles (id, account_id, category, primary_region) values
