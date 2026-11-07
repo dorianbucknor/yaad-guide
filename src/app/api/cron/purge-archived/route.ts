@@ -3,8 +3,6 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { purgeArchivedAccounts, type PurgeClient } from "@/lib/settings/purge";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export const dynamic = "force-dynamic";
-
 const sha256 = (value: string) => createHash("sha256").update(value).digest();
 
 function isAuthorized(header: string | null, secret: string): boolean {
