@@ -1,7 +1,12 @@
 import { safeNextPath } from "./next-path";
 
 export type Role = "traveler" | "vendor" | "admin";
-export type Viewer = { signedIn: boolean; role: Role; phoneVerified: boolean };
+export type Viewer = {
+  signedIn: boolean;
+  role: Role;
+  phoneVerified: boolean;
+  archived: boolean;
+};
 export type Decision =
   | { type: "allow" }
   | { type: "redirect"; to: string }
@@ -25,12 +30,14 @@ const AUTH_OPEN_WHEN_SIGNED_IN = [
   "/auth/error",
   "/auth/check-email",
   "/auth/vendor/complete",
+  "/auth/restore",
+  "/auth/archived",
 ];
 
 // Auth routes that need a session even though they live under /auth.
-const AUTH_NEEDS_SESSION = ["/auth/phone", "/auth/vendor/complete"];
+const AUTH_NEEDS_SESSION = ["/auth/phone", "/auth/vendor/complete", "/auth/restore"];
 
-const NEEDS_SESSION = ["/profile", "/plan/checkout", "/vendor", "/admin"];
+const NEEDS_SESSION = ["/profile", "/settings", "/plan/checkout", "/vendor", "/admin"];
 
 /**
  * Next routes on the decoded path, so match on it too: `/vend%6Fr` must be
@@ -63,6 +70,13 @@ export function decideAccess(
       isUnder(pathname, base),
     );
     return protectedPath ? signInRedirect : allow;
+  }
+
+  // An archived account can reach only the restore page.
+  if (viewer.archived) {
+    return isUnder(pathname, "/auth/restore")
+      ? allow
+      : { type: "redirect", to: "/auth/restore" };
   }
 
   if (isUnder(pathname, "/admin")) {
