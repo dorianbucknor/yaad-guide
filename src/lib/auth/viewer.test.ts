@@ -8,6 +8,7 @@ describe("getViewer", () => {
       signedIn: false,
       role: "traveler",
       phoneVerified: false,
+      archived: false,
     });
   });
 
@@ -17,6 +18,7 @@ describe("getViewer", () => {
       signedIn: true,
       role: "vendor",
       phoneVerified: false,
+      archived: false,
     });
   });
 
@@ -35,5 +37,12 @@ describe("getViewer", () => {
       true,
     );
     expect(getViewer({ sub: "u1", phone: "" }).phoneVerified).toBe(false);
+  });
+
+  it("reads the archived flag only when it is exactly true", () => {
+    expect(getViewer({ sub: "u1", app_metadata: { archived: true } }).archived).toBe(true);
+    expect(getViewer({ sub: "u1", app_metadata: { archived: "true" } }).archived).toBe(false);
+    expect(getViewer({ sub: "u1", app_metadata: {} }).archived).toBe(false);
+    expect(getViewer({ sub: "u1" }).archived).toBe(false);
   });
 });

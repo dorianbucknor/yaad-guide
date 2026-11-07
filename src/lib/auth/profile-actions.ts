@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { profileSchema } from "@/lib/schemas/auth";
 import { createClient } from "@/lib/supabase/server";
 
+import { ARCHIVED_MESSAGE, isArchivedUser } from "./archived";
 import { isOwnAvatarPath } from "./avatar";
 import { fromZod, type ActionResult } from "./result";
 
@@ -18,6 +19,7 @@ export async function updateProfileAction(input: unknown): Promise<ActionResult>
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   if (!data.user) return { ok: false, error: SIGN_IN_AGAIN };
+  if (isArchivedUser(data.user)) return { ok: false, error: ARCHIVED_MESSAGE };
 
   const { error } = await supabase
     .from("profiles")
@@ -31,7 +33,7 @@ export async function updateProfileAction(input: unknown): Promise<ActionResult>
     return { ok: false, error: SAVE_FAILED };
   }
 
-  revalidatePath("/profile");
+  revalidatePath("/settings/personal");
   return { ok: true };
 }
 
@@ -42,6 +44,7 @@ export async function updateProfilePhotoAction(
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
   if (!data.user) return { ok: false, error: SIGN_IN_AGAIN };
+  if (isArchivedUser(data.user)) return { ok: false, error: ARCHIVED_MESSAGE };
   if (path !== null && !isOwnAvatarPath(path, data.user.id)) {
     return { ok: false, error: "That photo path is not allowed." };
   }
@@ -55,6 +58,6 @@ export async function updateProfilePhotoAction(
     return { ok: false, error: SAVE_FAILED };
   }
 
-  revalidatePath("/profile");
+  revalidatePath("/settings/personal");
   return { ok: true };
 }

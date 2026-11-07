@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { decideAccess, type Decision, type Viewer } from "./guard";
 
-const guest: Viewer = { signedIn: false, role: "traveler", phoneVerified: false };
-const traveler: Viewer = { signedIn: true, role: "traveler", phoneVerified: false };
+const guest: Viewer = { signedIn: false, role: "traveler", phoneVerified: false, archived: false };
+const traveler: Viewer = { signedIn: true, role: "traveler", phoneVerified: false, archived: false };
 const verifiedTraveler: Viewer = { ...traveler, phoneVerified: true };
-const vendor: Viewer = { signedIn: true, role: "vendor", phoneVerified: true };
-const admin: Viewer = { signedIn: true, role: "admin", phoneVerified: true };
+const vendor: Viewer = { signedIn: true, role: "vendor", phoneVerified: true, archived: false };
+const admin: Viewer = { signedIn: true, role: "admin", phoneVerified: true, archived: false };
+const archivedTraveler: Viewer = { ...traveler, archived: true };
 
 const allow: Decision = { type: "allow" };
 const forbidden: Decision = { type: "forbidden" };
@@ -51,6 +52,21 @@ const rows: Row[] = [
   ["/vendor/", traveler, undefined, forbidden],
   ["/pro%66ile", guest, undefined, redirect("/auth/sign-in?next=%2Fprofile")],
   ["/%E0%A4%A", guest, undefined, allow],
+  ["/", archivedTraveler, undefined, redirect("/auth/restore")],
+  ["/settings/security", archivedTraveler, undefined, redirect("/auth/restore")],
+  ["/plan", archivedTraveler, undefined, redirect("/auth/restore")],
+  ["/auth/sign-in", archivedTraveler, undefined, redirect("/auth/restore")],
+  ["/vend%6Fr", archivedTraveler, undefined, redirect("/auth/restore")],
+  ["//settings", archivedTraveler, undefined, redirect("/auth/restore")],
+  ["/auth/archived", archivedTraveler, undefined, redirect("/auth/restore")],
+  ["/auth/restore", archivedTraveler, undefined, allow],
+  ["/auth/restore", guest, undefined, redirect("/auth/sign-in?next=%2Fauth%2Frestore")],
+  ["/auth/restore", traveler, undefined, allow],
+  ["/auth/archived", guest, undefined, allow],
+  ["/auth/archived", traveler, undefined, allow],
+  ["/settings", guest, undefined, redirect("/auth/sign-in?next=%2Fsettings")],
+  ["/settings/security", guest, undefined, redirect("/auth/sign-in?next=%2Fsettings%2Fsecurity")],
+  ["/settings/security", traveler, undefined, allow],
 ];
 
 describe("decideAccess", () => {

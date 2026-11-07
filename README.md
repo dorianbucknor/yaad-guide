@@ -17,7 +17,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-Auth needs a Supabase project. Copy `.env.example` to `.env.local` and fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (never the service-role key). In the Supabase dashboard: turn on **Confirm email**, enable the Google provider, enable the Phone provider and add test phone numbers (real SMS needs a provider), and add `http://localhost:3000/**` to the redirect URLs. Migrations are in `supabase/migrations/` (profiles, audit log, avatars, then the three vendor onboarding migrations); apply them with `npx supabase db push` after review. `npx supabase test db` runs the SQL tests against a local stack (needs Docker).
+Auth needs a Supabase project. Copy `.env.example` to `.env.local` and fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (never the service-role key in these). In the Supabase dashboard: turn on **Confirm email**, enable the Google provider, enable the Phone provider and add test phone numbers (real SMS needs a provider), and add `http://localhost:3000/**` to the redirect URLs. Migrations are in `supabase/migrations/` (profiles, audit log, avatars, the three vendor onboarding migrations, permissions, then the two account settings migrations); apply them with `npx supabase db push` after review. `npx supabase test db` runs the SQL tests against a local stack (needs Docker).
 
 | Script | What it does |
 | --- | --- |
@@ -33,8 +33,9 @@ Auth needs a Supabase project. Copy `.env.example` to `.env.local` and fill in `
 - **Landing page** (`/`): hero with the plane on the V-shaped photo edge, quick-start planner (dates, travelers, vehicle, area, interests), a scroll-driven route section, vendor call to action, app coming soon, footer.
 - **Trip draft**: the quick-start is validated with zod (`src/lib/schemas/quick-start.ts`) and saved in the browser under `yg-draft` (zustand `persist`).
 - **`/plan`**: stub page that reads the saved draft.
-- **Auth** (`/auth/*`): email/password and Google sign-in and sign-up, email confirmation, password reset, phone verification, and vendor sign-up (`/auth/vendor`). Roles are `traveler`, `vendor` and `admin`; `src/proxy.ts` guards `/profile`, `/plan/checkout`, `/vendor` and `/admin`.
-- **`/profile`**: name, phone and profile photo.
+- **Auth** (`/auth/*`): email/password and Google sign-in and sign-up, email confirmation, password reset, phone verification, and vendor sign-up (`/auth/vendor`). Roles are `traveler`, `vendor` and `admin`; `src/proxy.ts` guards `/settings`, `/plan/checkout`, `/vendor` and `/admin`.
+- **Settings** (`/settings`): Personal info (name, phone, photo), Security (sign-in methods, change password, change email, sign out other devices, delete account) and Notifications (email and text switches per category; stored now, sent when each feature starts sending). `/profile` redirects to it.
+- **Delete and restore**: deleting an account archives it and hides it at once; signing in within 7 days offers a restore (`/auth/restore`). A daily job (`/api/cron/purge-archived`, scheduled in `vercel.json`) then deletes it for good. It needs two server-only environment variables, never committed: `SUPABASE_SERVICE_ROLE_KEY` (the Supabase secret key; `SUPABASE_SECRET_KEY` also works) and `CRON_SECRET` (the job only runs for requests that send it as a bearer token).
 - **Vendor onboarding** (`/vendor`): a MOVE vendor completes business details, vehicles and documents (with expiry dates) in steps that save as a draft, then submits for review. Documents are stored privately and viewed by admins only. Vehicles can change owner through a transfer that the new owner requests, the current owner agrees to, and an admin approves.
 - **Admin review** (`/admin/vendors`): a queue of submitted profiles, a document viewer, approve or reject with a reason, and transfer approval. `admin` is granted in the database only.
 - Light and dark themes.

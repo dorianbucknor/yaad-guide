@@ -8,16 +8,18 @@ function parseRole(value: unknown): Role {
 
 export function getViewer(claims: Record<string, unknown> | null): Viewer {
   if (!claims) {
-    return { signedIn: false, role: "traveler", phoneVerified: false };
+    return { signedIn: false, role: "traveler", phoneVerified: false, archived: false };
   }
   const appMetadata = claims.app_metadata;
-  const role =
+  const meta =
     appMetadata && typeof appMetadata === "object"
-      ? parseRole((appMetadata as Record<string, unknown>).role)
-      : "traveler";
+      ? (appMetadata as Record<string, unknown>)
+      : {};
+  const role = parseRole(meta.role);
   return {
     signedIn: true,
     role,
     phoneVerified: typeof claims.phone === "string" && claims.phone !== "",
+    archived: meta.archived === true,
   };
 }
