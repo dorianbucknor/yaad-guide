@@ -1,15 +1,6 @@
-import { createHash, timingSafeEqual } from "node:crypto";
-
+import { isCronAuthorized } from "@/lib/cron/auth";
 import { purgeArchivedAccounts, type PurgeClient } from "@/lib/settings/purge";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-const sha256 = (value: string) => createHash("sha256").update(value).digest();
-
-function isAuthorized(header: string | null, secret: string): boolean {
-  if (!header) return false;
-  // Hash both sides so the buffers match in length for the constant-time compare.
-  return timingSafeEqual(sha256(header), sha256(`Bearer ${secret}`));
-}
 
 /** Daily job (Vercel cron): permanently deletes accounts archived more than seven days ago. */
 export async function GET(request: Request) {
@@ -18,7 +9,7 @@ export async function GET(request: Request) {
     console.error("Purge refused: CRON_SECRET is not set");
     return Response.json({ error: "Not configured" }, { status: 500 });
   }
-  if (!isAuthorized(request.headers.get("authorization"), secret)) {
+  if (!isCronAuthorized(request.headers.get("authorization"), secret)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
