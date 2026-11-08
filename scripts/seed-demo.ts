@@ -46,7 +46,7 @@ async function clearDemoUsers() {
   }
 }
 
-async function createUser(first: string, last: string, role: "vendor" | "traveler", n: number) {
+async function createUser(first: string, last: string, role: "vendor" | "traveler" | "admin", n: number) {
   const email = `${role}${n}${DEMO_DOMAIN}`;
   const created = await db.auth.admin.createUser({
     email,
@@ -299,8 +299,34 @@ async function main() {
   }
   must(await db.from("move_requests").insert(rows).select("id"), "requests");
 
+  // Something for the admin queue: an admin, a vendor waiting for approval and a place suggestion.
+  await createUser("Ada", "Admin", "admin", 1);
+  const waiting = await createUser(faker.person.firstName(), faker.person.lastName(), "vendor", 7);
+  must(
+    await db
+      .from("vendor_profiles")
+      .insert({
+        account_id: waiting.id,
+        category: "move",
+        business_name: `${faker.person.lastName()} Tours`,
+        primary_region: "Portland",
+        status: "pending",
+        submitted_at: new Date(now - 3 * DAY).toISOString(),
+      })
+      .select("id"),
+    "pending vendor",
+  );
+  // Flags need no seeding: adding rates to a live listing already raised price flags.
+  must(
+    await db
+      .from("place_suggestions")
+      .insert({ vendor_profile_id: live[0].profileId, name: "Robins Bay", note: "Near Port Maria, popular with day trippers." })
+      .select("id"),
+    "place suggestion",
+  );
+
   console.log(`Seeded ${vendors.length} vendors and ${rows.length} requests.`);
-  console.log(`Sign in as vendor1${DEMO_DOMAIN} (busiest) to vendor6${DEMO_DOMAIN}. Password: ${PASSWORD}`);
+  console.log(`Sign in as vendor1${DEMO_DOMAIN} (busiest) to vendor6${DEMO_DOMAIN}, or admin1${DEMO_DOMAIN}. Password: ${PASSWORD}`);
 }
 
 main().catch((error) => {

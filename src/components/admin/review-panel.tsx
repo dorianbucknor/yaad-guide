@@ -36,7 +36,7 @@ export function ReviewPanel({
       const result = await reviewProfileAction({ profileId, decision, note });
       if (result.ok) {
         toast.success(decision === "approved" ? "Approved" : "Rejected");
-        router.push("/admin/vendors");
+        router.push("/admin");
         router.refresh();
       } else {
         setError(result.fieldErrors?.note ?? result.error);

@@ -240,3 +240,16 @@
     @apply font-heading;
   }
 }
+
+/* Dashboard shell (vendor and admin): a deep forest rail in light mode, as in dark mode. */
+[data-shell] {
+  --sidebar: oklch(0.268 0.057 160); /* #042E1C */
+  --sidebar-foreground: oklch(0.98 0.007 164.9);
+  --sidebar-accent: oklch(0.875 0.051 166); /* #B7E1CE: the current page */
+  --sidebar-accent-foreground: oklch(0.268 0.057 160);
+  --sidebar-border: oklch(0.365 0.073 161.4);
+  --sidebar-ring: oklch(0.875 0.051 166);
+}
+.dark [data-shell] {
+  --sidebar: oklch(0.24 0.046 165.9);
+}

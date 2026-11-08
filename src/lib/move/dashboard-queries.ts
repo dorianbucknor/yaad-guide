@@ -60,3 +60,25 @@ export async function getDashboard(): Promise<DashboardData> {
   }));
   return buildDashboard(rows, now);
 }
+
+/** How many requests are waiting on the signed-in vendor and not yet past their deadline. */
+export async function getPendingRequestCount(): Promise<number> {
+  await connection();
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return 0;
+  const { data: profile } = await supabase
+    .from("vendor_profiles")
+    .select("id")
+    .eq("account_id", auth.user.id)
+    .eq("category", "move")
+    .maybeSingle();
+  if (!profile) return 0;
+  const { count } = await supabase
+    .from("move_requests")
+    .select("id", { count: "exact", head: true })
+    .eq("vendor_profile_id", profile.id)
+    .eq("status", "pending")
+    .gt("respond_by", new Date().toISOString());
+  return count ?? 0;
+}

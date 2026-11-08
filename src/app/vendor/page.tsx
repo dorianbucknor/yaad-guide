@@ -3,8 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { Dashboard } from "@/components/move/dashboard/dashboard";
-import { PillNav } from "@/components/move/dashboard/pill-nav";
+import { serverNow } from "@/lib/server-time";
+
+import { HomeBoard } from "@/components/move/board/home-board";
 import { Checklist } from "@/components/vendor/checklist";
 import { StatusBanner } from "@/components/vendor/status-banner";
 import { TransferInbox } from "@/components/vendor/transfer-inbox";
@@ -25,23 +26,14 @@ async function MoveHome(): Promise<React.JSX.Element> {
   const listing = view?.listing ?? null;
   const served = listing?.islandWide ? places : places.filter((p) => view?.placeIds.includes(p.id));
   return (
-    <div className="flex flex-col gap-6">
-      <PillNav current="overview" />
-      <Dashboard
-        data={data}
-        places={served}
-        stepsLeft={view?.readiness.missing.length ?? 0}
-        listingLive={listing?.status === "live"}
-      />
-      <div className="flex flex-wrap gap-2">
-        <Link href="/vendor/onboarding/documents" className={buttonVariants({ variant: "outline" })}>
-          Vehicles and documents
-        </Link>
-        <Link href="/profile" className={buttonVariants({ variant: "outline" })}>
-          Your profile
-        </Link>
-      </div>
-    </div>
+    <HomeBoard
+      data={data}
+      places={served}
+      nowMs={serverNow()}
+      stepsLeft={view?.readiness.missing.length ?? 0}
+      listingLive={listing?.status === "live"}
+      listingPaused={listing?.paused ?? false}
+    />
   );
 }
 
@@ -82,10 +74,8 @@ async function VendorHub(): Promise<React.JSX.Element> {
 export default function Page(): React.JSX.Element {
   return (
     <VendorPage
-      title="Vendor home"
-      description="Your driver profile, requests and listing in one place."
-      backHref="/"
-      backLabel="Home"
+      title="Home"
+      description="Answer requests before they expire and keep your listing ready."
       full
     >
       <Suspense

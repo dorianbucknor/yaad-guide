@@ -16,7 +16,7 @@ const FLAG_LABEL: Record<string, string> = {
   profile_photo: "Profile photo changed",
 };
 
-function ListingCard({ listing }: { listing: ReviewListing }): React.JSX.Element {
+export function ListingCard({ listing }: { listing: ReviewListing }): React.JSX.Element {
   const { pending, run } = useSave();
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -78,8 +78,25 @@ function ListingCard({ listing }: { listing: ReviewListing }): React.JSX.Element
   );
 }
 
-export function ListingReview({ listings, flags }: { listings: ReviewListing[]; flags: OpenFlag[] }): React.JSX.Element {
+/** One change on a live listing, with the button that clears it. */
+export function FlagRow({ flag }: { flag: OpenFlag }): React.JSX.Element {
   const { pending, run } = useSave();
+  return (
+    <li className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+      <div className="flex flex-col gap-1">
+        <span className="font-medium">{flag.businessName}</span>
+        <Badge variant="outline" className="self-start">
+          {FLAG_LABEL[flag.kind] ?? flag.kind}
+        </Badge>
+      </div>
+      <Button type="button" size="sm" variant="outline" disabled={pending} onClick={() => run(() => resolveFlagAction(flag.id), { success: "Flag resolved" })}>
+        Mark checked
+      </Button>
+    </li>
+  );
+}
+
+export function ListingReview({ listings, flags }: { listings: ReviewListing[]; flags: OpenFlag[] }): React.JSX.Element {
   return (
     <div className="flex flex-col gap-12">
       <section aria-labelledby="queue-heading" className="flex flex-col gap-4">
@@ -101,17 +118,7 @@ export function ListingReview({ listings, flags }: { listings: ReviewListing[]; 
         {flags.length === 0 ? <p className="text-muted-foreground">No open flags.</p> : null}
         <ul className="flex flex-col gap-2">
           {flags.map((f) => (
-            <li key={f.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
-              <div className="flex flex-col gap-1">
-                <span className="font-medium">{f.businessName}</span>
-                <Badge variant="outline" className="self-start">
-                  {FLAG_LABEL[f.kind] ?? f.kind}
-                </Badge>
-              </div>
-              <Button type="button" size="sm" variant="outline" disabled={pending} onClick={() => run(() => resolveFlagAction(f.id), { success: "Flag resolved" })}>
-                Mark checked
-              </Button>
-            </li>
+            <FlagRow key={f.id} flag={f} />
           ))}
         </ul>
       </section>
