@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { ListingTabs, LISTING_TABS, type ListingTab } from "@/components/move/listing-tabs";
+import { PillNav } from "@/components/move/dashboard/pill-nav";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getMyListing, getPlaces } from "@/lib/move/queries";
@@ -35,6 +36,7 @@ export default function Page({
       description="Set your prices, the places you serve and your hours. Send it for review when the list is complete."
       wide
     >
+      <PillNav current="listing" />
       <Suspense fallback={<Skeleton className="h-96 w-full rounded-2xl" aria-busy="true" />}>
         <Editor searchParams={searchParams} />
       </Suspense>

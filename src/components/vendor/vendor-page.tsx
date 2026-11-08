@@ -10,6 +10,7 @@ export function VendorPage({
   backHref = "/vendor",
   backLabel = "Vendor home",
   wide = false,
+  full = false,
   children,
 }: {
   title: string;
@@ -17,12 +18,13 @@ export function VendorPage({
   backHref?: string;
   backLabel?: string;
   wide?: boolean;
+  full?: boolean;
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
     <main className={cn(
         "mx-auto flex min-h-dvh w-full flex-col gap-8 px-4 py-10 md:py-16",
-        wide ? "max-w-4xl" : "max-w-2xl",
+        full ? "max-w-6xl" : wide ? "max-w-4xl" : "max-w-2xl",
       )}>
       <div className="flex flex-col gap-3">
         <div>

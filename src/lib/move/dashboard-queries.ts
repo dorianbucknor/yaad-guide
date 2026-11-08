@@ -2,7 +2,6 @@ import { connection } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 
-import { MOVE_CONFIG } from "./config";
 import { buildDashboard, type DashboardData, type RequestRow } from "./dashboard";
 import { DAY_MS } from "./time";
 import type { Currency } from "./types";
@@ -16,13 +15,14 @@ const nameOf = (value: Joined) => (Array.isArray(value) ? value[0]?.name : value
 export async function getDashboard(): Promise<DashboardData> {
   await connection();
   const now = new Date();
-  const since = new Date(now.getTime() - MOVE_CONFIG.responseRateDays * DAY_MS).toISOString();
+  // A year back, for the earnings periods; the response rate and counts use shorter windows.
+  const since = new Date(now.getTime() - 365 * DAY_MS).toISOString();
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("move_requests")
     .select(
-      "id, status, created_at, respond_by, responded_at, pickup_at, party_size, traveler_first_name, quoted_amount, quoted_currency, pickup:places!pickup_place_id(name), dropoff:places!dropoff_place_id(name)",
+      "id, status, created_at, respond_by, responded_at, pickup_at, pickup_place_id, dropoff_place_id, party_size, traveler_first_name, quoted_amount, quoted_currency, pickup:places!pickup_place_id(name), dropoff:places!dropoff_place_id(name)",
     )
     .or(`created_at.gte.${since},status.in.(pending,accepted)`)
     .order("pickup_at", { ascending: true });
@@ -35,6 +35,8 @@ export async function getDashboard(): Promise<DashboardData> {
     respondBy: r.respond_by,
     respondedAt: r.responded_at,
     pickupAt: r.pickup_at,
+    pickupId: r.pickup_place_id,
+    dropoffId: r.dropoff_place_id,
     pickupName: nameOf(r.pickup as Joined),
     dropoffName: nameOf(r.dropoff as Joined),
     partySize: r.party_size,

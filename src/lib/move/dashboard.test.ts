@@ -12,6 +12,8 @@ const row = (over: Partial<RequestRow>): RequestRow => ({
   respondBy: hours(5),
   respondedAt: null,
   pickupAt: hours(30),
+  pickupId: "p1",
+  dropoffId: "p2",
   pickupName: "Montego Bay Airport",
   dropoffName: "Negril",
   partySize: 2,
@@ -54,6 +56,8 @@ describe("buildDashboard", () => {
         row({ status: "accepted", pickupAt: hours(24), amount: 80 }),
         row({ status: "completed", pickupAt: hours(-24), amount: 50 }),
         row({ status: "completed", pickupAt: hours(-24 * 20), amount: 20 }),
+        row({ status: "completed", pickupAt: hours(-24 * 100), amount: 10 }),
+        row({ status: "completed", pickupAt: hours(-24 * 300), amount: 5 }),
         row({ status: "declined", amount: 999 }),
         row({ status: "completed", pickupAt: hours(-24), amount: 7000, currency: "jmd" }),
       ],
@@ -62,6 +66,8 @@ describe("buildDashboard", () => {
     expect(data.earnings.upcoming).toEqual({ usd: 80, jmd: 0 });
     expect(data.earnings.last7Days).toEqual({ usd: 50, jmd: 7000 });
     expect(data.earnings.last30Days).toEqual({ usd: 70, jmd: 7000 });
+    expect(data.earnings.last180Days).toEqual({ usd: 80, jmd: 7000 });
+    expect(data.earnings.last365Days).toEqual({ usd: 85, jmd: 7000 });
   });
 
   it("has no response rate under five requests", () => {

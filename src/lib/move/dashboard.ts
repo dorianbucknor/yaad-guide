@@ -11,6 +11,8 @@ export type RequestRow = {
   respondBy: string;
   respondedAt: string | null;
   pickupAt: string;
+  pickupId: string;
+  dropoffId: string;
   pickupName: string;
   dropoffName: string;
   partySize: number;
@@ -28,7 +30,7 @@ export type DashboardData = {
   counts: Record<RequestStatus, number>;
   answeredSeries: { day: string; received: number; inTime: number }[];
   responseRate: number | null;
-  earnings: { upcoming: Money; last7Days: Money; last30Days: Money };
+  earnings: Record<"upcoming" | "last7Days" | "last30Days" | "last180Days" | "last365Days", Money>;
 };
 
 const STATUSES: RequestStatus[] = ["pending", "accepted", "declined", "expired", "completed", "cancelled"];
@@ -45,6 +47,8 @@ export function buildDashboard(rows: readonly RequestRow[], now: Date): Dashboar
   const requests = rows.map((r) => ({ ...r, status: effectiveStatus(r, now) }));
   const since30 = now.getTime() - 30 * DAY_MS;
   const since7 = now.getTime() - 7 * DAY_MS;
+  const since180 = now.getTime() - 180 * DAY_MS;
+  const since365 = now.getTime() - 365 * DAY_MS;
 
   const counts = zeroCounts();
   for (const r of requests) if (new Date(r.createdAt).getTime() >= since30) counts[r.status] += 1;
@@ -61,14 +65,23 @@ export function buildDashboard(rows: readonly RequestRow[], now: Date): Dashboar
     if (r.respondedAt && new Date(r.respondedAt) <= new Date(r.respondBy)) bucket.inTime += 1;
   }
 
-  const earnings = { upcoming: zeroMoney(), last7Days: zeroMoney(), last30Days: zeroMoney() };
+  const earnings: DashboardData["earnings"] = {
+    upcoming: zeroMoney(),
+    last7Days: zeroMoney(),
+    last30Days: zeroMoney(),
+    last180Days: zeroMoney(),
+    last365Days: zeroMoney(),
+  };
   for (const r of requests) {
     if (r.amount === null || r.currency === null) continue;
     const pickup = new Date(r.pickupAt).getTime();
     if (r.status === "accepted" && pickup >= now.getTime()) earnings.upcoming[r.currency] += r.amount;
     if (r.status === "completed" || r.status === "accepted") {
-      if (pickup <= now.getTime() && pickup >= since30) earnings.last30Days[r.currency] += r.amount;
-      if (pickup <= now.getTime() && pickup >= since7) earnings.last7Days[r.currency] += r.amount;
+      if (pickup > now.getTime()) continue;
+      if (pickup >= since365) earnings.last365Days[r.currency] += r.amount;
+      if (pickup >= since180) earnings.last180Days[r.currency] += r.amount;
+      if (pickup >= since30) earnings.last30Days[r.currency] += r.amount;
+      if (pickup >= since7) earnings.last7Days[r.currency] += r.amount;
     }
   }
 
