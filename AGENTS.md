@@ -26,7 +26,7 @@ YaadGuide ("Your Digital Travel Agent") is a multi-sided marketplace and itinera
 
 - TypeScript `strict`, App Router, server components by default. Use the `@/*` alias for imports from `src/`.
 - UI uses shadcn/ui components from `src/components/ui/`. Add new ones with the shadcn CLI or its MCP server, not by hand.
-- All prices are USD. Fees, commissions and sponsored pricing come from configuration, never hard-coded.
+- Vendors price in USD or JMD (the entered amount is the source of truth); fixed YaadGuide amounts are USD. Fees, commissions and sponsored pricing come from configuration, never hard-coded.
 - Commit, branch and PR rules live in the `conventions` skill.
 - TODO(bootstrap): naming and file layout beyond the above are not decided.
 
