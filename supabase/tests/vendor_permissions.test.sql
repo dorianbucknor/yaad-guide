@@ -13,9 +13,9 @@ update public.profiles set role = 'vendor' where id = '00000000-0000-0000-0000-0
 insert into public.vendor_profiles (id, account_id, category, primary_region) values
   ('13000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-0000000000e2', 'move', 'Kingston');
 
-select is((select count(*) from public.permissions), 6::bigint, 'six permissions exist');
-select is((select count(*) from public.role_permissions where role = 'admin'), 6::bigint,
-  'admin holds all six');
+select is((select count(*) from public.permissions), 8::bigint, 'eight permissions exist');
+select is((select count(*) from public.role_permissions where role = 'admin'), 8::bigint,
+  'admin holds all eight');
 select is((select count(*) from public.role_permissions where role in ('traveler', 'vendor')), 0::bigint,
   'travelers and vendors hold none');
 
