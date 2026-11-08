@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { ARCHIVED_MESSAGE, isArchivedUser } from "@/lib/auth/archived";
+import { GENERIC, failure, requireUser } from "@/lib/auth/action-helpers";
 import { fromZod, type ActionResult } from "@/lib/auth/result";
 import {
   businessSchema,
@@ -15,34 +15,12 @@ import { createClient } from "@/lib/supabase/server";
 
 import { isOwnDocumentPath } from "./documents";
 
-const SIGN_IN_AGAIN = "Please sign in again to continue.";
-const GENERIC = "Something went wrong. Please try again.";
 const NEED_BUSINESS = "Save your business details first.";
 const BAD_PATH = "That file path is not allowed.";
 const DUPLICATE_PLATE =
   "That plate is already registered. If it is your vehicle, request a transfer.";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
-type Failure = { ok: false; error: string; fieldErrors?: Record<string, string> };
-
-async function requireUser(): Promise<
-  { supabase: Client; userId: string } | { failure: Failure }
-> {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) return { failure: { ok: false, error: SIGN_IN_AGAIN } };
-  if (isArchivedUser(data.user)) return { failure: { ok: false, error: ARCHIVED_MESSAGE } };
-  return { supabase, userId: data.user.id };
-}
-
-/** Our own database functions raise P0001 with a message meant for the vendor. */
-function failure(context: string, error: { message: string; code?: string }): Failure {
-  console.error(`${context}: ${error.message}`);
-  if (error.code === "P0001") return { ok: false, error: error.message };
-  if (error.code === "42501") return { ok: false, error: "You can't do that." };
-  if (error.code === "P0002") return { ok: false, error: "We couldn't find that." };
-  return { ok: false, error: GENERIC };
-}
 
 async function moveProfileId(supabase: Client, userId: string): Promise<string | null> {
   const { data } = await supabase

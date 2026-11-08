@@ -4,7 +4,7 @@
 // Run: node scripts/build-place-routes.ts
 import { readFileSync, writeFileSync } from "node:fs";
 
-import { estimateRoute } from "../src/lib/move/distance.ts";
+import { estimateRoute } from "../src/lib/move/distance";
 
 const source = readFileSync("supabase/migrations/20261109000100_places.sql", "utf8");
 const rows = [
