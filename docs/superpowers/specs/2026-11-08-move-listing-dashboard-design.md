@@ -134,7 +134,7 @@ Layout (desktop, then single column on mobile):
 [ Requests table + filter pills           ][ Earnings (gradient)     ]
 ```
 
-- **Map hero:** MapLibre GL with OpenFreeMap tiles (no key). The map shows the vendor's covered places as pins and pending request routes as lines; pin selection highlights the table row. One `DashboardMap` component with props `pins`, `routes`, `activePinId`, `onSelect`, so the `region-map-kit` can replace it. Loaded client-side with `next/dynamic`, with a fixed-height skeleton. Style: pick the closest dark OpenFreeMap style at build time, or restyle the light one with paint overrides; show the attribution OpenFreeMap requires.
+- **Map hero:** MapLibre GL with OpenFreeMap tiles (no key). The map shows the vendor's covered places as pins and pending request routes as lines; pin selection highlights the table row. One `DashboardMap` component with props `pins`, `routes`, `activePinId`, `onSelect`, so the `region-map-kit` can replace it. Loaded client-side with `next/dynamic`, with a fixed-height skeleton. Style: any dark OpenFreeMap style that reads well; show the attribution OpenFreeMap requires.
 - **Status overview:** segmented bar of pending, accepted, declined, expired for the last 30 days with percentages.
 - **Response performance:** 14-day bar chart of answered-in-time share, plus the 90-day response rate; plain CSS or SVG bars, no chart library.
 - **Requests table:** columns request id, traveler first name, route (pickup to drop-off), pickup time, party and bags, quote, deadline countdown, status chip. Filter pills: All, Pending, Accepted, Declined, Expired. Accept (with optional note) and Decline (reason picker) are inline actions on pending rows. Countdown updates on the client.
@@ -170,7 +170,7 @@ PRD (done for the decisions), then `ARCHITECTURE.md` (data model, API boundaries
 
 ## Open implementation questions
 
-- Which OpenFreeMap style to use for the dark hero, or whether to restyle.
 - Routing source for `place_routes` and its usage terms (a self-hosted OSRM or OpenRouteService extract is safest; the public demo servers are not for bulk use).
 - Default trip buffer (30 minutes is a starting value).
-- Whether `description` ships in v1 or waits.
+
+Decided in review: the map hero uses any dark OpenFreeMap style that reads well (check which are published at build time; restyle only if none is dark enough), and the listing `description` ships in v1 (optional, 500 characters, edited on the Overview tab).
