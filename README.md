@@ -27,6 +27,7 @@ Auth needs a Supabase project. Copy `.env.example` to `.env.local` and fill in `
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run test` | Vitest |
 | `npm run images:landing` | Resize source images into `public/landing/` |
+| `npm run seed:demo` | Fill the local Docker Supabase with faker demo MOVE vendors and requests (refuses non-local URLs). Sign in as `vendor1@example.test`, password `demo-password-1` |
 
 ## What exists today
 
