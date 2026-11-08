@@ -29,6 +29,14 @@ async function Queue(): Promise<React.JSX.Element> {
 
   return (
     <div className="flex flex-col gap-12">
+      <div className="flex flex-wrap gap-2">
+        <Link href="/admin/listings" className={buttonVariants({ variant: "outline" })}>
+          Listing review
+        </Link>
+        <Link href="/admin/places" className={buttonVariants({ variant: "outline" })}>
+          Places
+        </Link>
+      </div>
       <section aria-labelledby="profiles-heading" className="flex flex-col gap-4">
         <h2 id="profiles-heading" className="text-xl font-semibold">
           Profiles waiting for review

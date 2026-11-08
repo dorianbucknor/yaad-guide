@@ -4,10 +4,12 @@ import { Suspense } from "react";
 import { z } from "zod";
 
 import { DocumentRow } from "@/components/admin/document-row";
+import { ProfilePhotoCheck } from "@/components/admin/profile-photo-check";
 import { ReviewPanel } from "@/components/admin/review-panel";
 import { StatusBanner } from "@/components/vendor/status-banner";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { Skeleton } from "@/components/ui/skeleton";
+import { avatarPublicUrl } from "@/lib/auth/avatar";
 import { getAdminProfile } from "@/lib/vendor/admin-queries";
 
 export const metadata: Metadata = {
@@ -58,6 +60,12 @@ async function Detail({ params }: { params: Promise<{ id: string }> }): Promise<
           </div>
         </dl>
       </section>
+
+      <ProfilePhotoCheck
+        profileId={profile.id}
+        photoUrl={avatarPublicUrl(profile.profilePhotoPath, process.env.NEXT_PUBLIC_SUPABASE_URL ?? "")}
+        verified={Boolean(profile.photoVerifiedAt)}
+      />
 
       <section aria-labelledby="vehicles-heading" className="flex flex-col gap-3">
         <h2 id="vehicles-heading" className="text-xl font-semibold">

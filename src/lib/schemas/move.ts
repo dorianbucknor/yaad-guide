@@ -117,3 +117,31 @@ export function isOwnPhotoPath(path: string, userId: string, vehicleId: string):
     /^[A-Za-z0-9._-]+\.(jpe?g|png|webp)$/i.test(parts[2])
   );
 }
+
+export const PLACE_KINDS = ["airport", "city", "town", "resort_area"] as const;
+
+export const placeSchema = z.object({
+  id: z.uuid().optional(),
+  name: z.string().trim().min(2, "Enter the place name.").max(80, "That name is too long."),
+  kind: z.enum(PLACE_KINDS, { error: "Choose a kind." }),
+  parish: z.string().trim().min(2, "Enter the parish.").max(40, "That name is too long."),
+  lat: z.number({ error: "Enter the latitude." }).min(17.5, "That is outside Jamaica.").max(18.7, "That is outside Jamaica."),
+  lng: z.number({ error: "Enter the longitude." }).min(-78.5, "That is outside Jamaica.").max(-76, "That is outside Jamaica."),
+  active: z.boolean(),
+});
+
+export const suggestionResolveSchema = z.object({
+  id: z.uuid(),
+  status: z.enum(["added", "dismissed"], { error: "Choose added or dismissed." }),
+});
+
+export const listingReviewSchema = z
+  .object({
+    listingId: z.uuid(),
+    decision: z.enum(["approve", "reject"], { error: "Choose approve or reject." }),
+    note: z.string().trim().max(500, "Keep the note under 500 characters.").optional(),
+  })
+  .refine((review) => review.decision === "approve" || Boolean(review.note), {
+    message: "Add a note explaining what to fix.",
+    path: ["note"],
+  });
