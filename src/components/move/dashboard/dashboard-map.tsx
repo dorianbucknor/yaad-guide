@@ -4,6 +4,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 
 import * as maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, Marker } from "maplibre-gl";
+
+maplibregl.setWorkerUrl("/maplibre-gl-worker.mjs");
 import { useEffect, useRef } from "react";
 
 export type MapPin = { id: string; name: string; lat: number; lng: number };

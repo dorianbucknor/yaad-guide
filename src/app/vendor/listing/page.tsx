@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { ListingTabs, LISTING_TABS, type ListingTab } from "@/components/move/listing-tabs";
+import { LISTING_TABS, type ListingTab } from "@/components/move/listing-tab-names";
+import { ListingTabs } from "@/components/move/listing-tabs";
 import { PillNav } from "@/components/move/dashboard/pill-nav";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { Skeleton } from "@/components/ui/skeleton";

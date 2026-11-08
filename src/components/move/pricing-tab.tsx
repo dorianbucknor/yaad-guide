@@ -19,7 +19,9 @@ import { listingPayload, NEED_LISTING_TEXT } from "./listing-payload";
 import { useSave } from "./use-save";
 
 const formulaSchema = listingSchema.pick({ currency: true, baseFare: true, perKm: true, hourlyRate: true });
-const toNumber = (value: string): number | null => (value.trim() === "" ? null : Number(value));
+// react-hook-form also runs the default values (numbers or null) through this.
+const toNumber = (value: unknown): number | null =>
+  typeof value === "number" ? value : typeof value === "string" && value.trim() !== "" ? Number(value) : null;
 const CURRENCY_ITEMS = [
   { value: "usd", label: "US dollars (USD)" },
   { value: "jmd", label: "Jamaican dollars (JMD)" },

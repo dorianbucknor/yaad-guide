@@ -18,7 +18,8 @@ import type { AdminPlace, PlaceSuggestionRow } from "@/lib/move/admin-queries";
 import { PLACE_KINDS, placeSchema } from "@/lib/schemas/move";
 
 const KIND_ITEMS = PLACE_KINDS.map((k) => ({ value: k, label: k.replace("_", " ") }));
-const toNumber = (value: string): number => (value.trim() === "" ? Number.NaN : Number(value));
+const toNumber = (value: unknown): number =>
+  typeof value === "number" ? value : typeof value === "string" && value.trim() !== "" ? Number(value) : Number.NaN;
 const EMPTY = { name: "", kind: undefined, parish: "", lat: undefined, lng: undefined, active: true };
 
 export function PlacesAdmin({

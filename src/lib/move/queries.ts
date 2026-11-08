@@ -48,6 +48,7 @@ export type MoveListingView = {
 
 /** All places a MOVE trip can start or end at. Public data. */
 export async function getPlaces(): Promise<PlaceRow[]> {
+  await connection();
   const supabase = await createClient();
   const { data } = await supabase
     .from("places")
@@ -59,6 +60,7 @@ export async function getPlaces(): Promise<PlaceRow[]> {
 
 /** Road distance estimates between place pairs, keyed `<lower id>|<higher id>`. */
 export async function getPlaceRoutes(): Promise<Record<string, { km: number; minutes: number }>> {
+  await connection();
   const supabase = await createClient();
   const { data } = await supabase.from("place_routes").select("from_place_id, to_place_id, km, minutes");
   const routes: Record<string, { km: number; minutes: number }> = {};

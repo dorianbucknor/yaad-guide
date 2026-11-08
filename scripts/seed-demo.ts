@@ -89,7 +89,7 @@ async function main() {
     { type: "Sedan", seats: 4, large: 3, carryOn: 3 },
     { type: "SUV", seats: 6, large: 5, carryOn: 4 },
     { type: "Minivan", seats: 9, large: 8, carryOn: 6 },
-    { type: "Bus", seats: 24, large: 24, carryOn: 20 },
+    { type: "Bus", seats: 24, large: 20, carryOn: 20 },
   ] as const;
   const regions = ["St. James", "Westmoreland", "St. Ann", "Kingston", "Portland", "Trelawny"];
   // Live and busy first, then the other listing states, one paused.

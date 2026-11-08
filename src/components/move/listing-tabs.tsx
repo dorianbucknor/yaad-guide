@@ -7,12 +7,11 @@ import type { MoveListingView, PlaceRow } from "@/lib/move/queries";
 
 import { AvailabilityTab } from "./availability-tab";
 import { CoverageTab } from "./coverage-tab";
+import { LISTING_TABS, type ListingTab } from "./listing-tab-names";
 import { OverviewTab } from "./overview-tab";
 import { PhotosTab } from "./photos-tab";
 import { PricingTab } from "./pricing-tab";
 
-export const LISTING_TABS = ["overview", "pricing", "coverage", "availability", "photos"] as const;
-export type ListingTab = (typeof LISTING_TABS)[number];
 
 const LABELS: Record<ListingTab, string> = {
   overview: "Overview",
