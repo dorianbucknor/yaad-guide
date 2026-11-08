@@ -11,3 +11,13 @@ export function toJamaica(date: Date): { weekday: number; minutes: number; day: 
     day: local.toISOString().slice(0, 10),
   };
 }
+
+/** The instant a Jamaica calendar day (`YYYY-MM-DD`) begins. */
+export function jamaicaDayStart(day: string): Date {
+  return new Date(Date.parse(`${day}T00:00:00Z`) + JAMAICA_OFFSET_MS);
+}
+
+/** The Jamaica calendar day (`YYYY-MM-DD`) an instant falls on. */
+export function localDayOf(date: Date): string {
+  return toJamaica(date).day;
+}
