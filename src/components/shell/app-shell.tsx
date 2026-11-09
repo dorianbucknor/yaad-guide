@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import {
   Sidebar,
@@ -54,12 +55,17 @@ export function AppShell({
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
-              {groups ? <GroupMenu groups={groups} /> : <RailMenu items={items ?? []} />}
+              {/* The menus read the current path, so on routes with a dynamic segment they stream in. */}
+              <Suspense fallback={null}>
+                {groups ? <GroupMenu groups={groups} /> : <RailMenu items={items ?? []} />}
+              </Suspense>
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="pb-4">
-          <FooterMenu items={footerItems} label={footerLabel} />
+          <Suspense fallback={null}>
+            <FooterMenu items={footerItems} label={footerLabel} />
+          </Suspense>
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
@@ -73,7 +79,9 @@ export function AppShell({
         </header>
         <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-8 md:py-8">{children}</div>
       </SidebarInset>
-      <TabBar items={items} groups={groups} label={`${role} sections`} />
+      <Suspense fallback={null}>
+        <TabBar items={items} groups={groups} label={`${role} sections`} />
+      </Suspense>
     </SidebarProvider>
   );
 }
