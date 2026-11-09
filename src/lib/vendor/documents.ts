@@ -5,6 +5,7 @@ export const DOC_TYPES = [
   "fitness",
   "business_registration",
   "venue_permit",
+  "health_permit",
 ] as const;
 export type DocType = (typeof DOC_TYPES)[number];
 
@@ -18,7 +19,12 @@ const EXTENSION: Record<(typeof ALLOWED_MIME)[number], string> = {
 };
 
 export function needsExpiry(type: DocType): boolean {
-  return type !== "government_id" && type !== "business_registration" && type !== "venue_permit";
+  return (
+    type !== "government_id" &&
+    type !== "business_registration" &&
+    type !== "venue_permit" &&
+    type !== "health_permit"
+  );
 }
 
 export function needsVehicle(type: DocType): boolean {

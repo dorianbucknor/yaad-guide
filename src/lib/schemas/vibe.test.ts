@@ -32,6 +32,13 @@ describe("vibeBasicsSchema", () => {
     expect(parsed.cancellationPolicy).toBe("flexible");
   });
 
+  it("accepts dining as a subtype alongside event and attraction", () => {
+    for (const subtype of ["event", "attraction", "dining"]) {
+      expect(vibeBasicsSchema.safeParse({ ...basics, subtype }).success).toBe(true);
+    }
+    expect(vibeBasicsSchema.safeParse({ ...basics, subtype: "spa" }).success).toBe(false);
+  });
+
   it("rejects a cutoff outside 0 to 10080 minutes", () => {
     expect(vibeBasicsSchema.safeParse({ ...basics, bookingCutoffMinutes: 10081 }).success).toBe(false);
     expect(vibeBasicsSchema.safeParse({ ...basics, bookingCutoffMinutes: -1 }).success).toBe(false);

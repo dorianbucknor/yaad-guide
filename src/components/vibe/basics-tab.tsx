@@ -88,7 +88,8 @@ export function BasicsForm({ listing }: { listing?: VibeListingView }): React.JS
         const result = await createListingAction(values);
         if (result.ok && result.data) {
           toast.success("Created");
-          router.push(`/v/vibe/listings/${result.data.id}?tab=tickets`);
+          // A dining listing starts with its details (venue type and how it is booked); the rest start with tickets.
+          router.push(`/v/vibe/listings/${result.data.id}?tab=${values.subtype === "dining" ? "details" : "tickets"}`);
         } else if (!result.ok) {
           const message = applyFailure(result, setError);
           setFormError(message);
@@ -108,11 +109,12 @@ export function BasicsForm({ listing }: { listing?: VibeListingView }): React.JS
           render={({ field }) => (
             <FieldSet>
               <FieldLegend variant="label">What are you listing?</FieldLegend>
-              <RadioGroup value={field.value} onValueChange={field.onChange} className="gap-3 sm:grid-cols-2">
+              <RadioGroup value={field.value} onValueChange={field.onChange} className="gap-3 md:grid-cols-3">
                 {(
                   [
                     ["attraction", "Attraction", "Open on a weekly pattern, like a tour or a park."],
                     ["event", "Event", "Specific dates, like a concert or a festival."],
+                    ["dining", "Dining", "A restaurant, cookshop or street food vendor."],
                   ] as const
                 ).map(([value, name, hint]) => (
                   <Field key={value} orientation="horizontal" className="items-start gap-3 rounded-xl border border-border bg-card p-4">

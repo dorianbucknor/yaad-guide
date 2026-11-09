@@ -15,12 +15,24 @@ const FLAG_LABEL: Record<string, string> = {
   price: "Prices changed",
   photo: "Photos changed",
 };
-const SUBTYPE_LABEL = { event: "Event", attraction: "Attraction" } as const;
+const SUBTYPE_LABEL = { event: "Event", attraction: "Attraction", dining: "Dining" } as const;
+const VENUE_LABEL = { street_food: "Street food", cookshop: "Cookshop", restaurant: "Restaurant" } as const;
+
+/** How a dining listing will be booked, in words an admin can check against its tickets, schedule and hours. */
+function bookingLabel(dining: NonNullable<ReviewVibeListing["dining"]>): string {
+  if (dining.bookingMode === "prepaid") return "Prepaid experience";
+  if (dining.bookingMode === "listing_only") return "Listing only (no booking, no commission)";
+  return dining.reservationStyle === "hours_only" ? "Reservations by opening hours" : "Reservations by time slot";
+}
 
 function VibeListingCard({ listing }: { listing: ReviewVibeListing }): React.JSX.Element {
   const { pending, run } = useSave();
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // Listing-only and opening-hours dining have no tickets or slots to check.
+  const dining = listing.dining;
+  const showTickets = !dining || dining.bookingMode === "prepaid";
+  const showSchedule = !dining || dining.bookingMode === "prepaid" || (dining.bookingMode === "reservation" && dining.reservationStyle === "slotted");
 
   const decide = (decision: "approve" | "reject"): void => {
     if (decision === "reject" && note.trim() === "") {
@@ -46,20 +58,42 @@ function VibeListingCard({ listing }: { listing: ReviewVibeListing }): React.JSX
         </p>
       </div>
       <dl className="grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
-        <div>
-          <dt className="font-medium">Tickets</dt>
-          <dd className="text-muted-foreground tabular-nums">
-            {listing.tickets.length === 0
-              ? "None"
-              : listing.tickets
-                  .map((t) => `${t.name} ${formatPrice(t.price, listing.currency)}${t.discountPercent ? ` (${t.discountPercent}% off)` : ""}`)
-                  .join(", ")}
-          </dd>
-        </div>
-        <div>
-          <dt className="font-medium">Schedule</dt>
-          <dd className="text-muted-foreground">{listing.weeklyTimes === 0 ? "Dates added by hand" : `${listing.weeklyTimes} weekly times`}</dd>
-        </div>
+        {listing.dining ? (
+          <>
+            <div>
+              <dt className="font-medium">Venue type</dt>
+              <dd className="text-muted-foreground">{VENUE_LABEL[listing.dining.venueType]}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Booking mode</dt>
+              <dd className="text-muted-foreground">{bookingLabel(listing.dining)}</dd>
+            </div>
+            {listing.dining.reservationStyle === "hours_only" ? (
+              <div>
+                <dt className="font-medium">Opening hours</dt>
+                <dd className="text-muted-foreground tabular-nums">{listing.dining.hoursDays} days a week</dd>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+        {showTickets ? (
+          <div>
+            <dt className="font-medium">Tickets</dt>
+            <dd className="text-muted-foreground tabular-nums">
+              {listing.tickets.length === 0
+                ? "None"
+                : listing.tickets
+                    .map((t) => `${t.name} ${formatPrice(t.price, listing.currency)}${t.discountPercent ? ` (${t.discountPercent}% off)` : ""}`)
+                    .join(", ")}
+            </dd>
+          </div>
+        ) : null}
+        {showSchedule ? (
+          <div>
+            <dt className="font-medium">Schedule</dt>
+            <dd className="text-muted-foreground">{listing.weeklyTimes === 0 ? "Dates added by hand" : `${listing.weeklyTimes} weekly times`}</dd>
+          </div>
+        ) : null}
         <div>
           <dt className="font-medium">Area</dt>
           <dd className="text-muted-foreground">{listing.area ?? "Not set"}</dd>

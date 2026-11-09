@@ -11,9 +11,13 @@ import type {
   VibeSlot,
   VibeStatus,
   VibeSubtype,
+  BookingMode,
   CancellationPolicy,
   Currency,
+  PriceTier,
+  ReservationStyle,
   UpcomingSlot,
+  VenueType,
 } from "./types";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -132,7 +136,7 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
     .maybeSingle();
   if (!l) return null;
 
-  const [{ data: profile }, { data: tickets }, { data: rules }, { data: photos }, { count }] = await Promise.all([
+  const [{ data: profile }, { data: tickets }, { data: rules }, { data: photos }, { count }, { data: dining }, { data: hours }] = await Promise.all([
     supabase.from("vendor_profiles").select("status").eq("id", l.vendor_profile_id).maybeSingle(),
     supabase
       .from("vibe_ticket_types")
@@ -153,6 +157,16 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
       .eq("listing_id", id)
       .eq("status", "open")
       .gt("starts_at", new Date().toISOString()),
+    supabase
+      .from("vibe_dining_profiles")
+      .select("venue_type, dine_in, takeout, cuisine_types, price_tier, booking_mode, reservation_style")
+      .eq("listing_id", id)
+      .maybeSingle(),
+    supabase
+      .from("vibe_business_hours")
+      .select("id, weekday, opens_minutes, closes_minutes")
+      .eq("listing_id", id)
+      .order("weekday"),
   ]);
 
   return {
@@ -200,6 +214,23 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
     })),
     profileApproved: profile?.status === "approved",
     futureOpenSlotCount: count ?? 0,
+    diningProfile: dining
+      ? {
+          venueType: dining.venue_type as VenueType,
+          dineIn: dining.dine_in,
+          takeout: dining.takeout,
+          cuisineTypes: (dining.cuisine_types as string[] | null) ?? [],
+          priceTier: (dining.price_tier as PriceTier | null) ?? null,
+          bookingMode: dining.booking_mode as BookingMode,
+          reservationStyle: (dining.reservation_style as ReservationStyle | null) ?? null,
+        }
+      : null,
+    businessHours: (hours ?? []).map((h) => ({
+      id: h.id,
+      weekday: h.weekday,
+      opensMinutes: h.opens_minutes,
+      closesMinutes: h.closes_minutes,
+    })),
   };
 }
 

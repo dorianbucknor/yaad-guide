@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Skeleton } from "@/components/skeleton";
+import { SetupPrompt } from "@/components/vendor/setup-prompt";
 import { ListingList } from "@/components/vibe/listing-list";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { getMyVibeListings, getVibeOverview } from "@/lib/vibe/queries";
@@ -17,12 +17,12 @@ async function Body(): Promise<React.JSX.Element> {
   if (!overview) redirect("/auth/sign-in?next=%2Fv%2Fvibe%2Flistings");
   if (!overview.profile) {
     return (
-      <p className="max-w-[65ch] text-muted-foreground">
-        Set up your Vibe profile first, then you can add listings.{" "}
-        <Link href="/v/vibe/onboarding" className="font-medium text-foreground underline underline-offset-4">
-          Start setup
-        </Link>
-      </p>
+      <SetupPrompt
+        category="vibe"
+        status={undefined}
+        setupHref="/v/vibe/onboarding"
+        lead="You need a vendor profile before you can add listings."
+      />
     );
   }
   const listings = await getMyVibeListings();

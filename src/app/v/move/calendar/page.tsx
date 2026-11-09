@@ -60,7 +60,7 @@ export default function Page(): React.JSX.Element {
           <Skeleton className="h-[40rem] w-full rounded-2xl" aria-busy="true" />
         }
       >
-        <RegistrationGate skeleton="calendar" feature="your calendar">
+        <RegistrationGate skeleton="calendar">
           <CalendarView />
         </RegistrationGate>
       </Suspense>

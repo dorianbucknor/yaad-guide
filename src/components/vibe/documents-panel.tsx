@@ -5,7 +5,7 @@ import type { VibeOverview } from "@/lib/vibe/types";
 
 /**
  * The documents a Vibe vendor uploads. The ID and business registration are needed to go live;
- * the venue permit is optional and earns the Trusted badge once an admin checks it.
+ * the venue permit and the health permit are optional and earn the Trusted badge once an admin checks them.
  */
 export function VibeDocuments({
   overview,
@@ -51,6 +51,21 @@ export function VibeDocuments({
               docType="venue_permit"
               label="Venue permit (optional)"
               current={doc("venue_permit")}
+              readOnly={readOnly}
+              today={today}
+              record={recordVibeDocumentAction}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="max-w-[65ch] text-sm text-muted-foreground">
+              For food vendors. Upload a Food Handler&apos;s Permit if you sell street food or run a cookshop, or an Establishment or Health
+              Permit if you run a restaurant. Once an admin checks it, your listings earn the Trusted badge.
+            </p>
+            <DocumentUploader
+              userId={overview.userId}
+              docType="health_permit"
+              label="Health or Food Handler's Permit (optional)"
+              current={doc("health_permit")}
               readOnly={readOnly}
               today={today}
               record={recordVibeDocumentAction}

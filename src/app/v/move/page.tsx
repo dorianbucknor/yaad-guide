@@ -8,15 +8,10 @@ import { serverNow } from "@/lib/server-time";
 import { HomeBoard } from "@/components/move/board/home-board";
 import { StatusBanner } from "@/components/vendor/status-banner";
 import { MoveAttention } from "@/components/move/attention-banner";
+import { SetupPrompt, VendorPrompt } from "@/components/vendor/setup-prompt";
 import { VendorPage } from "@/components/vendor/vendor-page";
+import { SHELL_ICONS } from "@/components/shell/shell-icons";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemDescription,
-  ItemTitle,
-} from "@/components/ui/item";
 import { Skeleton } from "@/components/skeleton";
 import { getDashboard } from "@/lib/move/dashboard-queries";
 import { getMyListing, getPlaces } from "@/lib/move/queries";
@@ -48,30 +43,6 @@ async function MoveHome(): Promise<React.JSX.Element> {
   );
 }
 
-function SetupPrompt({
-  title,
-  body,
-  cta,
-}: {
-  title: string;
-  body: string;
-  cta: string;
-}): React.JSX.Element {
-  return (
-    <Item variant="outline" className="bg-brand-light/40 dark:bg-primary/15">
-      <ItemContent>
-        <ItemTitle>{title}</ItemTitle>
-        <ItemDescription className="line-clamp-none">{body}</ItemDescription>
-      </ItemContent>
-      <ItemActions>
-        <Link href="/v/move/profile" className={buttonVariants()}>
-          {cta}
-        </Link>
-      </ItemActions>
-    </Item>
-  );
-}
-
 async function VendorHub(): Promise<React.JSX.Element> {
   const overview = await getVendorOverview();
   if (!overview) redirect("/auth/sign-in?next=%2Fv");
@@ -81,10 +52,15 @@ async function VendorHub(): Promise<React.JSX.Element> {
     return (
       <div className="flex flex-col gap-6">
         {profile.businessName ? null : (
-          <SetupPrompt
+          <VendorPrompt
+            icon={SHELL_ICONS.vehicle}
             title="Add your business details"
-            body="Travelers see your business name next to your listing. It takes a minute."
-            cta="Add details"
+            description="Travelers see your business name next to your listing. It takes a minute."
+            action={
+              <Link href="/v/move/profile" className={buttonVariants()}>
+                Add details
+              </Link>
+            }
           />
         )}
         <MoveHome />
@@ -99,15 +75,7 @@ async function VendorHub(): Promise<React.JSX.Element> {
         <StatusBanner status={profile.status} note={profile.reviewNote} />
       ) : null}
       {underReview ? null : (
-        <SetupPrompt
-          title={
-            profile
-              ? "Finish setting up your business"
-              : "Set up your business details"
-          }
-          body="Add your business details, vehicles and documents, then send them for review. Requests, your calendar and your listing open once an admin approves you."
-          cta={profile ? "Continue setup" : "Set up business"}
-        />
+        <SetupPrompt category="move" status={profile?.status} setupHref="/v/move/profile" />
       )}
     </div>
   );

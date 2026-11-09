@@ -2,7 +2,7 @@ import { connection } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 
-import type { Currency, VibeSubtype } from "./types";
+import type { BookingMode, Currency, ReservationStyle, VenueType, VibeSubtype } from "./types";
 
 export type ReviewVibeListing = {
   id: string;
@@ -19,6 +19,8 @@ export type ReviewVibeListing = {
   weeklyTimes: number;
   photoCount: number;
   submittedAt: string;
+  /** The dining details; null for events and attractions. */
+  dining: { venueType: VenueType; bookingMode: BookingMode; reservationStyle: ReservationStyle | null; hoursDays: number } | null;
 };
 
 export type OpenVibeFlag = { id: string; kind: string; createdAt: string; listingId: string; title: string; businessName: string };
@@ -36,7 +38,7 @@ export async function getVibeListingQueue(): Promise<{ listings: ReviewVibeListi
   const { data: waiting } = await supabase
     .from("vibe_listings")
     .select(
-      "id, title, subtype, area, address_line1, address_line2, town, parish, currency, description, updated_at, vendor_profiles(account_id, business_name, primary_region), vibe_ticket_types(name, price, discount_percent, sort_order), vibe_schedule_rules(id), vibe_photos(id)",
+      "id, title, subtype, area, address_line1, address_line2, town, parish, currency, description, updated_at, vendor_profiles(account_id, business_name, primary_region), vibe_ticket_types(name, price, discount_percent, sort_order), vibe_schedule_rules(id), vibe_photos(id), vibe_dining_profiles(venue_type, booking_mode, reservation_style), vibe_business_hours(id)",
     )
     .eq("status", "in_review")
     .order("updated_at");
@@ -54,6 +56,12 @@ export async function getVibeListingQueue(): Promise<{ listings: ReviewVibeListi
       .slice()
       .sort((a, b) => a.sort_order - b.sort_order)
       .map((t) => ({ name: t.name, price: Number(t.price), discountPercent: t.discount_percent === null ? null : Number(t.discount_percent) }));
+    const diningRow = one(
+      l.vibe_dining_profiles as
+        | { venue_type: VenueType; booking_mode: BookingMode; reservation_style: ReservationStyle | null }
+        | { venue_type: VenueType; booking_mode: BookingMode; reservation_style: ReservationStyle | null }[]
+        | null,
+    );
     return {
       id: l.id as string,
       title: l.title as string,
@@ -69,6 +77,14 @@ export async function getVibeListingQueue(): Promise<{ listings: ReviewVibeListi
       weeklyTimes: (l.vibe_schedule_rules as unknown[] | null)?.length ?? 0,
       photoCount: (l.vibe_photos as unknown[] | null)?.length ?? 0,
       submittedAt: l.updated_at as string,
+      dining: diningRow
+        ? {
+            venueType: diningRow.venue_type,
+            bookingMode: diningRow.booking_mode,
+            reservationStyle: diningRow.reservation_style,
+            hoursDays: (l.vibe_business_hours as unknown[] | null)?.length ?? 0,
+          }
+        : null,
     };
   });
 

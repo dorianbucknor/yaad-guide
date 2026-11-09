@@ -1,9 +1,13 @@
 import { CheckCircle2Icon, CircleDashedIcon } from "lucide-react";
 import Link from "next/link";
 
+import type { DiningReadinessItem } from "@/lib/vibe/dining";
 import type { VibeReadinessItem } from "@/lib/vibe/readiness";
 
-const STEPS: { item: VibeReadinessItem; label: string; tab: string | null }[] = [
+type Item = VibeReadinessItem | DiningReadinessItem;
+export type ReadinessStep = { item: Item; label: string; tab: string | null };
+
+const STEPS: ReadinessStep[] = [
   { item: "profile_approved", label: "Vendor profile approved", tab: null },
   { item: "basics", label: "Description and area", tab: "basics" },
   { item: "tickets", label: "At least one ticket", tab: "tickets" },
@@ -17,9 +21,12 @@ const STEPS: { item: VibeReadinessItem; label: string; tab: string | null }[] = 
 export function ReadinessCard({
   listingId,
   missing,
+  steps = STEPS,
 }: {
   listingId: string;
-  missing: readonly VibeReadinessItem[];
+  missing: readonly Item[];
+  /** The checklist to show; events and attractions use the default. */
+  steps?: readonly ReadinessStep[];
 }): React.JSX.Element {
   return (
     <section aria-labelledby="readiness-heading" className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 md:p-6">
@@ -27,7 +34,7 @@ export function ReadinessCard({
         {missing.length === 0 ? "Ready to send for review" : `${missing.length} to do before review`}
       </h2>
       <ul className="flex flex-col gap-1">
-        {STEPS.map(({ item, label, tab }) => {
+        {steps.map(({ item, label, tab }) => {
           const done = !missing.includes(item);
           const Icon = done ? CheckCircle2Icon : CircleDashedIcon;
           return (

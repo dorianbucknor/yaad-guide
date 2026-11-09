@@ -52,7 +52,7 @@ export default function Page({
           <Skeleton className="h-96 w-full rounded-2xl" aria-busy="true" />
         }
       >
-        <RegistrationGate skeleton="listing" feature="your listing">
+        <RegistrationGate skeleton="listing">
           <Editor searchParams={searchParams} />
         </RegistrationGate>
       </Suspense>

@@ -149,6 +149,7 @@ Rule: **shadcn/ui is the base for everything.** Install primitives through the s
 | `VerificationStatus` | badge, alert | Unverified, pending, approved, rejected |
 | `ContactReveal` | card, button | Vendor phone and email, shown only after confirmation |
 | `EmptyState` | card, button | Always names the next action |
+| `VendorPrompt` / `SetupPrompt` | item, button | One look for a message that sits where a vendor page would be: tinted card, round icon, title, plain sentence, one action (stacked with a full-width button below `sm`). `SetupPrompt` words the "set up your vendor profile" states through `setupPromptCopy` so Move, Vibe and the gated pages all say the same thing; `floating` lifts it over a blurred preview. "Coming soon" notices use `VendorPrompt` too |
 
 ## States
 
