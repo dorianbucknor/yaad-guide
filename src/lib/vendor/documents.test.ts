@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DOC_TYPES,
   documentPath,
   isExpired,
   isOwnDocumentPath,
@@ -15,6 +16,13 @@ describe("document rules", () => {
     expect(needsExpiry("jtb_license")).toBe(true);
     expect(needsExpiry("insurance")).toBe(true);
     expect(needsExpiry("fitness")).toBe(true);
+  });
+
+  it("does not need an expiry for the two vibe documents", () => {
+    expect(needsExpiry("business_registration")).toBe(false);
+    expect(needsExpiry("venue_permit")).toBe(false);
+    expect(DOC_TYPES).toContain("business_registration");
+    expect(DOC_TYPES).toContain("venue_permit");
   });
 
   it("ties insurance and fitness to a vehicle", () => {

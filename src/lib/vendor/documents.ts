@@ -1,4 +1,11 @@
-export const DOC_TYPES = ["government_id", "jtb_license", "insurance", "fitness"] as const;
+export const DOC_TYPES = [
+  "government_id",
+  "jtb_license",
+  "insurance",
+  "fitness",
+  "business_registration",
+  "venue_permit",
+] as const;
 export type DocType = (typeof DOC_TYPES)[number];
 
 export const ALLOWED_MIME = ["application/pdf", "image/jpeg", "image/png"] as const;
@@ -11,7 +18,7 @@ const EXTENSION: Record<(typeof ALLOWED_MIME)[number], string> = {
 };
 
 export function needsExpiry(type: DocType): boolean {
-  return type !== "government_id";
+  return type !== "government_id" && type !== "business_registration" && type !== "venue_permit";
 }
 
 export function needsVehicle(type: DocType): boolean {

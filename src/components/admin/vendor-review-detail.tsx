@@ -12,6 +12,8 @@ const DOC_LABEL = {
   jtb_license: "JTB license",
   insurance: "Insurance certificate",
   fitness: "Fitness certificate",
+  business_registration: "Business registration",
+  venue_permit: "Venue permit",
 } as const;
 
 /** Everything an admin needs to review one vendor profile; used on its own page and in the queue panel. */
