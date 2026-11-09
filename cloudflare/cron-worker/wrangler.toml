@@ -1,0 +1,14 @@
+# Calls the app's expiry route every ten minutes. Vercel's Hobby plan only runs
+# daily crons, so this one lives on Cloudflare (the daily purge stays in vercel.json).
+name = "yaadguide-cron"
+main = "index.js"
+compatibility_date = "2026-11-01"
+
+[triggers]
+crons = ["*/10 * * * *"]
+
+[vars]
+# The deployed site, with no trailing slash.
+APP_URL = "https://yaad-guide.com"
+
+# Secret, set with: npx wrangler secret put CRON_SECRET  (the same value the app uses)

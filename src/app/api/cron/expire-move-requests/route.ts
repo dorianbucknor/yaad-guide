@@ -1,7 +1,7 @@
 import { isCronAuthorized } from "@/lib/cron/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-/** Every ten minutes (Vercel cron): marks pending MOVE requests past their deadline as expired. */
+/** Every ten minutes (Cloudflare Worker cron, see cloudflare/cron-worker): marks pending MOVE requests past their deadline as expired. */
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) {
