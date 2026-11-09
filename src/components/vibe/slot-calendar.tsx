@@ -223,8 +223,15 @@ export function SlotCalendar({
                   )}
                 >
                   <span className="font-medium tabular-nums">{Number(day.slice(8))}</span>
-                  <span aria-hidden className="text-xs tabular-nums text-muted-foreground">
-                    {isClosed ? "Closed" : list.length > 0 ? `${list.length} × ${booked}/${capacity}` : ""}
+                  <span aria-hidden className="flex flex-col text-xs tabular-nums text-muted-foreground">
+                    {isClosed ? (
+                      "Closed"
+                    ) : list.length > 0 ? (
+                      <>
+                        <span>{list.length === 1 ? "1 slot" : `${list.length} slots`}</span>
+                        <span>{`${booked}/${capacity} booked`}</span>
+                      </>
+                    ) : null}
                   </span>
                 </button>
               );

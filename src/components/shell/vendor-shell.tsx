@@ -12,11 +12,14 @@ async function PendingCount(): Promise<React.JSX.Element> {
 }
 
 /** The same four pages for every category. */
-function pagesFor(base: string, extra: { dashboard?: Partial<NavItem>; profile?: Partial<NavItem> } = {}): NavItem[] {
+function pagesFor(
+  base: string,
+  extra: { dashboard?: Partial<NavItem>; listing?: Partial<NavItem>; profile?: Partial<NavItem> } = {},
+): NavItem[] {
   return [
     { href: base, label: "Dashboard", icon: "home", tab: true, ...extra.dashboard },
     { href: `${base}/calendar`, label: "Calendar", icon: "calendar", tab: true, prefix: true },
-    { href: `${base}/listing`, label: "Listings", icon: "listing", tab: true, prefix: true },
+    { href: `${base}/listing`, label: "Listings", icon: "listing", tab: true, prefix: true, ...extra.listing },
     { href: `${base}/profile`, label: "Vendor profile", icon: "business", tab: true, prefix: true, ...extra.profile },
   ];
 }
@@ -43,7 +46,11 @@ const GROUPS: NavGroup[] = [
     label: "Vibe",
     icon: "vibe",
     href: "/v/vibe",
-    items: pagesFor("/v/vibe", { profile: { also: ["/v/vibe/onboarding"] } }),
+    items: pagesFor("/v/vibe", {
+      // Vibe has many listings, so its page is plural.
+      listing: { href: "/v/vibe/listings" },
+      profile: { also: ["/v/vibe/onboarding"] },
+    }),
   },
 ];
 

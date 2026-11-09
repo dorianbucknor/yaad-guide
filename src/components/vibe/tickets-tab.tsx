@@ -55,6 +55,7 @@ function TicketForm({
     setError,
     watch,
     getValues,
+    reset,
     formState: { errors },
   } = useForm<TicketFieldsInput, unknown, TicketFieldsOutput>({
     resolver: zodResolver(ticketFieldsSchema),
@@ -85,6 +86,8 @@ function TicketForm({
         success: ticket ? "Saved" : "Added",
         onDone: () => {
           setAskFree(false);
+          // A new ticket leaves the form empty for the next one; an edit closes the form.
+          if (!ticket) reset({ name: "", description: "", price: undefined as unknown as number, discountPercent: null, maxPerBooking: null, confirmFree: false });
           onDone();
         },
         onFail: (result) => applyFailure(result, setError),
