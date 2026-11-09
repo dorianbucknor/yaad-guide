@@ -88,7 +88,8 @@ export function BasicsForm({ listing }: { listing?: VibeListingView }): React.JS
         const result = await createListingAction(values);
         if (result.ok && result.data) {
           toast.success("Created");
-          router.push(`/v/vibe/listings/${result.data.id}?tab=tickets`);
+          // A dining listing starts with its details (venue type and how it is booked); the rest start with tickets.
+          router.push(`/v/vibe/listings/${result.data.id}?tab=${values.subtype === "dining" ? "details" : "tickets"}`);
         } else if (!result.ok) {
           const message = applyFailure(result, setError);
           setFormError(message);
