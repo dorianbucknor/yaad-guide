@@ -39,7 +39,12 @@ const GROUPS: NavGroup[] = [
     }),
   },
   { label: "Stay", icon: "stay", href: "/v/stay", items: pagesFor("/v/stay") },
-  { label: "Vibe", icon: "vibe", href: "/v/vibe", items: pagesFor("/v/vibe") },
+  {
+    label: "Vibe",
+    icon: "vibe",
+    href: "/v/vibe",
+    items: pagesFor("/v/vibe", { profile: { also: ["/v/vibe/onboarding"] } }),
+  },
 ];
 
 /** The vendor navigation, shared by the dashboard pages and account settings. */

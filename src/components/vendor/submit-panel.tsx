@@ -6,26 +6,33 @@ import { useTransition } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import type { ActionResult } from "@/lib/auth/result";
 import { submitProfileAction } from "@/lib/vendor/actions";
 
 export function SubmitPanel({
   ready,
   missing,
   locked,
+  submit: submitProfile = submitProfileAction,
+  doneHref = "/v",
 }: {
   ready: boolean;
   missing: string[];
   locked: boolean;
+  /** Sends the profile for review; MOVE by default, VIBE passes its own. */
+  submit?: () => Promise<ActionResult>;
+  /** Where to go once it is sent. */
+  doneHref?: string;
 }): React.JSX.Element {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
-  const submit = (): void => {
+  const send = (): void => {
     startTransition(async () => {
-      const result = await submitProfileAction();
+      const result = await submitProfile();
       if (result.ok) {
         toast.success("Submitted");
-        router.push("/v");
+        router.push(doneHref);
         router.refresh();
       } else {
         toast.error(result.error);
@@ -58,7 +65,7 @@ export function SubmitPanel({
         </div>
       )}
       <div>
-        <Button type="button" disabled={!ready || pending} onClick={submit}>
+        <Button type="button" disabled={!ready || pending} onClick={send}>
           {pending ? "Submitting…" : "Submit for review"}
         </Button>
       </div>

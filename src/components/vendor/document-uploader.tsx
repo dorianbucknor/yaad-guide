@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import type { ActionResult } from "@/lib/auth/result";
 import { createClient } from "@/lib/supabase/client";
 import { recordDocumentAction } from "@/lib/vendor/actions";
 import {
@@ -27,6 +28,7 @@ export function DocumentUploader({
   current,
   readOnly,
   today,
+  record = recordDocumentAction,
 }: {
   userId: string;
   docType: DocType;
@@ -35,6 +37,8 @@ export function DocumentUploader({
   current?: VendorDocument;
   readOnly: boolean;
   today: string;
+  /** Saves the uploaded file against the profile; MOVE by default, VIBE passes its own. */
+  record?: (input: unknown) => Promise<ActionResult>;
 }): React.JSX.Element {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -68,7 +72,7 @@ export function DocumentUploader({
         toast.error("We could not upload that file. Please try again.");
         return;
       }
-      const result = await recordDocumentAction({
+      const result = await record({
         docType,
         vehicleId,
         expiresOn: expiryNeeded ? expiresOn : undefined,

@@ -7,7 +7,7 @@ import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { SHELL_ICONS } from "@/components/shell/shell-icons";
 
-const CATEGORIES = { stay: { name: "Stay", icon: "stay" }, vibe: { name: "Vibe", icon: "vibe" } } as const;
+const CATEGORIES = { stay: { name: "Stay", icon: "stay" } } as const;
 const PAGES = { "": "Dashboard", calendar: "Calendar", listing: "Listings", profile: "Vendor profile" } as const;
 
 type Params = { category: string; slug?: string[] };

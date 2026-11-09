@@ -157,6 +157,9 @@ export const vibeBusinessSchema = z.object({
   primaryRegion: z.string().trim().min(1, "Enter your region.").max(100, "That is too long."),
 });
 
+export type VibeBusinessInput = z.input<typeof vibeBusinessSchema>;
+export type VibeBusinessOutput = z.output<typeof vibeBusinessSchema>;
+
 /** A listing photo sits at `<user id>/vibe/<listing id>/<file>.(jpg|jpeg|png|webp)`. */
 export function isOwnVibePhotoPath(path: string, userId: string, listingId: string): boolean {
   if (path.includes("..")) return false;
