@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { safeNextPath } from "./next-path";
 
 describe("safeNextPath", () => {
-  it.each(["/plan", "/plan?x=1", "/vendor/listings", "/"])(
+  it.each(["/plan", "/plan?x=1", "/v/listings", "/"])(
     "keeps the same-site path %s",
     (value) => {
       expect(safeNextPath(value)).toBe(value);

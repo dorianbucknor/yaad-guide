@@ -25,7 +25,7 @@ export function SubmitPanel({
       const result = await submitProfileAction();
       if (result.ok) {
         toast.success("Submitted");
-        router.push("/vendor");
+        router.push("/v");
         router.refresh();
       } else {
         toast.error(result.error);

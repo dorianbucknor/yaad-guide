@@ -10,7 +10,7 @@ import { VehicleForm } from "@/components/vendor/vehicle-form";
 import { VehicleList } from "@/components/vendor/vehicle-list";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import { profileMode, type StepKey } from "@/lib/vendor/checklist";
 import { getVendorOverview } from "@/lib/vendor/queries";
 
@@ -45,7 +45,7 @@ function NeedBusiness(): React.JSX.Element {
   return (
     <div className="flex flex-col items-start gap-3">
       <p className="text-muted-foreground">Save your business details first, then come back to this step.</p>
-      <Link href="/vendor/onboarding/business" className={buttonVariants({ variant: "outline" })}>
+      <Link href="/v/move/onboarding/business" className={buttonVariants({ variant: "outline" })}>
         Business details
       </Link>
     </div>
@@ -58,7 +58,7 @@ async function StepBody({ params }: { params: Promise<{ step: string }> }): Prom
   const key = step as StepKey;
 
   const overview = await getVendorOverview();
-  if (!overview) redirect(`/auth/sign-in?next=${encodeURIComponent(`/vendor/onboarding/${key}`)}`);
+  if (!overview) redirect(`/auth/sign-in?next=${encodeURIComponent(`/v/move/onboarding/${key}`)}`);
 
   const profile = overview.profile;
   const mode = profileMode(overview);
@@ -70,7 +70,7 @@ async function StepBody({ params }: { params: Promise<{ step: string }> }): Prom
         businessName={profile?.businessName ?? ""}
         primaryRegion={profile?.primaryRegion ?? ""}
         readOnly={mode !== "edit"}
-        nextHref="/vendor/onboarding/vehicles"
+        nextHref="/v/move/onboarding/vehicles"
       />
     );
   }
@@ -90,7 +90,7 @@ async function StepBody({ params }: { params: Promise<{ step: string }> }): Prom
           </section>
         )}
         <div>
-          <Link href="/vendor/onboarding/documents" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/v/move/onboarding/documents" className={buttonVariants({ variant: "outline" })}>
             Continue to documents
           </Link>
         </div>
@@ -148,7 +148,7 @@ async function StepBody({ params }: { params: Promise<{ step: string }> }): Prom
           ))
         )}
         <div>
-          <Link href="/vendor/onboarding/review" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/v/move/onboarding/review" className={buttonVariants({ variant: "outline" })}>
             Continue to review
           </Link>
         </div>

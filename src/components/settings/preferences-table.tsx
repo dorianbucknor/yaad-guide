@@ -97,7 +97,7 @@ export function PreferencesTable({
                       <Switch
                         aria-label={`${label} by ${CHANNEL_LABEL[channel].toLowerCase()}`}
                         aria-describedby={smsBlocked ? "sms-hint" : undefined}
-                        checked={values[keyOf(category, channel)] ?? false}
+                        checked={smsBlocked ? false : (values[keyOf(category, channel)] ?? false)}
                         disabled={entry?.locked || smsBlocked}
                         onCheckedChange={(checked) => change(category, channel, checked)}
                       />

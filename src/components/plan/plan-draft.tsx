@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import {
   areaLabel,
   INTERESTS,

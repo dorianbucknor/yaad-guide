@@ -52,6 +52,7 @@ export function PasswordForm({
           <TextField
             id="current-password"
             label="Current password"
+            description="We ask again so nobody else can change it."
             type="password"
             autoComplete="current-password"
             error={errors.currentPassword?.message}
@@ -75,8 +76,8 @@ export function PasswordForm({
           {...register("confirmPassword")}
         />
         {formError ? <FieldError>{formError}</FieldError> : null}
-        <Field>
-          <Button type="submit" disabled={pending} className="min-h-11 md:min-h-8">
+        <Field orientation="horizontal">
+          <Button type="submit" disabled={pending} className="min-h-11 w-fit md:min-h-8">
             {pending ? "Saving…" : showCurrentPassword ? "Change password" : "Set password"}
           </Button>
         </Field>

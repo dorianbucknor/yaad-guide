@@ -45,10 +45,10 @@ export function SiteFooter(): React.JSX.Element {
               </a>
             </li>
             <li>
-              <a href="mailto:info@yaad-guide.com" className={linkClass}>
+              <a href="mailto:support@yaad-guide.com" className={linkClass}>
                 <MailIcon aria-hidden="true" className="size-4 shrink-0" />
                 <span>
-                  <span className="sr-only">Email: </span>info@yaad-guide.com
+                  <span className="sr-only">Email: </span>support@yaad-guide.com
                 </span>
               </a>
             </li>

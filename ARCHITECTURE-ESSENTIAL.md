@@ -7,7 +7,7 @@ Derived from ARCHITECTURE.md, updated 2026-11-06. It mirrors ARCHITECTURE.md: up
 - Next.js (App Router), TypeScript, Tailwind v4, shadcn/ui (Base UI based), `src/` directory, `@/*` alias. Deployed on Vercel.
 - Client state: zustand for browser-only UI state (owns the theme), TanStack Query for server data, react-hook-form with zod for forms.
 - Supabase for database, auth, storage and real-time. No separate Node.js service; server-side logic runs in Next.js server actions and route handlers.
-- Payments through WiPay into YaadGuide's account; vendors are paid out manually. All prices in USD.
+- Payments through WiPay into YaadGuide's account; vendors are paid out manually. Vendors price in USD or JMD (the entered amount is the source of truth); fixed YaadGuide amounts are USD.
 
 ## Folder map
 
@@ -44,6 +44,7 @@ Derived from ARCHITECTURE.md, updated 2026-11-06. It mirrors ARCHITECTURE.md: up
 - Vendor profile status is `draft`, `pending`, `approved` or `rejected`. Vendors can edit only while `draft` or `rejected`; submit and review run through security-definer functions. Vendors may build draft listings before approval; listings go live only after admin approval of that vendor profile. Approval needs the government ID, JTB license and the active vehicle's certificates checked by an admin and unexpired.
 - Verification documents sit in the private `vendor-documents` bucket (PDF, JPG or PNG, 5 MB) and are viewed by admins through short-lived signed URLs. Insurance, fitness certificates and the JTB license carry a required expiry date. The government ID is account-level, the JTB license is per profile, and insurance and fitness belong to a vehicle.
 - A MOVE vendor can register several vehicles but has one active at a time; plates are unique across the platform, and a vehicle changes owner only through a transfer that the new owner requests, the current owner agrees to, and an admin approves. The primary region is informational and never limits where a vendor works.
+- MOVE listing: one per MOVE vendor profile, currency USD or JMD. Status, review, photo verification and request state change only through security-definer functions, never direct writes. Route distances between places are estimates. Accepting a request locks the listing and refuses overlapping trips (30-minute buffer, same value in SQL and `MOVE_CONFIG`) but does not re-check weekly windows or blocked dates. Two cron routes (`purge-archived`, `expire-move-requests`) are the only users of the service-role client. `npm run seed:demo` fills the local Docker stack only and refuses non-local URLs.
 - Fees, commissions and sponsored pricing are configurable values, never hard-coded: planning fee US$20, MOVE commission 10%, STAY and VIBE commission 10% (placeholder), sponsored US$3.50 per week.
 - Planning fee is per trip, waived for VIBE-only trips. Commission is skipped on listings that already include one.
 - Vendor contact details and the exact map pin of a STAY or VIBE listing are hidden until a booking is confirmed.

@@ -83,8 +83,8 @@ export function ProfileForm({
           />
         </div>
         {formError ? <FieldError>{formError}</FieldError> : null}
-        <Field>
-          <Button type="submit" disabled={pending}>
+        <Field orientation="horizontal">
+          <Button type="submit" disabled={pending} className="w-fit">
             {pending ? "Saving…" : "Save changes"}
           </Button>
         </Field>

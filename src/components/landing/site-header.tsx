@@ -139,7 +139,7 @@ export function SiteHeader({
                       Profile
                     </Link>
                     {viewer.role !== "traveler" ? (
-                      <Link href="/vendor" onClick={close} className={buttonVariants({ variant: "ghost", className: "justify-start" })}>
+                      <Link href="/v" onClick={close} className={buttonVariants({ variant: "ghost", className: "justify-start" })}>
                         Vendor home
                       </Link>
                     ) : null}

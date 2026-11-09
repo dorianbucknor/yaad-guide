@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 import { AuthShell } from "@/components/auth/auth-shell";
 import { RestorePanel } from "@/components/auth/restore-panel";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import { formatUntil, purgeDate } from "@/lib/settings/archive";
 import { createClient } from "@/lib/supabase/server";
 

@@ -1,4 +1,4 @@
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 
 /** One block of a settings page: a heading, a line of help, then the controls. */
 export function SettingsSection({

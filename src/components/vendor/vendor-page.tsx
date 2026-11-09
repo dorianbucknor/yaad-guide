@@ -1,41 +1,33 @@
-import Link from "next/link";
-
-import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-/** Shared frame for the vendor pages: left-aligned, one column, a way back. */
+/** Page heading and width for the vendor and admin screens; the shell supplies navigation and the main landmark. */
 export function VendorPage({
   title,
   description,
-  backHref = "/vendor",
-  backLabel = "Vendor home",
   wide = false,
+  full = false,
+  banner,
   children,
 }: {
   title: string;
   description?: string;
+  /** Kept for existing callers; the shell's navigation replaces the back link. */
   backHref?: string;
   backLabel?: string;
   wide?: boolean;
+  full?: boolean;
+  /** A strip above the heading, such as the red "needs attention" banner. */
+  banner?: React.ReactNode;
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
-    <main className={cn(
-        "mx-auto flex min-h-dvh w-full flex-col gap-8 px-4 py-10 md:py-16",
-        wide ? "max-w-4xl" : "max-w-2xl",
-      )}>
-      <div className="flex flex-col gap-3">
-        <div>
-          <Link href={backHref} className={buttonVariants({ variant: "ghost", size: "sm" })}>
-            {backLabel}
-          </Link>
-        </div>
-        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{title}</h1>
-        {description ? (
-          <p className="max-w-[65ch] text-muted-foreground">{description}</p>
-        ) : null}
-      </div>
+    <div className={cn("flex w-full flex-col gap-6", !full && (wide ? "max-w-4xl" : "max-w-2xl"))}>
+      {banner}
+      <header className="flex flex-col gap-1">
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>
+        {description ? <p className="max-w-[65ch] text-muted-foreground">{description}</p> : null}
+      </header>
       {children}
-    </main>
+    </div>
   );
 }

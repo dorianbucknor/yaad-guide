@@ -30,6 +30,9 @@ export type AdminProfileDetail = {
   reviewNote: string | null;
   submittedAt: string | null;
   owner: { name: string; phone: string | null };
+  /** Path in the public avatars bucket, and when an admin confirmed it shows the driver. */
+  profilePhotoPath: string | null;
+  photoVerifiedAt: string | null;
   vehicles: VendorVehicle[];
   documents: VendorDocument[];
 };
@@ -100,7 +103,7 @@ export async function getAdminProfile(id: string): Promise<AdminProfileDetail | 
   const { data: profile } = await supabase
     .from("vendor_profiles")
     .select(
-      "id, account_id, business_name, primary_region, status, review_note, submitted_at",
+      "id, account_id, business_name, primary_region, status, review_note, submitted_at, photo_verified_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -109,7 +112,7 @@ export async function getAdminProfile(id: string): Promise<AdminProfileDetail | 
   const [{ data: owner }, { data: vehicles }, { data: accountDocs }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("first_name, last_name, phone")
+      .select("first_name, last_name, phone, profile_photo_link")
       .eq("id", profile.account_id)
       .maybeSingle(),
     supabase
@@ -156,6 +159,8 @@ export async function getAdminProfile(id: string): Promise<AdminProfileDetail | 
       name: fullName(owner ?? undefined),
       phone: owner?.phone ?? null,
     },
+    profilePhotoPath: owner?.profile_photo_link ?? null,
+    photoVerifiedAt: profile.photo_verified_at,
     vehicles: (vehicles ?? []).map((v) => ({
       id: v.id as string,
       vehicleType: v.vehicle_type as string,

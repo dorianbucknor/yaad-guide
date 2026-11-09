@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { ARCHIVED_MESSAGE, isArchivedUser } from "@/lib/auth/archived";
+import { GENERIC, failure, requireUser } from "@/lib/auth/action-helpers";
 import { fromZod, type ActionResult } from "@/lib/auth/result";
 import {
   businessSchema,
@@ -15,34 +15,12 @@ import { createClient } from "@/lib/supabase/server";
 
 import { isOwnDocumentPath } from "./documents";
 
-const SIGN_IN_AGAIN = "Please sign in again to continue.";
-const GENERIC = "Something went wrong. Please try again.";
 const NEED_BUSINESS = "Save your business details first.";
 const BAD_PATH = "That file path is not allowed.";
 const DUPLICATE_PLATE =
   "That plate is already registered. If it is your vehicle, request a transfer.";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
-type Failure = { ok: false; error: string; fieldErrors?: Record<string, string> };
-
-async function requireUser(): Promise<
-  { supabase: Client; userId: string } | { failure: Failure }
-> {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) return { failure: { ok: false, error: SIGN_IN_AGAIN } };
-  if (isArchivedUser(data.user)) return { failure: { ok: false, error: ARCHIVED_MESSAGE } };
-  return { supabase, userId: data.user.id };
-}
-
-/** Our own database functions raise P0001 with a message meant for the vendor. */
-function failure(context: string, error: { message: string; code?: string }): Failure {
-  console.error(`${context}: ${error.message}`);
-  if (error.code === "P0001") return { ok: false, error: error.message };
-  if (error.code === "42501") return { ok: false, error: "You can't do that." };
-  if (error.code === "P0002") return { ok: false, error: "We couldn't find that." };
-  return { ok: false, error: GENERIC };
-}
 
 async function moveProfileId(supabase: Client, userId: string): Promise<string | null> {
   const { data } = await supabase
@@ -74,7 +52,7 @@ export async function saveBusinessAction(input: unknown): Promise<ActionResult> 
         .insert({ account_id: userId, category: "move", ...business });
   if (error) return failure("Saving business details failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -104,7 +82,7 @@ export async function addVehicleAction(input: unknown): Promise<ActionResult> {
   }
   if (error) return failure("Adding a vehicle failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -116,7 +94,7 @@ export async function removeVehicleAction(vehicleId: string): Promise<ActionResu
   const { error } = await session.supabase.from("vendor_vehicles").delete().eq("id", vehicleId);
   if (error) return failure("Removing a vehicle failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -174,7 +152,7 @@ export async function recordDocumentAction(input: unknown): Promise<ActionResult
     if (error) return failure("Recording a document failed", error);
   }
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -189,7 +167,7 @@ export async function submitProfileAction(): Promise<ActionResult> {
   const { error } = await supabase.rpc("submit_vendor_profile", { p_profile_id: profileId });
   if (error) return failure("Submitting the profile failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -201,7 +179,7 @@ export async function setActiveVehicleAction(vehicleId: string): Promise<ActionR
   const { error } = await session.supabase.rpc("set_active_vehicle", { p_vehicle_id: vehicleId });
   if (error) return failure("Activating a vehicle failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -217,7 +195,7 @@ export async function requestTransferAction(input: unknown): Promise<ActionResul
   });
   if (error) return failure("Requesting a transfer failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -235,7 +213,7 @@ export async function respondTransferAction(
   });
   if (error) return failure("Answering a transfer failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -249,6 +227,6 @@ export async function withdrawTransferAction(transferId: string): Promise<Action
   });
   if (error) return failure("Withdrawing a transfer failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }

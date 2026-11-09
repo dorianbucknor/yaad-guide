@@ -21,6 +21,6 @@ export async function GET(request: NextRequest) {
   await supabase.auth.refreshSession();
 
   // A verified phone is on auth.users.phone; a pending change is not.
-  const to = data.user.phone ? "/vendor" : "/auth/phone?next=%2Fvendor";
+  const to = data.user.phone ? "/v" : "/auth/phone?next=%2Fv";
   return NextResponse.redirect(new URL(to, request.url));
 }

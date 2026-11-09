@@ -76,11 +76,14 @@ describe("service-role client stays on the server", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("is imported only by the purge route", () => {
+  it("is imported only by the two cron routes", () => {
     const importers = sourceFiles(root)
       .filter((file) => !/\.test\.tsx?$/.test(file))
       .filter((file) => readFileSync(file, "utf8").includes("@/lib/supabase/admin"))
       .map((file) => relative(root, file).replace(/\\/g, "/"));
-    expect(importers).toEqual(["app/api/cron/purge-archived/route.ts"]);
+    expect(importers.sort()).toEqual([
+      "app/api/cron/expire-move-requests/route.ts",
+      "app/api/cron/purge-archived/route.ts",
+    ]);
   });
 });

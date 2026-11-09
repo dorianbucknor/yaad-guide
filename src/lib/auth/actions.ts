@@ -81,7 +81,10 @@ export async function signInAction(
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, error: toAuthMessage(error) };
-  redirect(safeNextPath(next));
+  // The form hands over "/" when no page was asked for: that means "my dashboard".
+  // The success page shows a short message, then sends the person on.
+  const asked = next && next !== "/" ? safeNextPath(next, "") : "";
+  redirect(`/auth/success?kind=signed-in${asked ? `&next=${encodeURIComponent(asked)}` : ""}`);
 }
 
 export async function signOutAction(): Promise<void> {
