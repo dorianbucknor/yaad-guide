@@ -21,6 +21,8 @@ describe("document rules", () => {
   it("does not need an expiry for the two vibe documents", () => {
     expect(needsExpiry("business_registration")).toBe(false);
     expect(needsExpiry("venue_permit")).toBe(false);
+    expect(needsExpiry("health_permit")).toBe(false);
+    expect(DOC_TYPES).toContain("health_permit");
     expect(DOC_TYPES).toContain("business_registration");
     expect(DOC_TYPES).toContain("venue_permit");
   });
