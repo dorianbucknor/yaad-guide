@@ -254,3 +254,12 @@
 .dark [data-shell] {
   --sidebar: oklch(0.24 0.046 165.9);
 }
+
+@keyframes redirect-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

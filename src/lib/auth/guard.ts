@@ -25,6 +25,7 @@ function isUnder(pathname: string, base: string): boolean {
 const AUTH_OPEN_WHEN_SIGNED_IN = [
   "/auth/reset-password",
   "/auth/confirm",
+  "/auth/success",
   "/auth/callback",
   "/auth/phone",
   "/auth/forbidden",
@@ -36,7 +37,7 @@ const AUTH_OPEN_WHEN_SIGNED_IN = [
 ];
 
 // Auth routes that need a session even though they live under /auth.
-const AUTH_NEEDS_SESSION = ["/auth/phone", "/auth/vendor/complete", "/auth/restore"];
+const AUTH_NEEDS_SESSION = ["/auth/phone", "/auth/success", "/auth/vendor/complete", "/auth/restore"];
 
 const NEEDS_SESSION = ["/profile", "/settings", "/plan/checkout", "/v", "/admin"];
 

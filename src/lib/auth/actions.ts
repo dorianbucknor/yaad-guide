@@ -12,11 +12,9 @@ import {
 } from "@/lib/schemas/auth";
 import { createClient } from "@/lib/supabase/server";
 
-import { dashboardFor } from "./dashboard";
 import { toAuthMessage } from "./errors";
 import { safeNextPath } from "./next-path";
 import { fromZod, type ActionResult } from "./result";
-import { getViewer } from "./viewer";
 
 const VENDOR_COMPLETE = "/auth/vendor/complete";
 
@@ -83,10 +81,10 @@ export async function signInAction(
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { ok: false, error: toAuthMessage(error) };
-  const { data } = await supabase.auth.getClaims();
   // The form hands over "/" when no page was asked for: that means "my dashboard".
-  const asked = next && next !== "/" ? next : undefined;
-  redirect(safeNextPath(asked, dashboardFor(getViewer(data?.claims ?? null).role)));
+  // The success page shows a short message, then sends the person on.
+  const asked = next && next !== "/" ? safeNextPath(next, "") : "";
+  redirect(`/auth/success?kind=signed-in${asked ? `&next=${encodeURIComponent(asked)}` : ""}`);
 }
 
 export async function signOutAction(): Promise<void> {

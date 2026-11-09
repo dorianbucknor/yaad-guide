@@ -12,7 +12,12 @@ export async function GET(request: NextRequest) {
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(new URL(next, request.url));
+    if (!error) {
+      const target = new URL("/auth/success", request.url);
+      target.searchParams.set("kind", "signed-in");
+      if (next !== "/") target.searchParams.set("next", next);
+      return NextResponse.redirect(target);
+    }
     console.error(`OAuth code exchange failed: ${error.name}: ${error.message}`);
   } else {
     console.error(
