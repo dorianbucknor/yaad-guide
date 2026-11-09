@@ -74,8 +74,8 @@ export const addressSchema = z.object({
 });
 export type AddressInput = z.input<typeof addressSchema>;
 
-export const ticketTypeSchema = z
-  .object({
+/** The ticket fields alone; the form checks these, then asks for the free-ticket confirmation. */
+export const ticketFieldsSchema = z.object({
     id: z.uuid().nullable().optional(),
     name: z.string().trim().min(1, "Name the ticket.").max(80, "Keep the name under 80 characters."),
     description: optionalText(
@@ -99,7 +99,9 @@ export const ticketTypeSchema = z
       .optional()
       .transform((value) => value ?? null),
     confirmFree: z.boolean().default(false),
-  })
+});
+
+export const ticketTypeSchema = ticketFieldsSchema
   .refine((ticket) => ticket.price > 0 || ticket.confirmFree, {
     message: "Confirm that this ticket is free.",
     path: ["confirmFree"],
@@ -109,6 +111,8 @@ export const ticketTypeSchema = z
     path: ["discountPercent"],
   });
 export type TicketTypeInput = z.input<typeof ticketTypeSchema>;
+export type TicketFieldsInput = z.input<typeof ticketFieldsSchema>;
+export type TicketFieldsOutput = z.output<typeof ticketFieldsSchema>;
 
 export const scheduleRuleSchema = z
   .object({
