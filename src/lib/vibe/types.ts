@@ -1,7 +1,11 @@
 import type { Currency } from "@/lib/move/types";
 
 export type { Currency };
-export type VibeSubtype = "event" | "attraction";
+export type VibeSubtype = "event" | "attraction" | "dining";
+export type VenueType = "street_food" | "cookshop" | "restaurant";
+export type BookingMode = "reservation" | "prepaid" | "listing_only";
+export type ReservationStyle = "slotted" | "hours_only";
+export type PriceTier = "$" | "$$" | "$$$";
 export type VibeStatus = "draft" | "in_review" | "live";
 export type CancellationPolicy = "flexible" | "moderate" | "strict";
 export type SlotStatus = "open" | "closed";
@@ -35,6 +39,18 @@ export type VibeSlot = {
   source: "rule" | "one_off";
 };
 
+export type DiningProfile = {
+  venueType: VenueType;
+  dineIn: boolean;
+  takeout: boolean;
+  cuisineTypes: string[];
+  priceTier: PriceTier | null;
+  bookingMode: BookingMode;
+  reservationStyle: ReservationStyle | null;
+};
+
+export type BusinessHoursRow = { id: string; weekday: number; opensMinutes: number; closesMinutes: number };
+
 export type VibePhoto = { id: string; storagePath: string; isCover: boolean; position: number };
 
 export type VibeListingView = {
@@ -62,6 +78,9 @@ export type VibeListingView = {
   photos: VibePhoto[];
   profileApproved: boolean;
   futureOpenSlotCount: number;
+  /** The dining details; null for events and attractions, and for a dining listing that has none yet. */
+  diningProfile: DiningProfile | null;
+  businessHours: BusinessHoursRow[];
 };
 
 import type { VendorDocument, VendorProfile } from "@/lib/vendor/types";

@@ -5,7 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import type { VibeListingSummary } from "@/lib/vibe/types";
 
 const STATUS_LABEL = { draft: "Draft", in_review: "In review", live: "Live" } as const;
-const SUBTYPE_LABEL = { event: "Event", attraction: "Attraction" } as const;
+const SUBTYPE_LABEL = { event: "Event", attraction: "Attraction", dining: "Dining" } as const;
 
 const nextSlotFormat = new Intl.DateTimeFormat("en-JM", {
   timeZone: "America/Jamaica",

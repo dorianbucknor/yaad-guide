@@ -15,7 +15,7 @@ const FLAG_LABEL: Record<string, string> = {
   price: "Prices changed",
   photo: "Photos changed",
 };
-const SUBTYPE_LABEL = { event: "Event", attraction: "Attraction" } as const;
+const SUBTYPE_LABEL = { event: "Event", attraction: "Attraction", dining: "Dining" } as const;
 
 function VibeListingCard({ listing }: { listing: ReviewVibeListing }): React.JSX.Element {
   const { pending, run } = useSave();

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { VIBE_CONFIG } from "@/lib/vibe/config";
 
 export const CURRENCIES = ["usd", "jmd"] as const;
-export const SUBTYPES = ["event", "attraction"] as const;
+export const SUBTYPES = ["event", "attraction", "dining"] as const;
 export const POLICIES = ["flexible", "moderate", "strict"] as const;
 export const PARISHES = [
   "Kingston",

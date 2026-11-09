@@ -200,6 +200,9 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
     })),
     profileApproved: profile?.status === "approved",
     futureOpenSlotCount: count ?? 0,
+    // Filled in for dining listings by a later change.
+    diningProfile: null,
+    businessHours: [],
   };
 }
 
