@@ -82,3 +82,12 @@ export type VibeListingSummary = {
   nextSlotAt: string | null;
   openFlags: number;
 };
+
+export type UpcomingSlot = {
+  id: string;
+  listingId: string;
+  listingTitle: string;
+  startsAt: string;
+  capacity: number;
+  booked: number;
+};

@@ -13,6 +13,7 @@ import type {
   VibeSubtype,
   CancellationPolicy,
   Currency,
+  UpcomingSlot,
 } from "./types";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
@@ -229,4 +230,53 @@ export async function getVibeSlots(listingId: string, fromDay: string, toDay: st
     status: s.status,
     source: s.source,
   }));
+}
+
+/** The next open slots across all of the vendor's listings, earliest first. Dynamic. */
+export async function getUpcomingVibeSlots(limit = 8): Promise<UpcomingSlot[]> {
+  await connection();
+  const supabase = await createClient();
+  const userId = await currentUserId(supabase);
+  if (!userId) return [];
+  const profile = await vibeProfile(supabase, userId);
+  if (!profile) return [];
+
+  const { data: listings } = await supabase.from("vibe_listings").select("id, title").eq("vendor_profile_id", profile.id);
+  if (!listings || listings.length === 0) return [];
+  const titles = new Map(listings.map((l) => [l.id as string, l.title as string]));
+
+  const { data } = await supabase
+    .from("vibe_slots")
+    .select("id, listing_id, starts_at, capacity, booked")
+    .in("listing_id", [...titles.keys()])
+    .eq("status", "open")
+    .gt("starts_at", new Date().toISOString())
+    .order("starts_at")
+    .limit(limit);
+
+  return (data ?? []).map((s) => ({
+    id: s.id as string,
+    listingId: s.listing_id as string,
+    listingTitle: titles.get(s.listing_id as string) ?? "",
+    startsAt: s.starts_at as string,
+    capacity: s.capacity as number,
+    booked: s.booked as number,
+  }));
+}
+
+/** Days (`YYYY-MM-DD`) the vendor closed, from the first day up to but not including the last. Dynamic. */
+export async function getVibeBlockedDays(listingId: string, fromDay: string, toDay: string): Promise<string[]> {
+  await connection();
+  const supabase = await createClient();
+  const userId = await currentUserId(supabase);
+  if (!userId) return [];
+
+  const { data } = await supabase
+    .from("vibe_blocked_dates")
+    .select("day")
+    .eq("listing_id", listingId)
+    .gte("day", fromDay)
+    .lt("day", toDay)
+    .order("day");
+  return (data ?? []).map((row) => row.day as string);
 }
