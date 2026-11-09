@@ -39,7 +39,7 @@ export default function Page(): React.JSX.Element {
           <Skeleton className="h-96 w-full rounded-2xl" aria-busy="true" />
         }
       >
-        <RegistrationGate skeleton="board" feature="your requests">
+        <RegistrationGate skeleton="board">
           <Requests />
         </RegistrationGate>
       </Suspense>

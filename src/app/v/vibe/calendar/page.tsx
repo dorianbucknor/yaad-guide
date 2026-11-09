@@ -5,6 +5,8 @@ import { Suspense } from "react";
 
 import { Skeleton } from "@/components/skeleton";
 import { buttonVariants } from "@/components/ui/button";
+import { SHELL_ICONS } from "@/components/shell/shell-icons";
+import { SetupPrompt, VendorPrompt } from "@/components/vendor/setup-prompt";
 import { SlotCalendar } from "@/components/vibe/slot-calendar";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { localDayOf } from "@/lib/move/time";
@@ -21,15 +23,24 @@ async function Body({ searchParams }: { searchParams: Promise<{ listing?: string
 
   const listings = overview.profile ? await getMyVibeListings() : [];
   if (listings.length === 0) {
-    return (
-      <div className="flex flex-col items-start gap-4">
-        <p className="max-w-[65ch] text-muted-foreground">
-          {overview.profile ? "You have no listings yet. Add one to see its dates here." : "Set up your Vibe profile first, then add a listing."}
-        </p>
-        <Link href={overview.profile ? "/v/vibe/listings/new" : "/v/vibe/onboarding"} className={buttonVariants()}>
-          {overview.profile ? "New listing" : "Start setup"}
-        </Link>
-      </div>
+    return overview.profile ? (
+      <VendorPrompt
+        icon={SHELL_ICONS.vibe}
+        title="No listings yet"
+        description="Add a listing to see its dates here."
+        action={
+          <Link href="/v/vibe/listings/new" className={buttonVariants()}>
+            New listing
+          </Link>
+        }
+      />
+    ) : (
+      <SetupPrompt
+        category="vibe"
+        status={undefined}
+        setupHref="/v/vibe/onboarding"
+        lead="You need a vendor profile before you can see dates."
+      />
     );
   }
 

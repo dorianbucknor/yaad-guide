@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { Skeleton } from "@/components/skeleton";
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { VendorPrompt } from "@/components/vendor/setup-prompt";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { SHELL_ICONS } from "@/components/shell/shell-icons";
 
@@ -36,17 +36,11 @@ async function Body({ params }: { params: Promise<Params> }): Promise<React.JSX.
 
   return (
     <VendorPage title={`${info.name} ${page.toLowerCase()}`} description={`Vendor tools for ${info.name}.`}>
-      <Empty className="max-w-xl self-start border">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <Icon aria-hidden />
-          </EmptyMedia>
-          <EmptyTitle>{info.name} vendors are coming soon</EmptyTitle>
-          <EmptyDescription>
-            Move is open for vendors now. {info.name} listings, bookings and your {info.name} profile will appear here when it opens.
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
+      <VendorPrompt
+        icon={Icon}
+        title={`${info.name} vendors are coming soon`}
+        description={`Move is open for vendors now. ${info.name} listings, bookings and your ${info.name} vendor profile will appear here when it opens.`}
+      />
     </VendorPage>
   );
 }

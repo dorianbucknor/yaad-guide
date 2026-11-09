@@ -1,7 +1,9 @@
 import Link from "next/link";
 
+import { SHELL_ICONS } from "@/components/shell/shell-icons";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { VendorPrompt } from "@/components/vendor/setup-prompt";
 import type { VibeListingSummary } from "@/lib/vibe/types";
 
 const STATUS_LABEL = { draft: "Draft", in_review: "In review", live: "Live" } as const;
@@ -20,14 +22,16 @@ const nextSlotFormat = new Intl.DateTimeFormat("en-JM", {
 export function ListingList({ listings }: { listings: VibeListingSummary[] }): React.JSX.Element {
   if (listings.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-4">
-        <p className="max-w-[65ch] text-muted-foreground">
-          You have no listings yet. Add an event or an attraction, set its tickets and times, then send it for review.
-        </p>
-        <Link href="/v/vibe/listings/new" className={buttonVariants()}>
-          New listing
-        </Link>
-      </div>
+      <VendorPrompt
+        icon={SHELL_ICONS.vibe}
+        title="No listings yet"
+        description="Add an event or an attraction, set its tickets and times, then send it for review."
+        action={
+          <Link href="/v/vibe/listings/new" className={buttonVariants()}>
+            New listing
+          </Link>
+        }
+      />
     );
   }
 

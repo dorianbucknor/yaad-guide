@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Skeleton } from "@/components/skeleton";
+import { SetupPrompt } from "@/components/vendor/setup-prompt";
 import { buttonVariants } from "@/components/ui/button";
 import { VibeDocuments } from "@/components/vibe/documents-panel";
 import { StatusBanner } from "@/components/vendor/status-banner";
@@ -21,16 +22,7 @@ async function Body(): Promise<React.JSX.Element> {
 
   const profile = overview.profile;
   if (!profile) {
-    return (
-      <div className="flex flex-col items-start gap-4">
-        <p className="max-w-[65ch] text-muted-foreground">
-          You have not set up a Vibe profile yet. It takes your business details and two documents.
-        </p>
-        <Link href="/v/vibe/onboarding" className={buttonVariants()}>
-          Start setup
-        </Link>
-      </div>
-    );
+    return <SetupPrompt category="vibe" status={undefined} setupHref="/v/vibe/onboarding" />;
   }
 
   const mode = vibeProfileMode(profile.status);
