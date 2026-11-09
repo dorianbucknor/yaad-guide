@@ -7,11 +7,19 @@ import type { VibeListingView } from "@/lib/vibe/types";
 
 import { BasicsTab } from "./basics-tab";
 import { LISTING_TABS, type ListingTab } from "./listing-tab-names";
+import { LocationTab } from "./location-tab";
+import { PhotosTab } from "./photos-tab";
+import { PolicyTab } from "./policy-tab";
+import { ScheduleTab } from "./schedule-tab";
 import { TicketsTab } from "./tickets-tab";
 
 const LABELS: Record<ListingTab, string> = {
   basics: "Basics",
   tickets: "Tickets",
+  schedule: "Schedule",
+  photos: "Photos",
+  location: "Location",
+  policy: "Cancellation",
 };
 
 export function ListingTabs({
@@ -36,6 +44,18 @@ export function ListingTabs({
       </TabsContent>
       <TabsContent value="tickets">
         <TicketsTab listing={listing} />
+      </TabsContent>
+      <TabsContent value="schedule">
+        <ScheduleTab listing={listing} />
+      </TabsContent>
+      <TabsContent value="photos">
+        <PhotosTab listing={listing} />
+      </TabsContent>
+      <TabsContent value="location">
+        <LocationTab listing={listing} />
+      </TabsContent>
+      <TabsContent value="policy">
+        <PolicyTab listing={listing} />
       </TabsContent>
     </Tabs>
   );

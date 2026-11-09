@@ -10,8 +10,8 @@ import type { ActionResult } from "@/lib/auth/result";
 export function useSave(): {
   pending: boolean;
   run: (
-    action: () => Promise<ActionResult>,
-    options?: { success?: string; onFail?: (result: Extract<ActionResult, { ok: false }>) => void; onDone?: () => void },
+    action: () => Promise<ActionResult<unknown>>,
+    options?: { success?: string; onFail?: (result: Extract<ActionResult<unknown>, { ok: false }>) => void; onDone?: () => void },
   ) => void;
 } {
   const router = useRouter();
