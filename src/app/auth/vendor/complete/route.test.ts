@@ -27,6 +27,6 @@ describe("GET /auth/vendor/complete", () => {
       new NextRequest("http://localhost/auth/vendor/complete"),
     );
     expect(calls).toEqual(["rpc", "refresh"]);
-    expect(response.headers.get("location")).toBe("http://localhost/vendor");
+    expect(response.headers.get("location")).toBe("http://localhost/v");
   });
 });
