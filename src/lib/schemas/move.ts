@@ -19,6 +19,7 @@ export const listingSchema = z.object({
   baseFare: optionalMoney("base fare"),
   perKm: optionalMoney("price per km"),
   hourlyRate: optionalMoney("hourly rate"),
+  cancellationPolicy: z.enum(["flexible", "moderate"], { error: "Choose a cancellation policy." }).default("flexible"),
   description: z
     .string()
     .max(500, "Keep the description under 500 characters.")

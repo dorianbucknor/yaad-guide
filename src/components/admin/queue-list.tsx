@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
 import { KIND_LABEL, type QueueItem, type QueueKind } from "@/lib/admin/queue";
 import { cn } from "@/lib/utils";
 
@@ -75,9 +76,11 @@ export function QueueList({
         </nav>
       </div>
       {items.length === 0 ? (
-        <p className="p-6 text-sm text-muted-foreground">
-          {all.length === 0 ? "Nothing is waiting. New submissions show up here, oldest first." : "Nothing of this kind is waiting."}
-        </p>
+        <Empty className="rounded-none">
+          <EmptyDescription>
+            {all.length === 0 ? "Nothing is waiting. New submissions show up here, oldest first." : "Nothing of this kind is waiting."}
+          </EmptyDescription>
+        </Empty>
       ) : (
         <ol className="divide-y divide-border">
           {items.map((i) => {

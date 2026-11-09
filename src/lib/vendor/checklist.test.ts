@@ -90,10 +90,10 @@ describe("checklistSteps", () => {
 
   it("links each step to its onboarding page", () => {
     expect(checklistSteps(draft).map((s) => s.href)).toEqual([
-      "/vendor/onboarding/business",
-      "/vendor/onboarding/vehicles",
-      "/vendor/onboarding/documents",
-      "/vendor/onboarding/review",
+      "/v/move/onboarding/business",
+      "/v/move/onboarding/vehicles",
+      "/v/move/onboarding/documents",
+      "/v/move/onboarding/review",
     ]);
   });
 });

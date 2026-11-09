@@ -3,10 +3,11 @@
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNow } from "@/hooks/use-now";
 import type { DashboardRequest, RequestStatus } from "@/lib/move/dashboard";
-import { formatCountdown, formatMoney, STATUS_LABEL } from "@/lib/move/format";
+import { formatCountdown, formatMoney, formatTimeUntil, STATUS_LABEL } from "@/lib/move/format";
 import { toJamaica } from "@/lib/move/time";
 import { cn } from "@/lib/utils";
 
@@ -48,17 +49,26 @@ function whenLabel(iso: string, nowMs: number): string {
 /** Time left to answer. Yellow means it needs you now. */
 function Deadline({ respondBy }: { respondBy: string }): React.JSX.Element {
   const now = useNow(15_000);
-  if (now === 0) return <span className="inline-flex h-7 w-24 rounded-full bg-muted" aria-hidden />;
+  if (now === 0) return <Badge variant="outline" className="h-7 w-24" aria-hidden />;
   const left = new Date(respondBy).getTime() - now;
   return (
-    <span
-      className={cn(
-        "inline-flex h-7 items-center rounded-full px-3 text-sm font-semibold tabular-nums",
-        left < URGENT_MS ? "bg-secondary text-secondary-foreground" : "bg-muted text-foreground",
-      )}
-    >
+    <Badge variant={left < URGENT_MS ? "secondary" : "outline"} className="h-7 px-3 text-sm font-semibold tabular-nums">
       {formatCountdown(left)}
-    </span>
+    </Badge>
+  );
+}
+
+/** How long until the pickup, for trips under a week away. Red inside a day. */
+function PickupIn({ pickupAt }: { pickupAt: string }): React.JSX.Element | null {
+  const now = useNow(30_000);
+  if (now === 0) return null;
+  const ms = new Date(pickupAt).getTime() - now;
+  const text = formatTimeUntil(ms);
+  if (!text) return null;
+  return (
+    <Badge variant={ms < 86_400_000 ? "destructive" : "outline"} className="h-6 px-2.5 tabular-nums">
+      {text}
+    </Badge>
   );
 }
 
@@ -68,7 +78,7 @@ function BoardRow({ r, nowMs, highlighted }: { r: DashboardRequest; nowMs: numbe
   return (
     <li
       className={cn(
-        "grid gap-x-4 gap-y-2 px-4 py-4 md:grid-cols-[8rem_minmax(0,1fr)_auto] md:items-center",
+        "grid gap-x-4 gap-y-2 px-4 py-4 md:grid-cols-[8rem_minmax(0,1fr)_6rem_auto] md:items-center",
         highlighted && "bg-brand-light/40 dark:bg-primary/15",
       )}
     >
@@ -85,6 +95,9 @@ function BoardRow({ r, nowMs, highlighted }: { r: DashboardRequest; nowMs: numbe
         <p className="text-sm text-muted-foreground">
           {who} · {r.partySize} {r.partySize === 1 ? "passenger" : "passengers"} · <span className="tabular-nums">{quote}</span>
         </p>
+      </div>
+      <div className="md:justify-self-start">
+        {r.status === "pending" || r.status === "accepted" ? <PickupIn pickupAt={r.pickupAt} /> : null}
       </div>
       {r.status === "pending" ? (
         <div className="md:justify-self-end">
@@ -140,14 +153,12 @@ export function RequestBoard({
             {tabs.map((t) => (
               <TabsTrigger key={t.key} value={t.key} className="min-h-11 flex-1 gap-1.5 px-2 md:min-h-8 md:flex-none md:gap-2 md:px-3">
                 {t.label}
-                <span
-                  className={cn(
-                    "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums",
-                    t.key === "needs" && t.count > 0 ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground",
-                  )}
+                <Badge
+                  variant={t.key === "needs" && t.count > 0 ? "secondary" : "outline"}
+                  className="min-w-5 px-1.5 font-semibold tabular-nums"
                 >
                   {t.count}
-                </span>
+                </Badge>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -155,7 +166,9 @@ export function RequestBoard({
         {tabs.map((t) => (
           <TabsContent key={t.key} value={t.key}>
             {groups[t.key].length === 0 ? (
-              <p className="p-6 text-sm text-muted-foreground">{EMPTY[t.key]}</p>
+              <Empty className="rounded-none">
+                <EmptyDescription>{EMPTY[t.key]}</EmptyDescription>
+              </Empty>
             ) : (
               <ol className="divide-y divide-border">
                 {groups[t.key].map((r) => (

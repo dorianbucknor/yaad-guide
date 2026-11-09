@@ -139,7 +139,7 @@ export function PhotosTab({ view }: { view: MoveListingView }): React.JSX.Elemen
     return (
       <p className="text-muted-foreground">
         Add and activate a vehicle first.{" "}
-        <Link href="/vendor" className="underline underline-offset-4">
+        <Link href="/v" className="underline underline-offset-4">
           Go to vendor home
         </Link>
       </p>

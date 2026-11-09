@@ -6,7 +6,7 @@ import { Suspense } from "react";
 import { TransferQueue } from "@/components/admin/transfer-queue";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import {
   Table,
   TableBody,

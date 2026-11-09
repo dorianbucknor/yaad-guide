@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { VendorReviewDetail } from "@/components/admin/vendor-review-detail";
 import { VendorPage } from "@/components/vendor/vendor-page";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 
 export const metadata: Metadata = {
   title: "Review a vendor | YaadGuide",

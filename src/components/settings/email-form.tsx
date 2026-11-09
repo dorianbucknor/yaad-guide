@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MailIcon } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { LuMail } from "react-icons/lu";
 import { toast } from "sonner";
 
 import { applyFailure } from "@/components/auth/apply-failure";
@@ -58,7 +58,7 @@ export function EmailForm({
       </p>
       {sentTo ? (
         <Alert>
-          <MailIcon aria-hidden="true" />
+          <LuMail aria-hidden="true" />
           <AlertTitle>Confirm {sentTo}</AlertTitle>
           <AlertDescription>
             We sent a link to that address. Until you open it, you still sign in with your current
@@ -77,8 +77,8 @@ export function EmailForm({
             {...register("email")}
           />
           {formError ? <FieldError>{formError}</FieldError> : null}
-          <Field>
-            <Button type="submit" disabled={pending} className="min-h-11 md:min-h-8">
+          <Field orientation="horizontal">
+            <Button type="submit" disabled={pending} className="min-h-11 w-fit md:min-h-8">
               {pending ? "Sending…" : "Change email"}
             </Button>
           </Field>

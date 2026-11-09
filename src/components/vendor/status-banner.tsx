@@ -1,5 +1,6 @@
 import { BadgeCheck, CircleAlert, Clock, PencilLine } from "lucide-react";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { cn } from "@/lib/utils";
 import type { VendorStatus } from "@/lib/vendor/types";
 
@@ -43,20 +44,13 @@ export function StatusBanner({
 }): React.JSX.Element {
   const { title, body, tone, icon: Icon } = COPY[status];
   return (
-    <section
-      aria-labelledby="vendor-status"
-      className={cn("flex gap-3 rounded-2xl p-5", tone)}
-    >
-      <Icon className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-      <div className="flex flex-col gap-1">
-        <h2 id="vendor-status" className="text-lg font-semibold">
-          {title}
-        </h2>
-        <p className="max-w-[65ch] text-sm">{body}</p>
-        {status === "rejected" && note ? (
-          <p className="mt-2 text-sm font-medium">Reason: {note}</p>
-        ) : null}
-      </div>
-    </section>
+    <Alert className={cn("border-transparent p-4", tone)}>
+      <Icon aria-hidden="true" />
+      <AlertTitle className="text-base font-semibold">{title}</AlertTitle>
+      <AlertDescription className="max-w-[65ch] text-current">
+        {body}
+        {status === "rejected" && note ? <span className="mt-2 block font-medium">Reason: {note}</span> : null}
+      </AlertDescription>
+    </Alert>
   );
 }

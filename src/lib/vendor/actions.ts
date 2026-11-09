@@ -52,7 +52,7 @@ export async function saveBusinessAction(input: unknown): Promise<ActionResult> 
         .insert({ account_id: userId, category: "move", ...business });
   if (error) return failure("Saving business details failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -82,7 +82,7 @@ export async function addVehicleAction(input: unknown): Promise<ActionResult> {
   }
   if (error) return failure("Adding a vehicle failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -94,7 +94,7 @@ export async function removeVehicleAction(vehicleId: string): Promise<ActionResu
   const { error } = await session.supabase.from("vendor_vehicles").delete().eq("id", vehicleId);
   if (error) return failure("Removing a vehicle failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -152,7 +152,7 @@ export async function recordDocumentAction(input: unknown): Promise<ActionResult
     if (error) return failure("Recording a document failed", error);
   }
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -167,7 +167,7 @@ export async function submitProfileAction(): Promise<ActionResult> {
   const { error } = await supabase.rpc("submit_vendor_profile", { p_profile_id: profileId });
   if (error) return failure("Submitting the profile failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -179,7 +179,7 @@ export async function setActiveVehicleAction(vehicleId: string): Promise<ActionR
   const { error } = await session.supabase.rpc("set_active_vehicle", { p_vehicle_id: vehicleId });
   if (error) return failure("Activating a vehicle failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -195,7 +195,7 @@ export async function requestTransferAction(input: unknown): Promise<ActionResul
   });
   if (error) return failure("Requesting a transfer failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -213,7 +213,7 @@ export async function respondTransferAction(
   });
   if (error) return failure("Answering a transfer failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -227,6 +227,6 @@ export async function withdrawTransferAction(transferId: string): Promise<Action
   });
   if (error) return failure("Withdrawing a transfer failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }

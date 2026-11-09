@@ -7,7 +7,7 @@ import { TransferQueue } from "@/components/admin/transfer-queue";
 import { VendorReviewDetail } from "@/components/admin/vendor-review-detail";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import { KIND_LABEL, type QueueItem } from "@/lib/admin/queue";
 import { getListingQueue } from "@/lib/move/admin-queries";
 import { getAdminQueue } from "@/lib/vendor/admin-queries";

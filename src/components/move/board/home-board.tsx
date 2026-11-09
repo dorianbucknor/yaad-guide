@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import type { DashboardData } from "@/lib/move/dashboard";
 import type { PlaceRow } from "@/lib/move/queries";
 

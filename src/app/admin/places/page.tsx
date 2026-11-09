@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import { PlacesAdmin } from "@/components/admin/places-admin";
 import { VendorPage } from "@/components/vendor/vendor-page";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import { getPlacesAdmin } from "@/lib/move/admin-queries";
 
 export const metadata: Metadata = {

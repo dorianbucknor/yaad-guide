@@ -13,8 +13,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 
-import type { NavItem } from "./nav-items";
-import { FooterMenu, RailMenu, TabBar } from "./shell-nav";
+import { Logo } from "@/components/landing/logo";
+import type { NavGroup, NavItem } from "./nav-items";
+import { FooterMenu, GroupMenu, LogoToggle, RailMenu, TabBar } from "./shell-nav";
 
 /**
  * Shared frame for the vendor and admin areas: a rail on desktop, a tab bar on phones
@@ -23,39 +24,42 @@ import { FooterMenu, RailMenu, TabBar } from "./shell-nav";
 export function AppShell({
   role,
   items,
+  groups,
   footerItems,
+  footerLabel,
   children,
 }: {
   /** "Vendor" or "Admin". */
   role: string;
-  items: NavItem[];
+  /** A flat list of pages. */
+  items?: NavItem[];
+  /** Or categories, each with its own pages. */
+  groups?: NavGroup[];
   /** Account links at the foot of the rail and menu sheet. */
   footerItems: NavItem[];
+  /** A muted label over the footer links. */
+  footerLabel?: string;
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
     <SidebarProvider data-shell>
       <Sidebar collapsible="icon">
-        <SidebarHeader className="px-3 py-4">
-          <Link
-            href="/"
-            className="flex flex-col gap-0.5 rounded-md px-2 py-1 outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
-          >
-            <span className="text-lg leading-none font-semibold tracking-tight group-data-[collapsible=icon]:hidden">
-              YaadGuide
-            </span>
-            <span className="text-sm text-sidebar-foreground/75 group-data-[collapsible=icon]:hidden">{role}</span>
-          </Link>
+        <SidebarHeader className="flex-row items-center justify-between gap-1 px-3 py-4 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-2">
+          <LogoToggle role={role} />
+          <SidebarTrigger
+            aria-label="Collapse the menu"
+            className="hidden size-9 text-sidebar-foreground hover:bg-white/10 hover:text-sidebar-foreground group-data-[collapsible=icon]:hidden md:inline-flex"
+          />
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupContent>
-              <RailMenu items={items} />
+              {groups ? <GroupMenu groups={groups} /> : <RailMenu items={items ?? []} />}
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter className="pb-4">
-          <FooterMenu items={footerItems} />
+          <FooterMenu items={footerItems} label={footerLabel} />
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
@@ -63,12 +67,13 @@ export function AppShell({
       <SidebarInset className="min-w-0 pb-20 md:pb-0">
         <header className="flex h-14 items-center gap-2 border-b border-border px-4 md:hidden">
           <SidebarTrigger aria-label="Open menu" className="size-11" />
+          <Logo className="h-6 w-auto" />
           <span className="font-semibold tracking-tight">YaadGuide</span>
           <span className="text-sm text-muted-foreground">{role}</span>
         </header>
         <div className="mx-auto w-full max-w-7xl px-4 py-6 md:px-8 md:py-8">{children}</div>
       </SidebarInset>
-      <TabBar items={items} label={`${role} sections`} />
+      <TabBar items={items} groups={groups} label={`${role} sections`} />
     </SidebarProvider>
   );
 }

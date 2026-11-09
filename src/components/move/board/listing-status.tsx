@@ -56,7 +56,7 @@ export function ListingStatus({
               : "Everything is in place. Send your listing for review to go live."}
           </p>
         )}
-        <Link href="/vendor/listing" className={buttonVariants({ variant: live ? "outline" : "default" })}>
+        <Link href="/v/move/listing" className={buttonVariants({ variant: live ? "outline" : "default" })}>
           {live ? "Edit your listing" : "Finish your listing"}
         </Link>
       </CardContent>

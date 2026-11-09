@@ -11,6 +11,7 @@ export function listingPayload(view: MoveListingView, changes: Partial<ListingIn
     perKm: l?.perKm ?? null,
     hourlyRate: l?.hourlyRate ?? null,
     description: l?.description ?? null,
+    cancellationPolicy: l?.cancellationPolicy ?? "flexible",
     ...changes,
   };
 }

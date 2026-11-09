@@ -24,7 +24,7 @@ const NEED_BUSINESS = "Save your business details first.";
 const NEED_LISTING = "Save your listing details first.";
 const BAD_PATH = "That file path is not allowed.";
 
-const LISTING_PATH = "/vendor/listing";
+const LISTING_PATH = "/v/move/listing";
 
 async function moveProfileId(supabase: Client, userId: string): Promise<string | null> {
   const { data } = await supabase
@@ -78,6 +78,7 @@ export async function saveListingAction(input: unknown): Promise<ActionResult> {
     base_fare: d.baseFare,
     per_km: d.perKm,
     hourly_rate: d.hourlyRate,
+    cancellation_policy: d.cancellationPolicy,
     description: d.description,
   };
   const { error } = owned.listingId
@@ -100,7 +101,7 @@ export async function setPausedAction(paused: boolean): Promise<ActionResult> {
     .eq("id", owned.listingId);
   if (error) return failure("Pausing the listing failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   revalidatePath(LISTING_PATH);
   return { ok: true };
 }
@@ -204,7 +205,7 @@ export async function saveAvailabilityAction(input: unknown): Promise<ActionResu
   }
 
   revalidatePath(LISTING_PATH);
-  revalidatePath("/vendor/calendar");
+  revalidatePath("/v/move/calendar");
   return { ok: true };
 }
 
@@ -250,7 +251,7 @@ export async function blockRangeAction(input: unknown): Promise<ActionResult> {
   );
   if (error) return failure("Blocking dates failed", error);
 
-  revalidatePath("/vendor/calendar");
+  revalidatePath("/v/move/calendar");
   return { ok: true };
 }
 
@@ -288,7 +289,7 @@ export async function unblockRangeAction(input: unknown): Promise<ActionResult> 
     if (error) return failure("Freeing dates failed", error);
   }
 
-  revalidatePath("/vendor/calendar");
+  revalidatePath("/v/move/calendar");
   return { ok: true };
 }
 
@@ -365,7 +366,7 @@ export async function submitListingAction(): Promise<ActionResult> {
   });
   if (error) return failure("Submitting the listing failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   revalidatePath(LISTING_PATH);
   return { ok: true };
 }

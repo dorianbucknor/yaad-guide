@@ -17,9 +17,6 @@ async function SecurityContent(): Promise<React.JSX.Element> {
 
   return (
     <div className="flex flex-col gap-8">
-      <SettingsSection title="How you sign in">
-        <SignInMethods methods={state.methods} />
-      </SettingsSection>
       <SettingsSection
         title={state.showCurrentPassword ? "Change password" : "Set a password"}
         description={
@@ -28,18 +25,24 @@ async function SecurityContent(): Promise<React.JSX.Element> {
             : "You sign in with Google now. A password lets you sign in with your email too."
         }
       >
+        <SignInMethods methods={state.methods} />
         <PasswordForm showCurrentPassword={state.showCurrentPassword} />
       </SettingsSection>
       <SettingsSection title="Email" description="We send a link to the new address to confirm it.">
         <EmailForm email={overview.email} pendingEmail={state.pendingEmail} />
       </SettingsSection>
-      <SettingsSection title="Devices" description="Keep this device and sign out everywhere else.">
-        <div>
-          <SignOutOthers />
+      <SettingsSection title="Account">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm font-medium">Other devices</p>
+          <p className="max-w-[65ch] text-sm text-muted-foreground">Keep this device and sign out everywhere else.</p>
+          <div>
+            <SignOutOthers />
+          </div>
         </div>
-      </SettingsSection>
-      <SettingsSection title="Delete account">
-        <DeleteAccount hasPassword={overview.hasPassword} />
+        <div className="flex flex-col gap-2 border-t border-border pt-6">
+          <p className="text-sm font-medium">Delete account</p>
+          <DeleteAccount hasPassword={overview.hasPassword} />
+        </div>
       </SettingsSection>
     </div>
   );

@@ -6,6 +6,8 @@ import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Empty, EmptyDescription } from "@/components/ui/empty";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemSeparator, ItemTitle } from "@/components/ui/item";
 import { removeVehicleAction, setActiveVehicleAction } from "@/lib/vendor/actions";
 import type { VendorVehicle } from "@/lib/vendor/types";
 
@@ -33,53 +35,56 @@ export function VehicleList({
 
   if (vehicles.length === 0) {
     return (
-      <p className="text-muted-foreground">
-        No vehicles yet. Add the one you drive now; you can add more later.
-      </p>
+      <Empty className="border">
+        <EmptyDescription>No vehicles yet. Add the one you drive now; you can add more later.</EmptyDescription>
+      </Empty>
     );
   }
 
   return (
-    <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
-      {vehicles.map((vehicle) => (
-        <li key={vehicle.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-1">
-            <span className="flex flex-wrap items-center gap-2 font-medium">
-              {vehicle.make} {vehicle.model}
-              {vehicle.isActive ? <Badge>Driving now</Badge> : null}
-            </span>
-            <span className="text-sm text-muted-foreground tabular-nums">
-              {vehicle.plate} · {vehicle.vehicleType} · {vehicle.year} · {vehicle.passengerCapacity} passengers
-            </span>
-          </div>
-          {mode === "locked" ? null : (
-            <div className="flex flex-wrap gap-2">
-              {vehicle.isActive ? null : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={pending}
-                  onClick={() => run(() => setActiveVehicleAction(vehicle.id), "Vehicle set")}
-                >
-                  Drive this one
-                </Button>
-              )}
-              {mode === "edit" && !vehicle.isActive ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  disabled={pending}
-                  onClick={() => run(() => removeVehicleAction(vehicle.id), "Vehicle removed")}
-                >
-                  Remove
-                </Button>
-              ) : null}
-            </div>
-          )}
-        </li>
+    <ItemGroup className="rounded-xl border border-border">
+      {vehicles.map((vehicle, index) => (
+        <div key={vehicle.id}>
+          {index > 0 ? <ItemSeparator /> : null}
+          <Item className="flex-wrap">
+            <ItemContent>
+              <ItemTitle>
+                {vehicle.make} {vehicle.model}
+                {vehicle.isActive ? <Badge>Driving now</Badge> : null}
+              </ItemTitle>
+              <ItemDescription className="tabular-nums">
+                {vehicle.plate} · {vehicle.vehicleType} · {vehicle.year} · {vehicle.passengerCapacity} passengers
+              </ItemDescription>
+            </ItemContent>
+            {mode === "locked" ? null : (
+              <ItemActions>
+                {vehicle.isActive ? null : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={pending}
+                    onClick={() => run(() => setActiveVehicleAction(vehicle.id), "Vehicle set")}
+                  >
+                    Drive this one
+                  </Button>
+                )}
+                {mode === "edit" && !vehicle.isActive ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={pending}
+                    onClick={() => run(() => removeVehicleAction(vehicle.id), "Vehicle removed")}
+                  >
+                    Remove
+                  </Button>
+                ) : null}
+              </ItemActions>
+            )}
+          </Item>
+        </div>
       ))}
-    </ul>
+    </ItemGroup>
   );
 }

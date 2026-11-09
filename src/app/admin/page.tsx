@@ -7,7 +7,7 @@ import { LuListChecks } from "react-icons/lu";
 
 import { QueueDetail } from "@/components/admin/queue-detail";
 import { QueueList } from "@/components/admin/queue-list";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { getQueueItems, type QueueKind } from "@/lib/admin/queue";
 import { cn } from "@/lib/utils";

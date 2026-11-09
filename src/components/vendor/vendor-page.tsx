@@ -6,6 +6,7 @@ export function VendorPage({
   description,
   wide = false,
   full = false,
+  banner,
   children,
 }: {
   title: string;
@@ -15,10 +16,13 @@ export function VendorPage({
   backLabel?: string;
   wide?: boolean;
   full?: boolean;
+  /** A strip above the heading, such as the red "needs attention" banner. */
+  banner?: React.ReactNode;
   children: React.ReactNode;
 }): React.JSX.Element {
   return (
     <div className={cn("flex w-full flex-col gap-6", !full && (wide ? "max-w-4xl" : "max-w-2xl"))}>
+      {banner}
       <header className="flex flex-col gap-1">
         <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{title}</h1>
         {description ? <p className="max-w-[65ch] text-muted-foreground">{description}</p> : null}

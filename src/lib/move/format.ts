@@ -17,6 +17,18 @@ export function formatCountdown(ms: number): string {
   return `${hours}h ${minutes % 60}m left`;
 }
 
+const plural = (n: number, unit: string, many: string): string => `${n} ${n === 1 ? unit : many}`;
+
+/** "in 48 mins", "in 5 hrs" or "in 4 days" for a pickup under a week away; null otherwise. */
+export function formatTimeUntil(ms: number): string | null {
+  if (ms <= 0 || ms >= 7 * 86_400_000) return null;
+  const minutes = Math.ceil(ms / 60_000);
+  if (minutes < 60) return `in ${plural(minutes, "min", "mins")}`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `in ${plural(hours, "hr", "hrs")}`;
+  return `in ${plural(Math.floor(hours / 24), "day", "days")}`;
+}
+
 export const STATUS_LABEL = {
   pending: "Pending",
   accepted: "Accepted",

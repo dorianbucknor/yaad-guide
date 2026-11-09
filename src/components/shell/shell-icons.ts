@@ -1,4 +1,10 @@
 import {
+  LuBedDouble,
+  LuBell,
+  LuShieldCheck,
+  LuIdCard,
+  LuPartyPopper,
+  LuBriefcaseBusiness,
   LuCalendarDays,
   LuCarFront,
   LuClipboardCheck,
@@ -19,12 +25,18 @@ export const SHELL_ICONS = {
   calendar: LuCalendarDays,
   listing: LuClipboardCheck,
   vehicle: LuCarFront,
+  business: LuBriefcaseBusiness,
+  stay: LuBedDouble,
+  vibe: LuPartyPopper,
+  profile: LuIdCard,
   documents: LuFileCheck,
   queue: LuListChecks,
   vendors: LuUsers,
   flags: LuFlag,
   places: LuMapPin,
   settings: LuSettings,
+  security: LuShieldCheck,
+  notifications: LuBell,
 } as const;
 
 export type ShellIcon = keyof typeof SHELL_ICONS;

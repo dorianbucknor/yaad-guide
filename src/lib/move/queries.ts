@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 import { readiness, type ReadinessItem } from "./readiness";
+import type { CancellationPolicy } from "./policy";
 import type { Currency } from "./types";
 
 export type PlaceRow = {
@@ -26,6 +27,7 @@ export type MoveListingView = {
     perKm: number | null;
     hourlyRate: number | null;
     description: string | null;
+    cancellationPolicy: CancellationPolicy;
     status: "draft" | "in_review" | "live";
     paused: boolean;
     reviewNote: string | null;
@@ -89,7 +91,7 @@ export async function getMyListing(): Promise<MoveListingView | null> {
     supabase.from("profiles").select("profile_photo_link").eq("id", auth.user.id).maybeSingle(),
     supabase
       .from("move_listings")
-      .select("id, currency, island_wide, base_fare, per_km, hourly_rate, description, status, paused, review_note")
+      .select("id, currency, island_wide, base_fare, per_km, hourly_rate, description, cancellation_policy, status, paused, review_note")
       .eq("vendor_profile_id", profile.id)
       .maybeSingle(),
     supabase
@@ -142,6 +144,7 @@ export async function getMyListing(): Promise<MoveListingView | null> {
           perKm: listing.per_km === null ? null : Number(listing.per_km),
           hourlyRate: listing.hourly_rate === null ? null : Number(listing.hourly_rate),
           description: listing.description,
+          cancellationPolicy: listing.cancellation_policy as CancellationPolicy,
           status: listing.status as "draft" | "in_review" | "live",
           paused: listing.paused,
           reviewNote: listing.review_note,

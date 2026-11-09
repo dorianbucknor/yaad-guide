@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
 import type { ReadinessItem } from "@/lib/move/readiness";
 
 const STEPS: { item: ReadinessItem; label: string; href: string }[] = [
-  { item: "profile_approved", label: "Business profile approved", href: "/vendor" },
-  { item: "vehicle", label: "An active vehicle", href: "/vendor" },
-  { item: "luggage", label: "Luggage space entered", href: "/vendor/listing?tab=photos" },
-  { item: "photos", label: "Front, rear, interior and luggage photos", href: "/vendor/listing?tab=photos" },
+  { item: "profile_approved", label: "Business profile approved", href: "/v" },
+  { item: "vehicle", label: "An active vehicle", href: "/v" },
+  { item: "luggage", label: "Luggage space entered", href: "/v/move/listing?tab=photos" },
+  { item: "photos", label: "Front, rear, interior and luggage photos", href: "/v/move/listing?tab=photos" },
   { item: "profile_photo", label: "Profile photo checked", href: "/profile" },
-  { item: "coverage", label: "Places you serve", href: "/vendor/listing?tab=coverage" },
-  { item: "pricing", label: "Flat rates or a formula", href: "/vendor/listing?tab=pricing" },
-  { item: "availability", label: "Weekly hours", href: "/vendor/listing?tab=availability" },
+  { item: "coverage", label: "Places you serve", href: "/v/move/listing?tab=coverage" },
+  { item: "pricing", label: "Flat rates or a formula", href: "/v/move/listing?tab=pricing" },
+  { item: "availability", label: "Weekly hours", href: "/v/move/listing?tab=availability" },
 ];
 
 /** What the listing still needs, each missing item linking to the step that fixes it. */

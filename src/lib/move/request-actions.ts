@@ -19,7 +19,7 @@ export async function acceptRequestAction(input: unknown): Promise<ActionResult>
   });
   if (error) return failure("Accepting the request failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }
 
@@ -35,6 +35,6 @@ export async function declineRequestAction(input: unknown): Promise<ActionResult
   });
   if (error) return failure("Declining the request failed", error);
 
-  revalidatePath("/vendor");
+  revalidatePath("/v");
   return { ok: true };
 }

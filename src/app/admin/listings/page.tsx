@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 import { ListingReview } from "@/components/admin/listing-review";
 import { VendorPage } from "@/components/vendor/vendor-page";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/skeleton";
 import { getListingQueue } from "@/lib/move/admin-queries";
 
 export const metadata: Metadata = {
