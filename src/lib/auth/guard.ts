@@ -1,3 +1,4 @@
+import { dashboardFor } from "./dashboard";
 import { safeNextPath } from "./next-path";
 
 export type Role = "traveler" | "vendor" | "admin";
@@ -37,11 +38,11 @@ const AUTH_OPEN_WHEN_SIGNED_IN = [
 // Auth routes that need a session even though they live under /auth.
 const AUTH_NEEDS_SESSION = ["/auth/phone", "/auth/vendor/complete", "/auth/restore"];
 
-const NEEDS_SESSION = ["/profile", "/settings", "/plan/checkout", "/vendor", "/admin"];
+const NEEDS_SESSION = ["/profile", "/settings", "/plan/checkout", "/v", "/admin"];
 
 /**
  * Next routes on the decoded path, so match on it too: `/vend%6Fr` must be
- * guarded like `/vendor`. Duplicate slashes collapse; a malformed escape keeps
+ * guarded like `/v`. Duplicate slashes collapse; a malformed escape keeps
  * the raw path.
  */
 function normalizePath(pathname: string): string {
@@ -82,7 +83,7 @@ export function decideAccess(
   if (isUnder(pathname, "/admin")) {
     return viewer.role === "admin" ? allow : { type: "forbidden" };
   }
-  if (isUnder(pathname, "/vendor")) {
+  if (isUnder(pathname, "/v")) {
     return viewer.role === "vendor" || viewer.role === "admin"
       ? allow
       : { type: "forbidden" };
@@ -98,7 +99,7 @@ export function decideAccess(
       return allow;
     }
     const next = new URLSearchParams(search).get("next");
-    return { type: "redirect", to: safeNextPath(next) };
+    return { type: "redirect", to: safeNextPath(next, dashboardFor(viewer.role)) };
   }
   return allow;
 }
