@@ -71,7 +71,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -116,7 +116,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -161,7 +161,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -206,7 +206,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -251,7 +251,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -296,7 +296,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -341,7 +341,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -386,7 +386,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -431,7 +431,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -476,7 +476,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -521,7 +521,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -566,7 +566,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -611,7 +611,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
-<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.</p>
+<p style="margin:0;font:400 13px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">YaadGuide, your digital travel agent for Jamaica.<br>This message was sent to {{ .Email }}.<br>Questions? <a href="mailto:support@yaad-guide.com" style="color:#0A7A49;">support@yaad-guide.com</a></p>
 </td></tr>
 </table>
 </td></tr>
