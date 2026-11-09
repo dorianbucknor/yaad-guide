@@ -65,5 +65,20 @@ select is((select public.review_vendor_profile('57000000-0000-0000-0000-00000000
 select is((select public.review_vendor_profile('57000000-0000-0000-0000-000000000003', 'approved', null)), 'approved',
   'a profile is approved with an unchecked health permit on file');
 
+-- A dining vendor can upload their own health permit (as the vendor, not the superuser).
+reset role;
+insert into auth.users (id, aud, role, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000f4', 'authenticated', 'authenticated', 'f4@example.com', '{}');
+update public.profiles set role = 'vendor' where id = '00000000-0000-0000-0000-0000000000f4';
+insert into public.vendor_profiles (id, account_id, category, primary_region, status) values
+  ('57000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000f4', 'vibe', 'Portland', 'draft');
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub":"00000000-0000-0000-0000-0000000000f4","role":"authenticated","app_metadata":{"role":"vendor"}}', true);
+select lives_ok($$insert into public.vendor_documents (account_id, vendor_profile_id, doc_type, storage_path)
+  values ('00000000-0000-0000-0000-0000000000f4', '57000000-0000-0000-0000-000000000004', 'health_permit',
+  '00000000-0000-0000-0000-0000000000f4/health.pdf')$$,
+  'a vendor can upload their own health permit');
+
 select * from finish();
 rollback;
