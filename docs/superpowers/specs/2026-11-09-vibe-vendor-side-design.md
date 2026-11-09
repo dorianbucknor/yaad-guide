@@ -24,7 +24,7 @@ Let a Vibe vendor sign up, list events and attractions, set when and how many pe
 
 One migration set under `supabase/migrations/`, following the `move_listing_tables` / `move_listing_functions` split.
 
-- **vibe_listings**: `vendor_profile_id`, `subtype` (`event` | `attraction`), `title`, `description`, `area` (public area name), `address_line1`, `address_line2` (optional), `town`, `parish` (one of the 14 parishes), `location` (geopoint, the venue pin), `currency` (`USD` | `JMD`), `duration_minutes`, `booking_cutoff_minutes` (default 60), `cancellation_policy` (`flexible` | `moderate` | `strict`), `status` (`draft` | `in_review` | `live` | `paused`), timestamps.
+- **vibe_listings**: `vendor_profile_id`, `subtype` (`event` | `attraction`), `title`, `description`, `area` (public area name), `address_line1`, `address_line2` (optional), `town`, `parish` (one of the 14 parishes), `location` (geopoint, the venue pin), `currency` (`USD` | `JMD`), `duration_minutes`, `booking_cutoff_minutes` (set by the vendor, default 60, between 0 and 10080 which is 7 days), `cancellation_policy` (`flexible` | `moderate` | `strict`), `status` (`draft` | `in_review` | `live` | `paused`), timestamps.
 - **vibe_ticket_types**: `listing_id`, `name`, `description` (optional, capped at 200 characters), `price` (numeric, in the listing currency), `max_per_booking` (optional), `sort_order`.
 - **vibe_schedule_rules**: `listing_id`, `weekday` (0 to 6), `start_minute` (minutes since Jamaica midnight, as in `move_availability_rules`), `capacity`, optional `valid_from` and `valid_until`.
 - **vibe_slots**: `listing_id`, `starts_at` (timestamptz), `capacity`, `booked` (default 0, never above `capacity`), `status` (`open` | `closed`), `source` (`rule` | `one_off`). Unique on (`listing_id`, `starts_at`). Bookings will decrement through a function in the booking cycle.
@@ -45,7 +45,7 @@ Replace the `vibe` entry in `src/app/v/[category]/[[...slug]]/page.tsx` with rea
 
 - `onboarding`: business name, region, business registration upload (reuse `document-uploader`, `checklist`, `submit-panel`, `status-banner`). Government ID is already on the account.
 - `/v/vibe` (dashboard): listing statuses, upcoming slots with fill, readiness checklist. Booking numbers arrive with the booking cycle; until then fill shows 0.
-- `listings` and `listings/[id]`: list and editor. Editor tabs: Basics, Tickets, Schedule, Photos, Location, Cancellation. Location holds the MapLibre pin picker and the manual address fields.
+- `listings` and `listings/[id]`: list and editor. Editor tabs: Basics (includes the booking cutoff, shown in hours or minutes, default 1 hour), Tickets, Schedule, Photos, Location, Cancellation. Location holds the MapLibre pin picker and the manual address fields.
 - `calendar`: month view of slots. Add a one-off date, change a date's capacity, close or reopen a date.
 - `profile`: vendor profile and optional venue-proof uploads (Trusted badge).
 
@@ -78,8 +78,8 @@ Vitest, following the Move pattern: slot generation from rules (weekday matching
 
 ## Assumptions to confirm during review
 
-- Booking cutoff default of 60 minutes before start.
-- 90-day slot window.
+- Booking cutoff is chosen by the vendor per listing, default 60 minutes, range 0 minutes to 7 days.
+- 90-day slot window (how far ahead weekly-pattern slots exist; one-off dates are not limited by it).
 - Cover photo is the only required photo; the gallery is optional.
 - Ticket description cap of 200 characters.
 - Fixed UTC-5, no daylight saving.
