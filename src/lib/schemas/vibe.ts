@@ -60,6 +60,10 @@ export const vibeBasicsSchema = z.object({
 });
 export type VibeBasicsInput = z.input<typeof vibeBasicsSchema>;
 
+export const policySchema = z.object({
+  cancellationPolicy: z.enum(POLICIES, { error: "Choose a cancellation policy." }),
+});
+
 export const addressSchema = z.object({
   addressLine1: z.string().trim().min(1, "Enter the street address.").max(150, "That is too long."),
   addressLine2: optionalText(150, "That is too long."),

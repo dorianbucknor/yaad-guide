@@ -63,3 +63,22 @@ export type VibeListingView = {
   profileApproved: boolean;
   futureOpenSlotCount: number;
 };
+
+import type { VendorDocument, VendorProfile } from "@/lib/vendor/types";
+
+export type VibeOverview = {
+  userId: string;
+  profile: VendorProfile | null;
+  documents: VendorDocument[];
+  hasGovernmentId: boolean;
+};
+
+export type VibeListingSummary = {
+  id: string;
+  title: string;
+  subtype: VibeSubtype;
+  status: VibeStatus;
+  paused: boolean;
+  nextSlotAt: string | null;
+  openFlags: number;
+};

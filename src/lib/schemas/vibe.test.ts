@@ -6,6 +6,7 @@ import {
   closeDateSchema,
   isOwnVibePhotoPath,
   manualSlotSchema,
+  policySchema,
   scheduleRuleSchema,
   scheduleSchema,
   slotEditSchema,
@@ -42,6 +43,13 @@ describe("vibeBasicsSchema", () => {
     expect(vibeBasicsSchema.safeParse({ ...basics, title: "Hi" }).success).toBe(false);
     expect(vibeBasicsSchema.safeParse({ ...basics, durationMinutes: 5 }).success).toBe(false);
     expect(vibeBasicsSchema.safeParse({ ...basics, cancellationPolicy: "lenient" }).success).toBe(false);
+  });
+});
+
+describe("policySchema", () => {
+  it("accepts the three policies only", () => {
+    expect(policySchema.safeParse({ cancellationPolicy: "strict" }).success).toBe(true);
+    expect(policySchema.safeParse({ cancellationPolicy: "lenient" }).success).toBe(false);
   });
 });
 
