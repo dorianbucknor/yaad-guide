@@ -3,6 +3,8 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { Skeleton } from "@/components/skeleton";
+import { DINING_LISTING_TABS, type DiningListingTab } from "@/components/vibe/dining-listing-tab-names";
+import { DiningListingTabs } from "@/components/vibe/dining-listing-tabs";
 import { LISTING_TABS, type ListingTab } from "@/components/vibe/listing-tab-names";
 import { ListingTabs } from "@/components/vibe/listing-tabs";
 import { VendorPage } from "@/components/vendor/vendor-page";
@@ -24,10 +26,19 @@ async function Editor({ params, searchParams }: Props): Promise<React.JSX.Elemen
     // Signed out and a listing that is not yours look the same from here; sign-in tells them apart.
     redirect(`/auth/sign-in?next=${encodeURIComponent(`/v/vibe/listings/${id}`)}`);
   }
+  const description = "Finish each tab, then send the listing for review.";
+  if (listing.subtype === "dining") {
+    const diningTab: DiningListingTab = DINING_LISTING_TABS.find((t) => t === requested) ?? "basics";
+    return (
+      <VendorPage title={listing.title} description={description} wide>
+        <DiningListingTabs key={diningTab} listing={listing} initialTab={diningTab} />
+      </VendorPage>
+    );
+  }
   const tab: ListingTab = LISTING_TABS.find((t) => t === requested) ?? "basics";
   // Remount when a checklist link changes the tab.
   return (
-    <VendorPage title={listing.title} description="Finish each tab, then send the listing for review." wide>
+    <VendorPage title={listing.title} description={description} wide>
       <ListingTabs key={tab} listing={listing} initialTab={tab} />
     </VendorPage>
   );
