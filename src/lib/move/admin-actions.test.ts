@@ -34,6 +34,7 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
+import { NOT_ALLOWED } from "@/lib/auth/action-helpers";
 import {
   resolveFlagAction,
   resolveSuggestionAction,
@@ -74,7 +75,7 @@ describe("reviewListingAction", () => {
     state.results["rpc.review_listing"] = { error: { message: "permission denied", code: "42501" } };
     expect(await reviewListingAction({ listingId: id, decision: "approve" })).toEqual({
       ok: false,
-      error: "You can't do that.",
+      error: NOT_ALLOWED,
     });
   });
 
@@ -102,8 +103,8 @@ describe("flags and profile photo", () => {
 describe("places", () => {
   it("refuses without the permission and does not write", async () => {
     state.allowed = false;
-    expect(await savePlaceAction(place)).toEqual({ ok: false, error: "You can't do that." });
-    expect(await resolveSuggestionAction({ id, status: "added" })).toEqual({ ok: false, error: "You can't do that." });
+    expect(await savePlaceAction(place)).toEqual({ ok: false, error: NOT_ALLOWED });
+    expect(await resolveSuggestionAction({ id, status: "added" })).toEqual({ ok: false, error: NOT_ALLOWED });
     expect(state.payloads).toEqual({});
   });
 

@@ -3,11 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { GENERIC, failure, requireUser, type Client } from "@/lib/auth/action-helpers";
+import { GENERIC, NOT_ALLOWED, failure, requireUser, type Client } from "@/lib/auth/action-helpers";
 import { fromZod, type ActionResult } from "@/lib/auth/result";
 import { listingReviewSchema, placeSchema, suggestionResolveSchema } from "@/lib/schemas/move";
 
-const FORBIDDEN = "You can't do that.";
+const FORBIDDEN = NOT_ALLOWED;
 
 async function requirePermission(
   permission: "places.manage",

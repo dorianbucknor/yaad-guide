@@ -21,6 +21,7 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 import { resolveVibeFlagAction, reviewVibeListingAction } from "./admin-actions";
+import { NOT_ALLOWED } from "@/lib/auth/action-helpers";
 
 const LISTING = "11111111-1111-4111-8111-111111111111";
 const FLAG = "22222222-2222-4222-8222-222222222222";
@@ -62,7 +63,7 @@ describe("reviewVibeListingAction", () => {
   it("tells a non-admin they cannot do that", async () => {
     state.results["rpc.review_vibe_listing"] = { error: { message: "permission denied", code: "42501" } };
     const result = await reviewVibeListingAction({ listingId: LISTING, decision: "approve" });
-    expect(result).toEqual({ ok: false, error: "You can't do that." });
+    expect(result).toEqual({ ok: false, error: NOT_ALLOWED });
   });
 });
 
