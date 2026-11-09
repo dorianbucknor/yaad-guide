@@ -14,7 +14,7 @@ A matching set of Supabase auth emails in the YaadGuide brand. Each template bel
 - Supabase adds `{{ .SiteURL }}` from the project's Site URL. Set it to the real domain on the hosted project (local is `http://127.0.0.1:3000`).
 - Security scanners can open a link before the person does and use up the token ("Token has expired or is invalid"). If that shows up, switch the link to a page that asks for a button press before it calls `verifyOtp`, or lead with the 6-digit `{{ .Token }}` code.
 - Turn off click tracking in whichever mail provider sends these, since tracking rewrites the links.
-- The footer and security emails mention `support@yaadguide.com`. Change it if that is not the right address.
+- The footer and security emails mention `support@yaad-guide.com`. Change it if that is not the right address.
 
 ## Where to apply them
 
@@ -337,7 +337,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:36px 32px 20px;border-left:1px solid #BFDCCB;border-right:1px solid #BFDCCB;">
 <h1 style="margin:0 0 16px;font:700 26px/1.2 'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;color:#042E1C;">Your password was changed</h1>
-<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">The password for your YaadGuide account was just changed.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaadguide.com.</p>
+<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">The password for your YaadGuide account was just changed.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaad-guide.com.</p>
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
@@ -382,7 +382,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:36px 32px 20px;border-left:1px solid #BFDCCB;border-right:1px solid #BFDCCB;">
 <h1 style="margin:0 0 16px;font:700 26px/1.2 'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;color:#042E1C;">Your email address was changed</h1>
-<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">The email on your YaadGuide account was changed from <strong>{{ .OldEmail }}</strong> to <strong>{{ .Email }}</strong>.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaadguide.com.</p>
+<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">The email on your YaadGuide account was changed from <strong>{{ .OldEmail }}</strong> to <strong>{{ .Email }}</strong>.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaad-guide.com.</p>
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
@@ -427,7 +427,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:36px 32px 20px;border-left:1px solid #BFDCCB;border-right:1px solid #BFDCCB;">
 <h1 style="margin:0 0 16px;font:700 26px/1.2 'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;color:#042E1C;">Your phone number was changed</h1>
-<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">The phone number on your YaadGuide account was changed from <strong>{{ .OldPhone }}</strong> to <strong>{{ .Phone }}</strong>.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaadguide.com.</p>
+<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">The phone number on your YaadGuide account was changed from <strong>{{ .OldPhone }}</strong> to <strong>{{ .Phone }}</strong>.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaad-guide.com.</p>
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
@@ -472,7 +472,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:36px 32px 20px;border-left:1px solid #BFDCCB;border-right:1px solid #BFDCCB;">
 <h1 style="margin:0 0 16px;font:700 26px/1.2 'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;color:#042E1C;">Sign-in method added</h1>
-<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;"><strong>{{ .Provider }}</strong> was linked to your YaadGuide account as a way to sign in.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaadguide.com.</p>
+<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;"><strong>{{ .Provider }}</strong> was linked to your YaadGuide account as a way to sign in.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaad-guide.com.</p>
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
@@ -517,7 +517,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:36px 32px 20px;border-left:1px solid #BFDCCB;border-right:1px solid #BFDCCB;">
 <h1 style="margin:0 0 16px;font:700 26px/1.2 'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;color:#042E1C;">Sign-in method removed</h1>
-<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;"><strong>{{ .Provider }}</strong> was removed from your YaadGuide account as a way to sign in.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaadguide.com.</p>
+<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;"><strong>{{ .Provider }}</strong> was removed from your YaadGuide account as a way to sign in.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaad-guide.com.</p>
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
@@ -562,7 +562,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:36px 32px 20px;border-left:1px solid #BFDCCB;border-right:1px solid #BFDCCB;">
 <h1 style="margin:0 0 16px;font:700 26px/1.2 'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;color:#042E1C;">Verification method added</h1>
-<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">A <strong>{{ .FactorType }}</strong> verification method was added to your YaadGuide account.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaadguide.com.</p>
+<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">A <strong>{{ .FactorType }}</strong> verification method was added to your YaadGuide account.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaad-guide.com.</p>
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
@@ -607,7 +607,7 @@ Authentication emails are the first six. Security notifications are the last sev
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:36px 32px 20px;border-left:1px solid #BFDCCB;border-right:1px solid #BFDCCB;">
 <h1 style="margin:0 0 16px;font:700 26px/1.2 'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;color:#042E1C;">Verification method removed</h1>
-<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">A <strong>{{ .FactorType }}</strong> verification method was removed from your YaadGuide account.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaadguide.com.</p>
+<p style="margin:0 0 16px;font:400 16px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#042E1C;">A <strong>{{ .FactorType }}</strong> verification method was removed from your YaadGuide account.</p><p style="margin:0 0 12px;font:400 14px/1.6 Figtree,'Segoe UI',Helvetica,Arial,sans-serif;color:#46604F;">If this was you, nothing more to do. If it wasn't, reset your password straight away and contact us at support@yaad-guide.com.</p>
 </td></tr>
 <tr><td style="background:#FFFFFF;padding:0 32px 32px;border:1px solid #BFDCCB;border-top:0;border-radius:0 0 16px 16px;">
 <hr style="border:0;border-top:1px solid #BFDCCB;margin:0 0 16px;">
