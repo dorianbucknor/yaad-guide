@@ -49,9 +49,9 @@ select lives_ok($$insert into public.vibe_schedule_rules (listing_id, weekday, s
   values ('38000000-0000-0000-0000-000000000002', 2, 600, 40)$$, 'an owner can add a schedule rule');
 select lives_ok($$insert into public.vibe_slots (listing_id, starts_at, capacity)
   values ('38000000-0000-0000-0000-000000000002', now() + interval '3 days', 20)$$, 'an owner can add a slot');
-select is((select source from public.vibe_slots), 'one_off', 'a slot added by hand is a one-off');
-select lives_ok($$update public.vibe_slots set capacity = 25$$, 'an owner can change a slot capacity');
-select is((select edited from public.vibe_slots), true, 'a hand edit marks the slot as edited');
+select is((select source from public.vibe_slots where capacity = 20), 'one_off', 'a slot added by hand is a one-off');
+select lives_ok($$update public.vibe_slots set capacity = 25 where capacity = 20$$, 'an owner can change a slot capacity');
+select is((select edited from public.vibe_slots where capacity = 25), true, 'a hand edit marks the slot as edited');
 select throws_ok($$insert into public.vibe_photos (listing_id, storage_path)
   values ('38000000-0000-0000-0000-000000000002', 'x/vibe/38000000-0000-0000-0000-000000000002/../y.jpg')$$,
   '23514', null, 'a photo path with dot segments is rejected');
