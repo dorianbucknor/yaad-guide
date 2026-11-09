@@ -101,7 +101,7 @@ export function ListingReview({ listings, flags }: { listings: ReviewListing[]; 
     <div className="flex flex-col gap-12">
       <section aria-labelledby="queue-heading" className="flex flex-col gap-4">
         <h2 id="queue-heading" className="text-xl font-semibold">
-          First listings waiting for review
+          First MOVE listings waiting for review
         </h2>
         {listings.length === 0 ? <p className="text-muted-foreground">Nothing is waiting.</p> : null}
         <ul className="flex flex-col gap-4">
@@ -113,7 +113,7 @@ export function ListingReview({ listings, flags }: { listings: ReviewListing[]; 
 
       <section aria-labelledby="flags-heading" className="flex flex-col gap-4">
         <h2 id="flags-heading" className="text-xl font-semibold">
-          Changes to check on live listings
+          Changes to check on live MOVE listings
         </h2>
         {flags.length === 0 ? <p className="text-muted-foreground">No open flags.</p> : null}
         <ul className="flex flex-col gap-2">

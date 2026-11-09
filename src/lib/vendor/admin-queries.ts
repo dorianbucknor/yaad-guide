@@ -24,6 +24,8 @@ export type QueueTransfer = {
 export type AdminProfileDetail = {
   id: string;
   accountId: string;
+  /** MOVE, STAY or VIBE: which documents and sections apply. */
+  category: string;
   businessName: string | null;
   primaryRegion: string;
   status: VendorStatus;
@@ -103,7 +105,7 @@ export async function getAdminProfile(id: string): Promise<AdminProfileDetail | 
   const { data: profile } = await supabase
     .from("vendor_profiles")
     .select(
-      "id, account_id, business_name, primary_region, status, review_note, submitted_at, photo_verified_at",
+      "id, account_id, category, business_name, primary_region, status, review_note, submitted_at, photo_verified_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -150,6 +152,7 @@ export async function getAdminProfile(id: string): Promise<AdminProfileDetail | 
   return {
     id: profile.id,
     accountId: profile.account_id,
+    category: profile.category as string,
     businessName: profile.business_name,
     primaryRegion: profile.primary_region,
     status: profile.status as VendorStatus,

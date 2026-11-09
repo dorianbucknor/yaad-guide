@@ -41,6 +41,10 @@ export async function VendorReviewDetail({ id }: { id: string }): Promise<React.
             <dd className="text-muted-foreground tabular-nums">{profile.owner.phone ?? "Not verified"}</dd>
           </div>
           <div>
+            <dt className="font-medium">Category</dt>
+            <dd className="text-muted-foreground">{profile.category.toUpperCase()}</dd>
+          </div>
+          <div>
             <dt className="font-medium">Business</dt>
             <dd className="text-muted-foreground">{profile.businessName || "Not set"}</dd>
           </div>
@@ -57,28 +61,30 @@ export async function VendorReviewDetail({ id }: { id: string }): Promise<React.
         verified={Boolean(profile.photoVerifiedAt)}
       />
 
-      <section aria-labelledby="vehicles-heading" className="flex flex-col gap-3">
-        <h2 id="vehicles-heading" className="text-lg font-semibold">
-          Vehicles
-        </h2>
-        {profile.vehicles.length === 0 ? (
-          <p className="text-muted-foreground">No vehicles.</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
-            {profile.vehicles.map((v) => (
-              <li key={v.id} className="flex flex-col gap-1 p-4">
-                <span className="font-medium">
-                  {v.make} {v.model}
-                  {v.isActive ? " (driving now)" : ""}
-                </span>
-                <span className="text-sm text-muted-foreground tabular-nums">
-                  {v.plate} · {v.vehicleType} · {v.year} · {v.passengerCapacity} passengers
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {profile.category === "move" ? (
+        <section aria-labelledby="vehicles-heading" className="flex flex-col gap-3">
+          <h2 id="vehicles-heading" className="text-lg font-semibold">
+            Vehicles
+          </h2>
+          {profile.vehicles.length === 0 ? (
+            <p className="text-muted-foreground">No vehicles.</p>
+          ) : (
+            <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
+              {profile.vehicles.map((v) => (
+                <li key={v.id} className="flex flex-col gap-1 p-4">
+                  <span className="font-medium">
+                    {v.make} {v.model}
+                    {v.isActive ? " (driving now)" : ""}
+                  </span>
+                  <span className="text-sm text-muted-foreground tabular-nums">
+                    {v.plate} · {v.vehicleType} · {v.year} · {v.passengerCapacity} passengers
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ) : null}
 
       <section aria-labelledby="docs-heading" className="flex flex-col gap-3">
         <h2 id="docs-heading" className="text-lg font-semibold">
