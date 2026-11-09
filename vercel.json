@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/purge-archived",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/extend-vibe-slots",
+      "schedule": "30 4 * * *"
     }
   ]
 }
