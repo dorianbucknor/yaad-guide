@@ -26,6 +26,9 @@ select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-0000000000d2","role":"authenticated","app_metadata":{"role":"vendor"}}', true);
 select lives_ok($$insert into public.vibe_listings (vendor_profile_id, subtype, title)
   values ('37000000-0000-0000-0000-000000000002', 'event', 'Reggae night')$$, 'an owner can create a listing');
+select lives_ok($$insert into public.vibe_listings (id, vendor_profile_id, subtype, title)
+  values ('38000000-0000-0000-0000-0000000000f1', '37000000-0000-0000-0000-000000000002', 'event', 'Chosen id')$$,
+  'an owner can choose the id of a new listing (the app does, since insert returning fails the read policy)');
 select throws_ok($$insert into public.vibe_listings (vendor_profile_id, subtype, title)
   values ('37000000-0000-0000-0000-000000000003', 'event', 'Not mine')$$, '42501', null,
   'an owner cannot create a listing under someone else''s profile');

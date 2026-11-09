@@ -117,11 +117,13 @@ describe("createListingAction", () => {
     expect(result).toEqual({ ok: false, error: "Save your business details first." });
   });
 
-  it("creates the listing under the profile and returns its id", async () => {
-    state.results["vibe_listings.insert"] = { data: { id: LISTING } };
+  it("creates the listing under the profile with an id it chose itself, so no row is read back", async () => {
     const result = await createListingAction(basics);
-    expect(result).toEqual({ ok: true, data: { id: LISTING } });
+    expect(result.ok).toBe(true);
+    const id = result.ok ? result.data?.id : undefined;
+    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     expect(state.payloads["vibe_listings.insert"]).toMatchObject({
+      id,
       vendor_profile_id: "p1",
       subtype: "attraction",
       title: "Blue Hole tour",

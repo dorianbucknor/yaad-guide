@@ -307,7 +307,8 @@ grant select on public.vibe_listings, public.vibe_ticket_types, public.vibe_sche
   public.vibe_slots, public.vibe_blocked_dates, public.vibe_photos,
   public.vibe_listing_flags to authenticated;
 
-grant insert (vendor_profile_id, subtype, title, description, area, address_line1, address_line2,
+-- id is insertable so the app can choose it: insert ... returning would fail the read policy.
+grant insert (id, vendor_profile_id, subtype, title, description, area, address_line1, address_line2,
   town, parish, latitude, longitude, currency, duration_minutes, booking_cutoff_minutes,
   auto_generate_slots, cancellation_policy)
   on public.vibe_listings to authenticated;

@@ -60,9 +60,13 @@ export async function createListingAction(input: unknown): Promise<ActionResult<
   if (!profile) return { ok: false, error: NEED_BUSINESS };
 
   const d = parsed.data;
-  const { data, error } = await session.supabase
+  // The id is chosen here: asking the insert to return the row would be refused, because the
+  // read policy cannot see a row that is still being inserted.
+  const id = crypto.randomUUID();
+  const { error } = await session.supabase
     .from("vibe_listings")
     .insert({
+      id,
       vendor_profile_id: profile.id,
       subtype: d.subtype,
       title: d.title,
@@ -72,13 +76,11 @@ export async function createListingAction(input: unknown): Promise<ActionResult<
       duration_minutes: d.durationMinutes,
       booking_cutoff_minutes: d.bookingCutoffMinutes,
       cancellation_policy: d.cancellationPolicy,
-    })
-    .select("id")
-    .single();
-  if (error || !data) return failure("Creating the listing failed", error ?? { message: "no row returned" });
+    });
+  if (error) return failure("Creating the listing failed", error);
 
-  refresh(data.id);
-  return { ok: true, data: { id: data.id } };
+  refresh(id);
+  return { ok: true, data: { id } };
 }
 
 export async function saveBasicsAction(listingId: string, input: unknown): Promise<ActionResult> {
