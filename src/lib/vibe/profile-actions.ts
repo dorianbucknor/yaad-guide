@@ -9,18 +9,23 @@ import { documentMetaSchema } from "@/lib/schemas/vendor";
 import { vibeBusinessSchema } from "@/lib/schemas/vibe";
 import { isOwnDocumentPath } from "@/lib/vendor/documents";
 
+import { listMyVibeEntities, pickVibeEntity, resolveVibeEntity } from "./entities";
+
 const NEED_BUSINESS = "Save your business details first.";
 const BAD_PATH = "That file path is not allowed.";
+const WHICH_BUSINESS = "Choose which business this is for.";
 const VIBE_DOC_TYPES = ["government_id", "business_registration", "venue_permit"];
 
-async function vibeProfileId(supabase: Client, userId: string): Promise<string | null> {
-  const { data } = await supabase
-    .from("vendor_profiles")
-    .select("id")
-    .eq("account_id", userId)
-    .eq("category", "vibe")
-    .maybeSingle();
-  return data?.id ?? null;
+/** The entity's id, or the message saying whether none exists or the caller must choose. */
+async function entityIdFor(
+  supabase: Client,
+  userId: string,
+  entityId: string | undefined,
+): Promise<{ id: string } | { error: string }> {
+  const entities = await listMyVibeEntities(supabase, userId);
+  if (entities.length === 0) return { error: NEED_BUSINESS };
+  const entity = pickVibeEntity(entities, entityId);
+  return entity ? { id: entity.id } : { error: WHICH_BUSINESS };
 }
 
 export async function saveVibeBusinessAction(input: unknown): Promise<ActionResult> {
@@ -30,12 +35,17 @@ export async function saveVibeBusinessAction(input: unknown): Promise<ActionResu
   if (!parsed.success) return fromZod(parsed.error);
 
   const business = { business_name: parsed.data.businessName, primary_region: parsed.data.primaryRegion };
-  const existing = await vibeProfileId(session.supabase, session.userId);
-  const { error } = existing
-    ? await session.supabase.from("vendor_profiles").update(business).eq("id", existing)
+  const { entityId } = parsed.data;
+  if (entityId) {
+    const owned = await resolveVibeEntity(session.supabase, session.userId, entityId);
+    if (!owned) return { ok: false, error: "We couldn't find that business." };
+  }
+  const { error } = entityId
+    ? await session.supabase.from("vendor_profiles").update(business).eq("id", entityId)
     : await session.supabase
         .from("vendor_profiles")
         .insert({ account_id: session.userId, category: "vibe", ...business });
+  if (error?.code === "23505") return { ok: false, error: "You already have a business with that name." };
   if (error) return failure("Saving business details failed", error);
 
   revalidatePath("/v/vibe");
@@ -48,7 +58,7 @@ export async function recordVibeDocumentAction(input: unknown): Promise<ActionRe
   if ("failure" in session) return session.failure;
   const { supabase, userId } = session;
 
-  const parsed = documentMetaSchema.safeParse(input);
+  const parsed = documentMetaSchema.extend({ entityId: z.uuid().optional() }).safeParse(input);
   if (!parsed.success) return fromZod(parsed.error);
   const { docType, path } = parsed.data;
   if (!VIBE_DOC_TYPES.includes(docType)) return { ok: false, error: "That document isn't needed here." };
@@ -59,8 +69,9 @@ export async function recordVibeDocumentAction(input: unknown): Promise<ActionRe
 
   let profileId: string | null = null;
   if (docType !== "government_id") {
-    profileId = await vibeProfileId(supabase, userId);
-    if (!profileId) return { ok: false, error: NEED_BUSINESS };
+    const entity = await entityIdFor(supabase, userId, parsed.data.entityId);
+    if ("error" in entity) return { ok: false, error: entity.error };
+    profileId = entity.id;
   }
 
   const lookup = supabase.from("vendor_documents").select("id, storage_path").eq("doc_type", docType);
@@ -93,14 +104,14 @@ export async function recordVibeDocumentAction(input: unknown): Promise<ActionRe
   return { ok: true };
 }
 
-export async function submitVibeProfileAction(): Promise<ActionResult> {
+export async function submitVibeProfileAction(entityId?: string): Promise<ActionResult> {
   const session = await requireUser();
   if ("failure" in session) return session.failure;
 
-  const profileId = await vibeProfileId(session.supabase, session.userId);
-  if (!profileId) return { ok: false, error: NEED_BUSINESS };
+  const entity = await entityIdFor(session.supabase, session.userId, entityId);
+  if ("error" in entity) return { ok: false, error: entity.error };
 
-  const { error } = await session.supabase.rpc("submit_vendor_profile", { p_profile_id: profileId });
+  const { error } = await session.supabase.rpc("submit_vendor_profile", { p_profile_id: entity.id });
   if (error) return failure("Submitting the profile failed", error);
 
   revalidatePath("/v/vibe");

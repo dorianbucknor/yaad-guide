@@ -83,11 +83,16 @@ export type VibeListingView = {
   businessHours: BusinessHoursRow[];
 };
 
-import type { VendorDocument, VendorProfile } from "@/lib/vendor/types";
+import type { VendorDocument } from "@/lib/vendor/types";
+
+import type { VibeEntity } from "./entities";
 
 export type VibeOverview = {
   userId: string;
-  profile: VendorProfile | null;
+  /** Every VIBE business the account owns. */
+  entities: VibeEntity[];
+  /** The one in view: the one asked for, else the only one, else null. */
+  profile: VibeEntity | null;
   documents: VendorDocument[];
   hasGovernmentId: boolean;
 };
