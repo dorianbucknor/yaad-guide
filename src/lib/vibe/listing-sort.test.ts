@@ -5,6 +5,8 @@ import type { VibeListingSummary } from "./types";
 
 const make = (id: string, subtype: VibeListingSummary["subtype"], status: VibeListingSummary["status"], createdAt: string): VibeListingSummary => ({
   id,
+  entityId: "e1",
+  entityName: "Dolphin Cove Ltd",
   title: id,
   subtype,
   status,

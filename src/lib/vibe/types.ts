@@ -55,6 +55,9 @@ export type VibePhoto = { id: string; storagePath: string; isCover: boolean; pos
 
 export type VibeListingView = {
   id: string;
+  /** The business that owns the listing, and how many businesses the vendor has. */
+  entityName: string | null;
+  entityCount: number;
   subtype: VibeSubtype;
   title: string;
   description: string | null;
@@ -99,6 +102,9 @@ export type VibeOverview = {
 
 export type VibeListingSummary = {
   id: string;
+  /** The business that owns the listing. */
+  entityId: string;
+  entityName: string | null;
   title: string;
   subtype: VibeSubtype;
   status: VibeStatus;

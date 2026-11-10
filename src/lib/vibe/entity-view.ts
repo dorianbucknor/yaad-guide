@@ -11,6 +11,11 @@ export function entityHref(base: string, entityCount: number, entityId: string):
   return entityCount > 1 ? `${base}?entity=${entityId}` : base;
 }
 
+/** A listing title with its business in brackets, when the vendor has several and the business has a name. */
+export function withEntity(title: string, entityName: string | null, show: boolean): string {
+  return show && entityName ? `${title} (${entityName})` : title;
+}
+
 /**
  * Which business's state the setup prompt describes when none is approved yet: one with an admin
  * first, then a rejection (the vendor has something to fix), then whichever was created first.

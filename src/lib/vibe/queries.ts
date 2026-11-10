@@ -71,12 +71,14 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
   const supabase = await createClient();
   const userId = await currentUserId(supabase);
   if (!userId) return [];
-  const entityIds = (await listMyVibeEntities(supabase, userId)).map((e) => e.id);
+  const entities = await listMyVibeEntities(supabase, userId);
+  const entityIds = entities.map((e) => e.id);
   if (entityIds.length === 0) return [];
+  const entityName = new Map(entities.map((e) => [e.id, e.businessName]));
 
   const { data: listings } = await supabase
     .from("vibe_listings")
-    .select("id, title, subtype, status, paused, created_at")
+    .select("id, vendor_profile_id, title, subtype, status, paused, created_at")
     .in("vendor_profile_id", entityIds)
     .order("created_at", { ascending: false });
   if (!listings || listings.length === 0) return [];
@@ -107,6 +109,8 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
 
   return listings.map((l) => ({
     id: l.id as string,
+    entityId: l.vendor_profile_id as string,
+    entityName: entityName.get(l.vendor_profile_id as string) ?? null,
     title: l.title as string,
     subtype: l.subtype as VibeSubtype,
     status: l.status as VibeStatus,
@@ -134,8 +138,22 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
     .maybeSingle();
   if (!l) return null;
 
-  const [{ data: profile }, { data: tickets }, { data: rules }, { data: photos }, { count }, { data: dining }, { data: hours }] = await Promise.all([
-    supabase.from("vendor_profiles").select("status").eq("id", l.vendor_profile_id).maybeSingle(),
+  const [
+    { data: profile },
+    { count: entityCount },
+    { data: tickets },
+    { data: rules },
+    { data: photos },
+    { count },
+    { data: dining },
+    { data: hours },
+  ] = await Promise.all([
+    supabase.from("vendor_profiles").select("status, business_name").eq("id", l.vendor_profile_id).maybeSingle(),
+    supabase
+      .from("vendor_profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", userId)
+      .eq("category", "vibe"),
     supabase
       .from("vibe_ticket_types")
       .select("id, name, description, price, discount_percent, max_per_booking, sort_order")
@@ -210,6 +228,8 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
       isCover: p.is_cover,
       position: p.position,
     })),
+    entityName: (profile?.business_name as string | null | undefined) ?? null,
+    entityCount: entityCount ?? 1,
     profileApproved: profile?.status === "approved",
     futureOpenSlotCount: count ?? 0,
     diningProfile: dining

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { entityHref, setupStatus } from "./entity-view";
+import { entityHref, setupStatus, withEntity } from "./entity-view";
 
 describe("entityHref", () => {
   it("keeps the plain address when the vendor has one business, so the old links still work", () => {
@@ -30,5 +30,19 @@ describe("setupStatus", () => {
 
   it("falls back to the first business", () => {
     expect(setupStatus([e("draft"), e("draft")])).toBe("draft");
+  });
+});
+
+describe("withEntity", () => {
+  it("leaves the title alone for a vendor with one business", () => {
+    expect(withEntity("Blue Hole tour", "Dolphin Cove Ltd", false)).toBe("Blue Hole tour");
+  });
+
+  it("adds the business when the vendor has several", () => {
+    expect(withEntity("Blue Hole tour", "Dolphin Cove Ltd", true)).toBe("Blue Hole tour (Dolphin Cove Ltd)");
+  });
+
+  it("leaves the title alone when the business has no name", () => {
+    expect(withEntity("Blue Hole tour", null, true)).toBe("Blue Hole tour");
   });
 });

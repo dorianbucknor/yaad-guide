@@ -23,7 +23,7 @@ async function Body(): Promise<React.JSX.Element> {
     return (
       <div className="flex flex-col gap-10">
         {entities.length > 1 ? <EntityCards entities={entities} base="/v/vibe/profile" /> : null}
-        <VibeDashboard listings={listings} upcoming={upcoming} />
+        <VibeDashboard listings={listings} upcoming={upcoming} showEntity={entities.length > 1} />
       </div>
     );
   }
