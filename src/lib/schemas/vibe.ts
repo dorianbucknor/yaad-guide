@@ -151,6 +151,12 @@ export const closeDateSchema = z.object({
   closed: z.boolean(),
 });
 
+export const closeRangeSchema = z.object({
+  from: z.iso.date({ error: "Choose a first day." }),
+  to: z.iso.date({ error: "Choose a last day." }),
+  closed: z.boolean(),
+});
+
 export const vibePhotoSchema = z.object({
   listingId: z.uuid(),
   path: z.string().min(1),

@@ -100,6 +100,9 @@ export type VibeListingSummary = {
   paused: boolean;
   nextSlotAt: string | null;
   openFlags: number;
+  createdAt: string;
+  /** False for listings that take no slots: listing only, or dining by opening hours. */
+  usesSlots: boolean;
 };
 
 export type UpcomingSlot = {

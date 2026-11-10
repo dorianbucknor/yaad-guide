@@ -8,6 +8,7 @@ import { fromZod, type ActionResult, type FailedResult } from "@/lib/auth/result
 import {
   addressSchema,
   closeDateSchema,
+  closeRangeSchema,
   isOwnVibePhotoPath,
   manualSlotSchema,
   policySchema,
@@ -280,6 +281,25 @@ export async function setDateClosedAction(listingId: string, input: unknown): Pr
     p_closed: parsed.data.closed,
   });
   if (error) return failure("Changing the date failed", error);
+
+  refresh(listingId);
+  return { ok: true };
+}
+
+/** Closes or reopens a run of days. If any day has bookings, none change. */
+export async function setDatesClosedAction(listingId: string, input: unknown): Promise<ActionResult> {
+  const owned = await requireListing(listingId);
+  if ("failure" in owned) return owned.failure;
+  const parsed = closeRangeSchema.safeParse(input);
+  if (!parsed.success) return fromZod(parsed.error);
+
+  const { error } = await owned.supabase.rpc("set_vibe_dates_closed", {
+    p_listing_id: listingId,
+    p_from: parsed.data.from,
+    p_to: parsed.data.to,
+    p_closed: parsed.data.closed,
+  });
+  if (error) return failure("Changing the dates failed", error);
 
   refresh(listingId);
   return { ok: true };

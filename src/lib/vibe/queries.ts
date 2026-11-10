@@ -87,13 +87,13 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
 
   const { data: listings } = await supabase
     .from("vibe_listings")
-    .select("id, title, subtype, status, paused")
+    .select("id, title, subtype, status, paused, created_at")
     .eq("vendor_profile_id", profile.id)
     .order("created_at", { ascending: false });
   if (!listings || listings.length === 0) return [];
   const ids = listings.map((l) => l.id as string);
 
-  const [{ data: slots }, { data: flags }] = await Promise.all([
+  const [{ data: slots }, { data: flags }, { data: noSlots }] = await Promise.all([
     supabase
       .from("vibe_slots")
       .select("listing_id, starts_at")
@@ -102,7 +102,14 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
       .gt("starts_at", new Date().toISOString())
       .order("starts_at"),
     supabase.from("vibe_listing_flags").select("listing_id").in("listing_id", ids).is("resolved_at", null),
+    // Only dining can skip slots: listing only, or a reservation taken by opening hours.
+    supabase
+      .from("vibe_dining_profiles")
+      .select("listing_id")
+      .in("listing_id", ids)
+      .or("booking_mode.eq.listing_only,reservation_style.eq.hours_only"),
   ]);
+  const withoutSlots = new Set((noSlots ?? []).map((row) => row.listing_id as string));
 
   const next = new Map<string, string>();
   for (const slot of slots ?? []) {
@@ -117,6 +124,8 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
     paused: Boolean(l.paused),
     nextSlotAt: next.get(l.id as string) ?? null,
     openFlags: (flags ?? []).filter((f) => f.listing_id === l.id).length,
+    createdAt: l.created_at as string,
+    usesSlots: !withoutSlots.has(l.id as string),
   }));
 }
 

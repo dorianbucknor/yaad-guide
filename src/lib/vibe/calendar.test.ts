@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { groupSlotsByDay, monthGrid, monthRange, shiftMonth } from "./calendar";
+import { addDays, groupRuns, groupSlotsByDay, monthGrid, monthRange, shiftMonth } from "./calendar";
 import type { VibeSlot } from "./types";
 
 const slot = (startsAt: string): VibeSlot => ({
@@ -11,6 +11,28 @@ const slot = (startsAt: string): VibeSlot => ({
   booked: 0,
   status: "open",
   source: "rule",
+});
+
+describe("addDays", () => {
+  it("crosses month and year ends", () => {
+    expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
+    expect(addDays("2026-03-01", -1)).toBe("2026-02-28");
+  });
+});
+
+describe("groupRuns", () => {
+  it("joins consecutive days and splits at gaps", () => {
+    expect(groupRuns(["2026-11-12", "2026-11-10", "2026-11-11", "2026-11-20"])).toEqual([
+      { from: "2026-11-10", to: "2026-11-12" },
+      { from: "2026-11-20", to: "2026-11-20" },
+    ]);
+  });
+  it("joins across a month end and ignores repeats", () => {
+    expect(groupRuns(["2026-11-30", "2026-12-01", "2026-12-01"])).toEqual([{ from: "2026-11-30", to: "2026-12-01" }]);
+  });
+  it("is empty for no days", () => {
+    expect(groupRuns([])).toEqual([]);
+  });
 });
 
 describe("monthRange", () => {
