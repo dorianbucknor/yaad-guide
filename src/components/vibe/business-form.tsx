@@ -17,10 +17,13 @@ import { saveVibeBusinessAction } from "@/lib/vibe/profile-actions";
 
 /** Business name and region for a Vibe profile; saving keeps the vendor on the page. */
 export function VibeBusinessForm({
+  entityId,
   businessName,
   primaryRegion,
   readOnly,
 }: {
+  /** The business being edited; absent when adding a new one. */
+  entityId?: string;
   businessName: string;
   primaryRegion: string;
   readOnly: boolean;
@@ -36,7 +39,7 @@ export function VibeBusinessForm({
     formState: { errors },
   } = useForm<VibeBusinessInput, unknown, VibeBusinessOutput>({
     resolver: zodResolver(vibeBusinessSchema),
-    defaultValues: { businessName, primaryRegion },
+    defaultValues: { entityId, businessName, primaryRegion },
   });
 
   const onSubmit = handleSubmit(
@@ -46,7 +49,9 @@ export function VibeBusinessForm({
         const result = await saveVibeBusinessAction(values);
         if (result.ok) {
           toast.success("Saved");
-          router.refresh();
+          // A new business is saved under its own address, so the documents below belong to it.
+          if (!entityId && result.data) router.push(`/v/vibe/onboarding?entity=${result.data.id}`);
+          else router.refresh();
         } else {
           const message = applyFailure(result, setError);
           setFormError(message);
@@ -62,9 +67,9 @@ export function VibeBusinessForm({
       <FieldGroup>
         <TextField
           id="vibe-business-name"
-          label="Business name (optional)"
+          label="Business name"
           autoComplete="organization"
-          description="Travelers see this next to your listings. Leave it empty to use your own name."
+          description="The name travelers see as the host of your listings."
           disabled={readOnly}
           error={errors.businessName?.message}
           {...register("businessName")}

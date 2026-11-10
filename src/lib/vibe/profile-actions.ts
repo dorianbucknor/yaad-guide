@@ -28,7 +28,7 @@ async function entityIdFor(
   return entity ? { id: entity.id } : { error: WHICH_BUSINESS };
 }
 
-export async function saveVibeBusinessAction(input: unknown): Promise<ActionResult> {
+export async function saveVibeBusinessAction(input: unknown): Promise<ActionResult<{ id: string }>> {
   const session = await requireUser();
   if ("failure" in session) return session.failure;
   const parsed = vibeBusinessSchema.safeParse(input);
@@ -36,6 +36,8 @@ export async function saveVibeBusinessAction(input: unknown): Promise<ActionResu
 
   const business = { business_name: parsed.data.businessName, primary_region: parsed.data.primaryRegion };
   const { entityId } = parsed.data;
+  // A new entity gets its id here, so the page can move to it without reading the row back.
+  const savedId = entityId ?? crypto.randomUUID();
   if (entityId) {
     const owned = await resolveVibeEntity(session.supabase, session.userId, entityId);
     if (!owned) return { ok: false, error: "We couldn't find that business." };
@@ -44,12 +46,12 @@ export async function saveVibeBusinessAction(input: unknown): Promise<ActionResu
     ? await session.supabase.from("vendor_profiles").update(business).eq("id", entityId)
     : await session.supabase
         .from("vendor_profiles")
-        .insert({ account_id: session.userId, category: "vibe", ...business });
+        .insert({ id: savedId, account_id: session.userId, category: "vibe", ...business });
   if (error?.code === "23505") return { ok: false, error: "You already have a business with that name." };
   if (error) return failure("Saving business details failed", error);
 
   revalidatePath("/v/vibe");
-  return { ok: true };
+  return { ok: true, data: { id: savedId } };
 }
 
 /** Records a file the browser already uploaded to the vendor's own folder. */

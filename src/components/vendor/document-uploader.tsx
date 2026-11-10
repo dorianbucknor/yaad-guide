@@ -29,6 +29,7 @@ export function DocumentUploader({
   readOnly,
   today,
   record = recordDocumentAction,
+  extra,
 }: {
   userId: string;
   docType: DocType;
@@ -39,6 +40,8 @@ export function DocumentUploader({
   today: string;
   /** Saves the uploaded file against the profile; MOVE by default, VIBE passes its own. */
   record?: (input: unknown) => Promise<ActionResult>;
+  /** Extra fields sent with the record call, such as which business a Vibe document is for. */
+  extra?: Record<string, string | undefined>;
 }): React.JSX.Element {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -73,6 +76,7 @@ export function DocumentUploader({
         return;
       }
       const result = await record({
+        ...extra,
         docType,
         vehicleId,
         expiresOn: expiryNeeded ? expiresOn : undefined,

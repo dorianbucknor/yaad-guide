@@ -18,6 +18,7 @@ export function VibeDocuments({
 }): React.JSX.Element {
   const readOnly = mode === "locked";
   const hasProfile = overview.profile !== null;
+  const extra = { entityId: overview.profile?.id };
   const doc = (type: string) => overview.documents.find((d) => d.docType === type);
 
   return (
@@ -30,6 +31,7 @@ export function VibeDocuments({
         readOnly={readOnly}
         today={today}
         record={recordVibeDocumentAction}
+        extra={extra}
       />
       {hasProfile ? (
         <>
@@ -41,6 +43,7 @@ export function VibeDocuments({
             readOnly={readOnly}
             today={today}
             record={recordVibeDocumentAction}
+        extra={extra}
           />
           <div className="flex flex-col gap-2">
             <p className="max-w-[65ch] text-sm text-muted-foreground">
@@ -54,6 +57,7 @@ export function VibeDocuments({
               readOnly={readOnly}
               today={today}
               record={recordVibeDocumentAction}
+        extra={extra}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -69,6 +73,7 @@ export function VibeDocuments({
               readOnly={readOnly}
               today={today}
               record={recordVibeDocumentAction}
+        extra={extra}
             />
           </div>
         </>
