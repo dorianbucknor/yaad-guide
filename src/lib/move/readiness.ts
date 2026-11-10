@@ -17,6 +17,7 @@ export type ReadinessInput = {
   islandWide: boolean;
   placeCount: number;
   flatRateCount: number;
+  distancePricingEnabled: boolean;
   baseFare: number | null;
   perKm: number | null;
   windowCount: number;
@@ -34,7 +35,7 @@ export function readiness(input: ReadinessInput): { ready: boolean; missing: Rea
   }
   if (!input.profilePhotoVerified) missing.push("profile_photo");
   if (!input.islandWide && input.placeCount < 1) missing.push("coverage");
-  const hasFormula = input.baseFare !== null && input.perKm !== null;
+  const hasFormula = input.distancePricingEnabled && input.baseFare !== null && input.perKm !== null;
   if (input.flatRateCount < 1 && !hasFormula) missing.push("pricing");
   if (input.windowCount < 1) missing.push("availability");
   return { ready: missing.length === 0, missing };

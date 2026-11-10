@@ -42,6 +42,7 @@ vi.mock("@/lib/supabase/server", () => ({
           return builder;
         },
         maybeSingle: async () => result(),
+        single: async () => result(),
         then: (resolve: (value: Result) => unknown) => resolve(result()),
       };
       return builder;
@@ -130,12 +131,48 @@ describe("vendor actions", () => {
       year: 2020,
       plate: "AB 1234",
       passengerCapacity: 7,
+      luggageLarge: 3,
+      luggageCarryOn: 4,
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.error).toMatch(/transfer/i);
       expect(result.fieldErrors?.plate).toBeDefined();
     }
+  });
+
+  it("saves the bags a new vehicle holds through the luggage function", async () => {
+    state.results["vendor_profiles.select"] = { data: { id: "p1" } };
+    state.results["vendor_vehicles.insert"] = { data: { id: VEHICLE_ID }, error: null };
+    const result = await addVehicleAction({
+      vehicleType: "SUV",
+      make: "Toyota",
+      model: "Noah",
+      year: 2020,
+      plate: "AB 1234",
+      passengerCapacity: 7,
+      luggageLarge: "3",
+      luggageCarryOn: "4",
+    });
+    expect(result).toEqual({ ok: true });
+    expect(state.rpcs).toContainEqual({
+      name: "save_vehicle_luggage",
+      args: { p_vehicle_id: VEHICLE_ID, p_large: 3, p_carry_on: 4 },
+    });
+  });
+
+  it("asks for the bag counts when they are missing", async () => {
+    state.results["vendor_profiles.select"] = { data: { id: "p1" } };
+    const result = await addVehicleAction({
+      vehicleType: "SUV",
+      make: "Toyota",
+      model: "Noah",
+      year: 2020,
+      plate: "AB 1234",
+      passengerCapacity: 7,
+    });
+    expect(result.ok).toBe(false);
+    expect(state.calls).not.toContain("vendor_vehicles.insert");
   });
 
   it("returns the database's list of missing items and logs it", async () => {

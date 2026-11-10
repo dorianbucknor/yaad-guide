@@ -10,6 +10,7 @@ const base: PricingListing = {
   baseFare: 10,
   perKm: 1.5,
   hourlyRate: 25,
+  distancePricingEnabled: true,
   flatRates: [{ placeAId: "mbj", placeBId: "negril", price: 80 }],
 };
 
@@ -58,6 +59,19 @@ describe("quoteTrip", () => {
   it("keeps the listing currency", () => {
     const jmd = { ...base, currency: "jmd" as const };
     expect(quoteTrip(jmd, "mbj", "negril", routes)).toMatchObject({ currency: "jmd" });
+  });
+});
+
+describe("quoteTrip with price by distance switched off", () => {
+  const off = { ...base, distancePricingEnabled: false };
+  it("still uses a flat rate", () => {
+    expect(quoteTrip(off, "mbj", "negril", routes)).toEqual({ source: "flat", amount: 80, currency: "usd" });
+  });
+  it("gives a custom quote for a pair with no flat rate, even though the numbers are saved", () => {
+    expect(quoteTrip(off, "mbj", "kingston", routes)).toEqual({ source: "none" });
+  });
+  it("keeps hourly hire", () => {
+    expect(quoteHire(off, 4)).toEqual({ source: "formula", amount: 100, currency: "usd" });
   });
 });
 

@@ -16,7 +16,8 @@ import { addVehicleAction, requestTransferAction } from "@/lib/vendor/actions";
 
 import { SelectField } from "./select-field";
 
-export function VehicleForm(): React.JSX.Element {
+/** Adds a vehicle with the bags it holds. Photos come after, once the vehicle exists. */
+export function VehicleForm({ onAdded }: { onAdded?: () => void } = {}): React.JSX.Element {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
   const [duplicatePlate, setDuplicatePlate] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export function VehicleForm(): React.JSX.Element {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(vehicleSchema),
-    defaultValues: { make: "", model: "", plate: "" },
+    defaultValues: { make: "", model: "", plate: "", luggageLarge: "", luggageCarryOn: "" },
   });
 
   const onSubmit = handleSubmit(
@@ -42,8 +43,9 @@ export function VehicleForm(): React.JSX.Element {
         const result = await addVehicleAction(values);
         if (result.ok) {
           toast.success("Vehicle added");
-          reset({ make: "", model: "", plate: "" });
+          reset({ make: "", model: "", plate: "", luggageLarge: "", luggageCarryOn: "" });
           router.refresh();
+          onAdded?.();
         } else {
           const message = applyFailure(result, setError);
           if (result.fieldErrors?.plate) setDuplicatePlate(String(getValues("plate")));
@@ -116,6 +118,25 @@ export function VehicleForm(): React.JSX.Element {
             placeholder="7"
             error={errors.passengerCapacity?.message}
             {...register("passengerCapacity")}
+          />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <TextField
+            id="luggage-large"
+            label="Large bags that fit"
+            inputMode="numeric"
+            placeholder="3"
+            description="With every seat in use."
+            error={errors.luggageLarge?.message}
+            {...register("luggageLarge")}
+          />
+          <TextField
+            id="luggage-carry-on"
+            label="Carry-on bags that fit"
+            inputMode="numeric"
+            placeholder="4"
+            error={errors.luggageCarryOn?.message}
+            {...register("luggageCarryOn")}
           />
         </div>
         {duplicatePlate ? (

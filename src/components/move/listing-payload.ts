@@ -7,6 +7,7 @@ export function listingPayload(view: MoveListingView, changes: Partial<ListingIn
   return {
     currency: l?.currency ?? "usd",
     islandWide: l?.islandWide ?? false,
+    distancePricingEnabled: l?.distancePricingEnabled ?? true,
     baseFare: l?.baseFare ?? null,
     perKm: l?.perKm ?? null,
     hourlyRate: l?.hourlyRate ?? null,

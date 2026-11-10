@@ -5,7 +5,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +28,7 @@ const STATUS_LABEL = { draft: "Draft", in_review: "In review", live: "Live" } as
 export function OverviewTab({ view }: { view: MoveListingView }): React.JSX.Element {
   const { pending, run } = useSave();
   const listing = view.listing;
+  const profileOk = Boolean(view.profile.photoVerifiedAt) && Boolean(view.profilePhotoLink);
   const {
     register,
     handleSubmit,
@@ -58,6 +61,15 @@ export function OverviewTab({ view }: { view: MoveListingView }): React.JSX.Elem
       ) : null}
 
       <ReadinessCard missing={view.readiness.missing} />
+
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="max-w-[65ch] text-sm text-muted-foreground">
+          {profileOk ? "Your profile photo has been checked." : "Travelers see your face. Add a clear photo; an admin checks it."}
+        </p>
+        <Link href="/profile" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          {view.profilePhotoLink ? "Change profile photo" : "Add profile photo"}
+        </Link>
+      </div>
 
       <form onSubmit={save} noValidate>
         <FieldGroup>

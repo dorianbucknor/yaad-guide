@@ -1,21 +1,15 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2Icon } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-import { applyFailure } from "@/components/auth/apply-failure";
-import { TextField } from "@/components/auth/text-field";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { registerVehiclePhotoAction, removeVehiclePhotoAction, saveLuggageAction } from "@/lib/move/actions";
-import type { MoveListingView } from "@/lib/move/queries";
-import { luggageSchema } from "@/lib/schemas/move";
+import { registerVehiclePhotoAction, removeVehiclePhotoAction } from "@/lib/move/actions";
+import type { MoveVehicleView } from "@/lib/move/queries";
 import { createClient } from "@/lib/supabase/client";
 
 import { useSave } from "./use-save";
@@ -28,8 +22,6 @@ const SLOTS = [
 ] as const;
 const EXTENSIONS: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" };
 const MAX_BYTES = 5 * 1024 * 1024;
-
-const luggageForm = luggageSchema.pick({ large: true, carryOn: true });
 
 function PhotoSlot({
   vehicleId,
@@ -46,7 +38,7 @@ function PhotoSlot({
 }): React.JSX.Element {
   const { pending, run } = useSave();
   const [busy, setBusy] = useState(false);
-  const id = `photo-${kind}-${existingId ?? "new"}`;
+  const id = `photo-${vehicleId}-${kind}-${existingId ?? "new"}`;
 
   const upload = async (file: File | undefined) => {
     if (!file) return;
@@ -83,7 +75,7 @@ function PhotoSlot({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4">
+    <div className="flex flex-col gap-3 rounded-xl border border-border p-4">
       <div className="flex items-center justify-between gap-2">
         <Label htmlFor={id} className="text-base font-medium">
           {label}
@@ -122,77 +114,15 @@ function PhotoSlot({
   );
 }
 
-export function PhotosTab({ view }: { view: MoveListingView }): React.JSX.Element {
-  const { pending, run } = useSave();
-  const vehicle = view.vehicle;
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(luggageForm),
-    defaultValues: { large: vehicle?.luggageLarge ?? 0, carryOn: vehicle?.luggageCarryOn ?? 0 },
-  });
-
-  if (!vehicle) {
-    return (
-      <p className="text-muted-foreground">
-        Add and activate a vehicle first.{" "}
-        <Link href="/v" className="underline underline-offset-4">
-          Go to vendor home
-        </Link>
-      </p>
-    );
-  }
-
-  const save = handleSubmit((values) =>
-    run(() => saveLuggageAction({ vehicleId: vehicle.id, ...values }), {
-      success: "Luggage space saved",
-      onFail: (result) => applyFailure(result, setError),
-    }),
-  );
-  const profileOk = Boolean(view.profile.photoVerifiedAt) && Boolean(view.profilePhotoLink);
+/** The four photos a listing needs from this vehicle, and any extras. */
+export function VehiclePhotos({ vehicle }: { vehicle: MoveVehicleView }): React.JSX.Element {
   const extras = vehicle.photos.filter((p) => p.kind === "extra");
-
   return (
-    <div className="flex flex-col gap-10">
-      <section className="flex flex-col gap-4" aria-labelledby="luggage-heading">
-        <h2 id="luggage-heading" className="text-lg font-semibold">
-          Luggage space — {vehicle.label}
-        </h2>
-        <form onSubmit={save} noValidate className="flex flex-col gap-4">
-          <TextField
-            id="luggage-large"
-            label="Large bags that fit"
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max="20"
-            error={errors.large?.message}
-            {...register("large", { valueAsNumber: true })}
-          />
-          <TextField
-            id="luggage-carry-on"
-            label="Carry-on bags that fit"
-            type="number"
-            inputMode="numeric"
-            min="0"
-            max="20"
-            error={errors.carryOn?.message}
-            {...register("carryOn", { valueAsNumber: true })}
-          />
-          <Button type="submit" className="self-start" disabled={pending}>
-            {pending ? "Saving…" : "Save luggage space"}
-          </Button>
-        </form>
-      </section>
-
-      <section className="flex flex-col gap-4" aria-labelledby="photos-heading">
-        <h2 id="photos-heading" className="text-lg font-semibold">
-          Vehicle photos
-        </h2>
-        <p className="max-w-[65ch] text-sm text-muted-foreground">JPG, PNG or WebP, up to 5 MB each. Replacing a photo sends the listing for a quick check.</p>
+    <div className="flex flex-col gap-4">
+      <p className="max-w-[65ch] text-sm text-muted-foreground">
+        JPG, PNG or WebP, up to 5 MB each. Replacing a photo sends the listing for a quick check.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
         {SLOTS.map(({ kind, label }) => (
           <PhotoSlot
             key={kind}
@@ -207,19 +137,7 @@ export function PhotosTab({ view }: { view: MoveListingView }): React.JSX.Elemen
           <PhotoSlot key={photo.id} vehicleId={vehicle.id} kind="extra" label={`Extra photo ${i + 1}`} existingId={photo.id} required={false} />
         ))}
         <PhotoSlot vehicleId={vehicle.id} kind="extra" label="Add another photo" required={false} />
-      </section>
-
-      <section className="flex flex-col gap-3" aria-labelledby="profile-photo-heading">
-        <h2 id="profile-photo-heading" className="text-lg font-semibold">
-          Your profile photo
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          {profileOk ? "Your profile photo has been checked." : "Travelers see your face. Add a clear photo; an admin checks it."}
-        </p>
-        <Link href="/profile" className={buttonVariants({ variant: "outline" }) + " self-start"}>
-          {view.profilePhotoLink ? "Change profile photo" : "Add profile photo"}
-        </Link>
-      </section>
+      </div>
     </div>
   );
 }

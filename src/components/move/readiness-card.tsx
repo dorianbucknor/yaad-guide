@@ -7,12 +7,12 @@ import type { ReadinessItem } from "@/lib/move/readiness";
 const STEPS: { item: ReadinessItem; label: string; href: string }[] = [
   { item: "profile_approved", label: "Business profile approved", href: "/v" },
   { item: "vehicle", label: "An active vehicle", href: "/v" },
-  { item: "luggage", label: "Luggage space entered", href: "/v/move/listing?tab=photos" },
-  { item: "photos", label: "Front, rear, interior and luggage photos", href: "/v/move/listing?tab=photos" },
+  { item: "luggage", label: "Luggage space entered", href: "/v/move/listing?tab=vehicles" },
+  { item: "photos", label: "Front, rear, interior and luggage photos", href: "/v/move/listing?tab=vehicles" },
   { item: "profile_photo", label: "Profile photo checked", href: "/profile" },
-  { item: "coverage", label: "Places you serve", href: "/v/move/listing?tab=coverage" },
+  { item: "coverage", label: "Places you serve", href: "/v/move/listing?tab=service" },
   { item: "pricing", label: "Flat rates or a formula", href: "/v/move/listing?tab=pricing" },
-  { item: "availability", label: "Weekly hours", href: "/v/move/listing?tab=availability" },
+  { item: "availability", label: "Weekly hours", href: "/v/move/listing?tab=service" },
 ];
 
 /** What the listing still needs, each missing item linking to the step that fixes it. */

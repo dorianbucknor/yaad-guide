@@ -12,6 +12,8 @@ export type PricingListing = CoverageListing & {
   baseFare: number | null;
   perKm: number | null;
   hourlyRate: number | null;
+  /** When false the distance formula is ignored; flat rates and hourly hire still apply. */
+  distancePricingEnabled: boolean;
   flatRates: readonly FlatRate[];
 };
 

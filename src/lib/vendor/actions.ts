@@ -68,7 +68,7 @@ export async function addVehicleAction(input: unknown): Promise<ActionResult> {
   if (!profileId) return { ok: false, error: NEED_BUSINESS };
 
   const v = parsed.data;
-  const { error } = await supabase.from("vendor_vehicles").insert({
+  const { data: created, error } = await supabase.from("vendor_vehicles").insert({
     vendor_profile_id: profileId,
     vehicle_type: v.vehicleType,
     make: v.make,
@@ -76,11 +76,20 @@ export async function addVehicleAction(input: unknown): Promise<ActionResult> {
     year: v.year,
     plate: v.plate,
     passenger_capacity: v.passengerCapacity,
-  });
+  }).select("id").single();
   if (error?.code === "23505") {
     return { ok: false, error: DUPLICATE_PLATE, fieldErrors: { plate: DUPLICATE_PLATE } };
   }
   if (error) return failure("Adding a vehicle failed", error);
+  if (!created) return { ok: false, error: GENERIC };
+
+  // Luggage columns are not directly writable (an approved vendor changes them through this function).
+  const { error: luggageError } = await supabase.rpc("save_vehicle_luggage", {
+    p_vehicle_id: created.id,
+    p_large: v.luggageLarge,
+    p_carry_on: v.luggageCarryOn,
+  });
+  if (luggageError) return failure("Saving luggage space failed", luggageError);
 
   revalidatePath("/v");
   return { ok: true };

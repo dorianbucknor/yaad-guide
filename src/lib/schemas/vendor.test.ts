@@ -15,6 +15,8 @@ const goodVehicle = {
   year: 2020,
   plate: "ab 1234",
   passengerCapacity: 7,
+  luggageLarge: 3,
+  luggageCarryOn: 4,
 };
 
 describe("businessSchema", () => {
@@ -28,6 +30,19 @@ describe("businessSchema", () => {
     expect(
       businessSchema.safeParse({ businessName: "x".repeat(81), primaryRegion: "St. Ann" }).success,
     ).toBe(false);
+  });
+});
+
+describe("vehicleSchema luggage space", () => {
+  it("reads the bag counts typed into the form", () => {
+    const result = vehicleSchema.parse({ ...goodVehicle, luggageLarge: "2", luggageCarryOn: "" });
+    expect(result.luggageLarge).toBe(2);
+    expect(result.luggageCarryOn).toBe(0);
+  });
+  it("refuses a negative, fractional or over-20 count", () => {
+    expect(vehicleSchema.safeParse({ ...goodVehicle, luggageLarge: -1 }).success).toBe(false);
+    expect(vehicleSchema.safeParse({ ...goodVehicle, luggageCarryOn: 1.5 }).success).toBe(false);
+    expect(vehicleSchema.safeParse({ ...goodVehicle, luggageLarge: 21 }).success).toBe(false);
   });
 });
 

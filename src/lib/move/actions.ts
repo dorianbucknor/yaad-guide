@@ -75,6 +75,7 @@ export async function saveListingAction(input: unknown): Promise<ActionResult> {
   const row = {
     currency: d.currency,
     island_wide: d.islandWide,
+    distance_pricing_enabled: d.distancePricingEnabled,
     base_fare: d.baseFare,
     per_km: d.perKm,
     hourly_rate: d.hourlyRate,

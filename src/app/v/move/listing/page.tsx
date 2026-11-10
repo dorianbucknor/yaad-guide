@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import {
-  LISTING_TABS,
-  type ListingTab,
-} from "@/components/move/listing-tab-names";
+import { resolveTab, type ListingTab } from "@/components/move/listing-tab-names";
 import { ListingTabs } from "@/components/move/listing-tabs";
 import { RegistrationGate } from "@/components/vendor/registration-gate";
 import { MoveAttention } from "@/components/move/attention-banner";
@@ -23,8 +20,7 @@ async function Editor({
   searchParams: Promise<{ tab?: string }>;
 }): Promise<React.JSX.Element> {
   const { tab: requested } = await searchParams;
-  const tab: ListingTab =
-    LISTING_TABS.find((t) => t === requested) ?? "overview";
+  const tab: ListingTab = resolveTab(requested);
   const [view, places] = await Promise.all([getMyListing(), getPlaces()]);
   if (!view) redirect("/v");
   // Remount when a checklist link changes the tab.
