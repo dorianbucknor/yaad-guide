@@ -27,7 +27,7 @@ async function Body({ searchParams }: Props): Promise<React.JSX.Element> {
   if (!overview) redirect("/auth/sign-in?next=%2Fv%2Fvibe%2Fonboarding");
 
   const { entities, profile } = overview;
-  if (!adding && !profile && entities.length > 1) {
+  if (!adding && !profile && entities.length > 0) {
     return <EntityCards entities={entities} base="/v/vibe/onboarding" heading="Choose a business to set up" />;
   }
   const mode = vibeProfileMode(profile?.status);

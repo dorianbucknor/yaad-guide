@@ -37,21 +37,29 @@ export async function saveVibeBusinessAction(input: unknown): Promise<ActionResu
   const business = { business_name: parsed.data.businessName, primary_region: parsed.data.primaryRegion };
   const { entityId } = parsed.data;
   // A new entity gets its id here, so the page can move to it without reading the row back.
-  const savedId = entityId ?? crypto.randomUUID();
   if (entityId) {
     const owned = await resolveVibeEntity(session.supabase, session.userId, entityId);
     if (!owned) return { ok: false, error: "We couldn't find that business." };
   }
-  const { error } = entityId
-    ? await session.supabase.from("vendor_profiles").update(business).eq("id", entityId)
-    : await session.supabase
-        .from("vendor_profiles")
-        .insert({ id: savedId, account_id: session.userId, category: "vibe", ...business });
+  let savedId = entityId;
+  let error: { code?: string; message: string } | null;
+  if (entityId) {
+    ({ error } = await session.supabase.from("vendor_profiles").update(business).eq("id", entityId));
+  } else {
+    // The id is chosen by the database: clients are not granted insert on it.
+    const created = await session.supabase
+      .from("vendor_profiles")
+      .insert({ account_id: session.userId, category: "vibe", ...business })
+      .select("id")
+      .single();
+    error = created.error;
+    savedId = created.data?.id as string | undefined;
+  }
   if (error?.code === "23505") return { ok: false, error: "You already have a business with that name." };
   if (error) return failure("Saving business details failed", error);
 
   revalidatePath("/v/vibe");
-  return { ok: true, data: { id: savedId } };
+  return { ok: true, data: { id: savedId as string } };
 }
 
 /** Records a file the browser already uploaded to the vendor's own folder. */

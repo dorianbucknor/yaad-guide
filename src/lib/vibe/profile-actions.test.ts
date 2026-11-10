@@ -65,12 +65,12 @@ beforeEach(() => {
 
 describe("saveVibeBusinessAction", () => {
   it("creates an entity when no entity id is given, even if the account already has one", async () => {
+    state.results["vendor_profiles.insert"] = { data: { id: P2 }, error: null };
     const result = await saveVibeBusinessAction({ businessName: " Rapids Co ", primaryRegion: "St. Ann" });
     expect(result.ok).toBe(true);
-    const created = state.payloads["vendor_profiles.insert"] as { id: string };
-    expect(result.ok ? result.data?.id : undefined).toBe(created.id);
+    // The database picks the id (clients may not insert it), and the action returns it.
+    expect(result.ok ? result.data?.id : undefined).toBe(P2);
     expect(state.payloads["vendor_profiles.insert"]).toEqual({
-      id: expect.any(String),
       account_id: "u1",
       category: "vibe",
       business_name: "Rapids Co",
