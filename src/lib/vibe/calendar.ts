@@ -42,3 +42,19 @@ export function groupSlotsByDay(slots: readonly VibeSlot[]): Map<string, VibeSlo
   for (const list of grouped.values()) list.sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   return grouped;
 }
+
+/** `YYYY-MM-DD` moved by whole days. */
+export function addDays(day: string, delta: number): string {
+  return new Date(Date.parse(`${day}T00:00:00Z`) + delta * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** Runs of consecutive days, from sorted or unsorted days, as `{ from, to }` (both inclusive). */
+export function groupRuns(days: readonly string[]): { from: string; to: string }[] {
+  const runs: { from: string; to: string }[] = [];
+  for (const day of [...new Set(days)].sort()) {
+    const last = runs[runs.length - 1];
+    if (last && addDays(last.to, 1) === day) last.to = day;
+    else runs.push({ from: day, to: day });
+  }
+  return runs;
+}

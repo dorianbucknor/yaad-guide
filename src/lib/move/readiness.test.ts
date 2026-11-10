@@ -9,6 +9,7 @@ const ready: ReadinessInput = {
   islandWide: false,
   placeCount: 2,
   flatRateCount: 1,
+  distancePricingEnabled: true,
   baseFare: null,
   perKm: null,
   windowCount: 5,
@@ -52,5 +53,10 @@ describe("readiness", () => {
   it("accepts a formula in place of flat rates but not half a formula", () => {
     expect(readiness({ ...ready, flatRateCount: 0, baseFare: 10, perKm: 1.5 }).ready).toBe(true);
     expect(readiness({ ...ready, flatRateCount: 0, baseFare: 10, perKm: null }).missing).toEqual(["pricing"]);
+  });
+
+  it("does not count a formula that is switched off", () => {
+    expect(readiness({ ...ready, flatRateCount: 0, baseFare: 10, perKm: 1.5, distancePricingEnabled: false }).missing).toEqual(["pricing"]);
+    expect(readiness({ ...ready, flatRateCount: 1, baseFare: 10, perKm: 1.5, distancePricingEnabled: false }).ready).toBe(true);
   });
 });

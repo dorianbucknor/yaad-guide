@@ -71,7 +71,8 @@ export function DiningBasicsTab({ listing }: { listing: VibeListingView }): Reac
   });
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className={listing.status === "draft" ? "grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]" : "flex flex-col gap-8"}>
+      <div className="flex min-w-0 flex-col gap-8">
       <div className="flex flex-wrap items-center gap-3">
         <Badge variant={listing.status === "live" ? "default" : "outline"}>{STATUS_LABEL[listing.status]}</Badge>
         {listing.paused ? <Badge variant="outline">Paused</Badge> : null}
@@ -87,6 +88,9 @@ export function DiningBasicsTab({ listing }: { listing: VibeListingView }): Reac
         </p>
       ) : null}
 
+      <BasicsForm listing={listing} />
+      </div>
+      <aside aria-label="Things to do" className="flex flex-col gap-6 empty:hidden lg:sticky lg:top-6">
       {listing.status === "draft" ? (
         <>
           <ReadinessCard listingId={listing.id} missing={readiness.missing} steps={stepsFor(listing)} />
@@ -105,7 +109,7 @@ export function DiningBasicsTab({ listing }: { listing: VibeListingView }): Reac
         </>
       ) : null}
 
-      <BasicsForm listing={listing} />
+      </aside>
     </div>
   );
 }

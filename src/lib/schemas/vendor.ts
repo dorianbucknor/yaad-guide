@@ -66,6 +66,16 @@ export const vehicleSchema = z.object({
     .int("Enter a whole number.")
     .min(1, "At least 1 passenger.")
     .max(80, "At most 80 passengers."),
+  luggageLarge: z.coerce
+    .number({ error: "Enter 0 or more." })
+    .int("Enter a whole number.")
+    .min(0, "Enter 0 or more.")
+    .max(20, "The most is 20."),
+  luggageCarryOn: z.coerce
+    .number({ error: "Enter 0 or more." })
+    .int("Enter a whole number.")
+    .min(0, "Enter 0 or more.")
+    .max(20, "The most is 20."),
 });
 
 export const documentMetaSchema = z

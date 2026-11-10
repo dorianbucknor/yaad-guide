@@ -40,6 +40,8 @@ const money = z
   .max(1_000_000, "That price is too high.");
 
 export const vibeBasicsSchema = z.object({
+  /** Which business the listing belongs to; needed when the vendor has more than one. */
+  entityId: z.uuid().optional(),
   subtype: z.enum(SUBTYPES, { error: "Choose event or attraction." }),
   title: z.string().trim().min(3, "Enter a title of at least 3 characters.").max(100, "Keep the title under 100 characters."),
   description: optionalText(1000, "Keep the description under 1000 characters."),
@@ -151,13 +153,25 @@ export const closeDateSchema = z.object({
   closed: z.boolean(),
 });
 
+export const closeRangeSchema = z.object({
+  from: z.iso.date({ error: "Choose a first day." }),
+  to: z.iso.date({ error: "Choose a last day." }),
+  closed: z.boolean(),
+});
+
 export const vibePhotoSchema = z.object({
   listingId: z.uuid(),
   path: z.string().min(1),
 });
 
 export const vibeBusinessSchema = z.object({
-  businessName: optionalText(100, "Keep the business name under 100 characters."),
+  /** Present when editing an entity; absent when adding a new one. */
+  entityId: z.uuid().optional(),
+  businessName: z
+    .string()
+    .trim()
+    .min(1, "Enter your business name.")
+    .max(100, "Keep the business name under 100 characters."),
   primaryRegion: z.string().trim().min(1, "Enter your region.").max(100, "That is too long."),
 });
 

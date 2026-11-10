@@ -2,7 +2,7 @@ import { connection } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import type { DocType } from "@/lib/vendor/documents";
-import type { VendorStatus } from "@/lib/vendor/types";
+import { listMyVibeEntities, pickVibeEntity } from "./entities";
 
 import type {
   VibeListingSummary,
@@ -27,30 +27,27 @@ async function currentUserId(supabase: Supabase): Promise<string | null> {
   return data.user?.id ?? null;
 }
 
-async function vibeProfile(supabase: Supabase, userId: string) {
-  const { data } = await supabase
-    .from("vendor_profiles")
-    .select("id, business_name, primary_region, status, review_note, submitted_at")
-    .eq("account_id", userId)
-    .eq("category", "vibe")
-    .maybeSingle();
-  return data;
-}
-
-/** The signed-in vendor's Vibe profile and documents. Dynamic. */
-export async function getVibeOverview(): Promise<VibeOverview | null> {
+/**
+ * The signed-in vendor's VIBE entities, the one in view, and that entity's documents. The entity in
+ * view is the one named by `entityId`, else the only one; with several and none named it is null.
+ * The government ID belongs to the account, so it is always included. Dynamic.
+ */
+export async function getVibeOverview(entityId?: string): Promise<VibeOverview | null> {
   await connection();
   const supabase = await createClient();
   const userId = await currentUserId(supabase);
   if (!userId) return null;
 
-  const profile = await vibeProfile(supabase, userId);
+  const entities = await listMyVibeEntities(supabase, userId);
+  const profile = pickVibeEntity(entities, entityId);
   const { data: docs } = await supabase
     .from("vendor_documents")
-    .select("id, doc_type, vehicle_id, expires_on, verified, storage_path")
+    .select("id, doc_type, vehicle_id, vendor_profile_id, expires_on, verified, storage_path")
     .in("doc_type", ["government_id", "business_registration", "venue_permit"]);
 
-  const documents = (docs ?? []).map((d) => ({
+  const documents = (docs ?? [])
+    .filter((d) => d.doc_type === "government_id" || (profile !== null && d.vendor_profile_id === profile.id))
+    .map((d) => ({
     id: d.id as string,
     docType: d.doc_type as DocType,
     vehicleId: null,
@@ -61,16 +58,8 @@ export async function getVibeOverview(): Promise<VibeOverview | null> {
 
   return {
     userId,
-    profile: profile
-      ? {
-          id: profile.id,
-          businessName: profile.business_name,
-          primaryRegion: profile.primary_region,
-          status: profile.status as VendorStatus,
-          reviewNote: profile.review_note,
-          submittedAt: profile.submitted_at,
-        }
-      : null,
+    entities,
+    profile,
     documents,
     hasGovernmentId: documents.some((d) => d.docType === "government_id"),
   };
@@ -82,18 +71,20 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
   const supabase = await createClient();
   const userId = await currentUserId(supabase);
   if (!userId) return [];
-  const profile = await vibeProfile(supabase, userId);
-  if (!profile) return [];
+  const entities = await listMyVibeEntities(supabase, userId);
+  const entityIds = entities.map((e) => e.id);
+  if (entityIds.length === 0) return [];
+  const entityName = new Map(entities.map((e) => [e.id, e.businessName]));
 
   const { data: listings } = await supabase
     .from("vibe_listings")
-    .select("id, title, subtype, status, paused")
-    .eq("vendor_profile_id", profile.id)
+    .select("id, vendor_profile_id, title, subtype, status, paused, created_at")
+    .in("vendor_profile_id", entityIds)
     .order("created_at", { ascending: false });
   if (!listings || listings.length === 0) return [];
   const ids = listings.map((l) => l.id as string);
 
-  const [{ data: slots }, { data: flags }] = await Promise.all([
+  const [{ data: slots }, { data: flags }, { data: noSlots }] = await Promise.all([
     supabase
       .from("vibe_slots")
       .select("listing_id, starts_at")
@@ -102,7 +93,14 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
       .gt("starts_at", new Date().toISOString())
       .order("starts_at"),
     supabase.from("vibe_listing_flags").select("listing_id").in("listing_id", ids).is("resolved_at", null),
+    // Only dining can skip slots: listing only, or a reservation taken by opening hours.
+    supabase
+      .from("vibe_dining_profiles")
+      .select("listing_id")
+      .in("listing_id", ids)
+      .or("booking_mode.eq.listing_only,reservation_style.eq.hours_only"),
   ]);
+  const withoutSlots = new Set((noSlots ?? []).map((row) => row.listing_id as string));
 
   const next = new Map<string, string>();
   for (const slot of slots ?? []) {
@@ -111,12 +109,16 @@ export async function getMyVibeListings(): Promise<VibeListingSummary[]> {
 
   return listings.map((l) => ({
     id: l.id as string,
+    entityId: l.vendor_profile_id as string,
+    entityName: entityName.get(l.vendor_profile_id as string) ?? null,
     title: l.title as string,
     subtype: l.subtype as VibeSubtype,
     status: l.status as VibeStatus,
     paused: Boolean(l.paused),
     nextSlotAt: next.get(l.id as string) ?? null,
     openFlags: (flags ?? []).filter((f) => f.listing_id === l.id).length,
+    createdAt: l.created_at as string,
+    usesSlots: !withoutSlots.has(l.id as string),
   }));
 }
 
@@ -136,8 +138,22 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
     .maybeSingle();
   if (!l) return null;
 
-  const [{ data: profile }, { data: tickets }, { data: rules }, { data: photos }, { count }, { data: dining }, { data: hours }] = await Promise.all([
-    supabase.from("vendor_profiles").select("status").eq("id", l.vendor_profile_id).maybeSingle(),
+  const [
+    { data: profile },
+    { count: entityCount },
+    { data: tickets },
+    { data: rules },
+    { data: photos },
+    { count },
+    { data: dining },
+    { data: hours },
+  ] = await Promise.all([
+    supabase.from("vendor_profiles").select("status, business_name").eq("id", l.vendor_profile_id).maybeSingle(),
+    supabase
+      .from("vendor_profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("account_id", userId)
+      .eq("category", "vibe"),
     supabase
       .from("vibe_ticket_types")
       .select("id, name, description, price, discount_percent, max_per_booking, sort_order")
@@ -212,6 +228,8 @@ export async function getVibeListing(id: string): Promise<VibeListingView | null
       isCover: p.is_cover,
       position: p.position,
     })),
+    entityName: (profile?.business_name as string | null | undefined) ?? null,
+    entityCount: entityCount ?? 1,
     profileApproved: profile?.status === "approved",
     futureOpenSlotCount: count ?? 0,
     diningProfile: dining
@@ -269,10 +287,10 @@ export async function getUpcomingVibeSlots(limit = 8): Promise<UpcomingSlot[]> {
   const supabase = await createClient();
   const userId = await currentUserId(supabase);
   if (!userId) return [];
-  const profile = await vibeProfile(supabase, userId);
-  if (!profile) return [];
+  const entityIds = (await listMyVibeEntities(supabase, userId)).map((e) => e.id);
+  if (entityIds.length === 0) return [];
 
-  const { data: listings } = await supabase.from("vibe_listings").select("id, title").eq("vendor_profile_id", profile.id);
+  const { data: listings } = await supabase.from("vibe_listings").select("id, title").in("vendor_profile_id", entityIds);
   if (!listings || listings.length === 0) return [];
   const titles = new Map(listings.map((l) => [l.id as string, l.title as string]));
 

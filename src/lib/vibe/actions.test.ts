@@ -72,13 +72,17 @@ import {
   submitListingAction,
 } from "./actions";
 
+function entity(id: string, name: string) {
+  return { id, business_name: name, primary_region: "St. Ann", status: "draft", review_note: null, submitted_at: null };
+}
+
 const LISTING = "11111111-1111-4111-8111-111111111111";
 const SLOT = "22222222-2222-4222-8222-222222222222";
 
 beforeEach(() => {
   state.user = { id: "u1", app_metadata: {} };
   state.results = {
-    "vendor_profiles.select": { data: { id: "p1" } },
+    "vendor_profiles.select": { data: [entity("p1", "One")] },
     "vibe_listings.select": { data: { id: LISTING } },
   };
   state.calls = [];
@@ -112,9 +116,30 @@ describe("signed-out and unknown listings", () => {
 
 describe("createListingAction", () => {
   it("needs a vibe vendor profile first", async () => {
-    state.results["vendor_profiles.select"] = { data: null };
+    state.results["vendor_profiles.select"] = { data: [] };
     const result = await createListingAction(basics);
     expect(result).toEqual({ ok: false, error: "Save your business details first." });
+  });
+
+  it("will not guess the business when there are two and none is chosen", async () => {
+    state.results["vendor_profiles.select"] = { data: [entity("p1", "One"), entity("p2", "Two")] };
+    const result = await createListingAction(basics);
+    expect(result).toEqual({ ok: false, error: "Choose which business this listing is for." });
+    expect(state.calls).not.toContain("vibe_listings.insert");
+  });
+
+  it("creates the listing under the chosen business", async () => {
+    const [A, B] = ["a1111111-1111-4111-8111-111111111111", "a2222222-2222-4222-8222-222222222222"];
+    state.results["vendor_profiles.select"] = { data: [entity(A, "One"), entity(B, "Two")] };
+    const result = await createListingAction({ ...basics, entityId: B });
+    expect(result.ok).toBe(true);
+    expect(state.payloads["vibe_listings.insert"]).toMatchObject({ vendor_profile_id: B });
+  });
+
+  it("refuses a business the account does not own", async () => {
+    const result = await createListingAction({ ...basics, entityId: "a2222222-2222-4222-8222-222222222222" });
+    expect(result).toEqual({ ok: false, error: "Choose which business this listing is for." });
+    expect(state.calls).not.toContain("vibe_listings.insert");
   });
 
   it("creates the listing under the profile with an id it chose itself, so no row is read back", async () => {

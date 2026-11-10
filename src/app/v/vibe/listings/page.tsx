@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 async function Body(): Promise<React.JSX.Element> {
   const overview = await getVibeOverview();
   if (!overview) redirect("/auth/sign-in?next=%2Fv%2Fvibe%2Flistings");
-  if (!overview.profile) {
+  if (overview.entities.length === 0) {
     return (
       <SetupPrompt
         category="vibe"
@@ -26,7 +26,7 @@ async function Body(): Promise<React.JSX.Element> {
     );
   }
   const listings = await getMyVibeListings();
-  return <ListingList listings={listings} />;
+  return <ListingList listings={listings} showEntity={overview.entities.length > 1} />;
 }
 
 export default function Page(): React.JSX.Element {

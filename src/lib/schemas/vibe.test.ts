@@ -160,9 +160,17 @@ describe("schedule and slots", () => {
 });
 
 describe("vibeBusinessSchema", () => {
-  it("allows a missing business name and needs a region", () => {
-    expect(vibeBusinessSchema.safeParse({ primaryRegion: "Kingston" }).success).toBe(true);
+  it("needs a business name and a region", () => {
+    expect(vibeBusinessSchema.safeParse({ businessName: "Rapids Co", primaryRegion: "Kingston" }).success).toBe(true);
+    expect(vibeBusinessSchema.safeParse({ primaryRegion: "Kingston" }).success).toBe(false);
+    expect(vibeBusinessSchema.safeParse({ businessName: "   ", primaryRegion: "Kingston" }).success).toBe(false);
     expect(vibeBusinessSchema.safeParse({ businessName: "Rapids Co", primaryRegion: "" }).success).toBe(false);
+  });
+
+  it("takes an optional entity id that must be a uuid", () => {
+    const base = { businessName: "Rapids Co", primaryRegion: "Kingston" };
+    expect(vibeBusinessSchema.safeParse({ ...base, entityId: "a1111111-1111-4111-8111-111111111111" }).success).toBe(true);
+    expect(vibeBusinessSchema.safeParse({ ...base, entityId: "nope" }).success).toBe(false);
   });
 });
 

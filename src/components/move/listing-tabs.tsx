@@ -5,21 +5,18 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { MoveListingView, PlaceRow } from "@/lib/move/queries";
 
-import { AvailabilityTab } from "./availability-tab";
-import { CoverageTab } from "./coverage-tab";
 import { LISTING_TABS, type ListingTab } from "./listing-tab-names";
 import { OverviewTab } from "./overview-tab";
-import { PhotosTab } from "./photos-tab";
 import { PolicyTab } from "./policy-tab";
 import { PricingTab } from "./pricing-tab";
-
+import { ServiceTab } from "./service-tab";
+import { VehiclesTab } from "./vehicles-tab";
 
 const LABELS: Record<ListingTab, string> = {
   overview: "Overview",
   pricing: "Pricing",
-  coverage: "Coverage",
-  availability: "Hours",
-  photos: "Photos",
+  service: "Service area",
+  vehicles: "Vehicles",
   policy: "Cancellation",
 };
 
@@ -48,14 +45,11 @@ export function ListingTabs({
       <TabsContent value="pricing">
         <PricingTab view={view} places={places} />
       </TabsContent>
-      <TabsContent value="coverage">
-        <CoverageTab view={view} places={places} />
+      <TabsContent value="service">
+        <ServiceTab view={view} places={places} />
       </TabsContent>
-      <TabsContent value="availability">
-        <AvailabilityTab view={view} />
-      </TabsContent>
-      <TabsContent value="photos">
-        <PhotosTab view={view} />
+      <TabsContent value="vehicles">
+        <VehiclesTab view={view} />
       </TabsContent>
       <TabsContent value="policy">
         <PolicyTab view={view} />

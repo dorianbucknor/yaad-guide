@@ -16,6 +16,7 @@ const optionalMoney = (label: string) => money(label).nullable();
 export const listingSchema = z.object({
   currency: z.enum(CURRENCIES, { error: "Choose USD or JMD." }),
   islandWide: z.boolean(),
+  distancePricingEnabled: z.boolean().default(true),
   baseFare: optionalMoney("base fare"),
   perKm: optionalMoney("price per km"),
   hourlyRate: optionalMoney("hourly rate"),

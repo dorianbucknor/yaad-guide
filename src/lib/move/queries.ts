@@ -16,6 +16,18 @@ export type PlaceRow = {
   lng: number;
 };
 
+export type MoveVehicleView = {
+  id: string;
+  label: string;
+  vehicleType: string;
+  plate: string;
+  seats: number;
+  isActive: boolean;
+  luggageLarge: number;
+  luggageCarryOn: number;
+  photos: { id: string; kind: string; path: string }[];
+};
+
 export type MoveListingView = {
   profile: { id: string; status: string; photoVerifiedAt: string | null };
   profilePhotoLink: string | null;
@@ -23,6 +35,7 @@ export type MoveListingView = {
     id: string;
     currency: Currency;
     islandWide: boolean;
+    distancePricingEnabled: boolean;
     baseFare: number | null;
     perKm: number | null;
     hourlyRate: number | null;
@@ -36,14 +49,10 @@ export type MoveListingView = {
   flatRates: { id: string; placeAId: string; placeBId: string; price: number }[];
   windows: { id: string; weekday: number; startMinutes: number; endMinutes: number }[];
   blocks: { id: string; startsAt: string; endsAt: string; note: string | null }[];
-  vehicle: {
-    id: string;
-    label: string;
-    seats: number;
-    luggageLarge: number;
-    luggageCarryOn: number;
-    photos: { id: string; kind: string; path: string }[];
-  } | null;
+  /** The vehicle the vendor drives now; readiness is judged on this one. */
+  vehicle: MoveVehicleView | null;
+  /** Every vehicle on the profile, the active one first. */
+  vehicles: MoveVehicleView[];
   openFlags: { id: string; kind: string }[];
   readiness: { ready: boolean; missing: ReadinessItem[] };
 };
@@ -87,19 +96,19 @@ export async function getMyListing(): Promise<MoveListingView | null> {
     .maybeSingle();
   if (!profile) return null;
 
-  const [{ data: me }, { data: listing }, { data: vehicle }] = await Promise.all([
+  const [{ data: me }, { data: listing }, { data: vehicleRows }] = await Promise.all([
     supabase.from("profiles").select("profile_photo_link").eq("id", auth.user.id).maybeSingle(),
     supabase
       .from("move_listings")
-      .select("id, currency, island_wide, base_fare, per_km, hourly_rate, description, cancellation_policy, status, paused, review_note")
+      .select("id, currency, island_wide, distance_pricing_enabled, base_fare, per_km, hourly_rate, description, cancellation_policy, status, paused, review_note")
       .eq("vendor_profile_id", profile.id)
       .maybeSingle(),
     supabase
       .from("vendor_vehicles")
-      .select("id, make, model, year, passenger_capacity, luggage_large, luggage_carry_on")
+      .select("id, vehicle_type, make, model, year, plate, passenger_capacity, luggage_large, luggage_carry_on, is_active")
       .eq("vendor_profile_id", profile.id)
-      .eq("is_active", true)
-      .maybeSingle(),
+      .order("is_active", { ascending: false })
+      .order("make"),
   ]);
 
   const [places, rates, windows, blocks, photos, flags] = await Promise.all([
@@ -124,13 +133,31 @@ export async function getMyListing(): Promise<MoveListingView | null> {
           .eq("listing_id", listing.id)
           .order("starts_at")
       : Promise.resolve({ data: [] }),
-    vehicle
-      ? supabase.from("vehicle_photos").select("id, kind, storage_path").eq("vehicle_id", vehicle.id).order("position")
+    (vehicleRows ?? []).length > 0
+      ? supabase
+          .from("vehicle_photos")
+          .select("id, vehicle_id, kind, storage_path")
+          .in("vehicle_id", (vehicleRows ?? []).map((row) => row.id))
+          .order("position")
       : Promise.resolve({ data: [] }),
     listing
       ? supabase.from("listing_flags").select("id, kind").eq("listing_id", listing.id).is("resolved_at", null)
       : Promise.resolve({ data: [] }),
   ]);
+
+  const vehicles: MoveVehicleView[] = (vehicleRows ?? []).map((row) => ({
+    id: row.id,
+    label: `${row.make} ${row.model} ${row.year}`,
+    vehicleType: row.vehicle_type,
+    plate: row.plate,
+    seats: row.passenger_capacity,
+    isActive: row.is_active,
+    luggageLarge: row.luggage_large,
+    luggageCarryOn: row.luggage_carry_on,
+    photos: (photos.data ?? [])
+      .filter((photo) => photo.vehicle_id === row.id)
+      .map((photo) => ({ id: photo.id, kind: photo.kind, path: photo.storage_path })),
+  }));
 
   const view: MoveListingView = {
     profile: { id: profile.id, status: profile.status, photoVerifiedAt: profile.photo_verified_at },
@@ -140,6 +167,7 @@ export async function getMyListing(): Promise<MoveListingView | null> {
           id: listing.id,
           currency: listing.currency as Currency,
           islandWide: listing.island_wide,
+          distancePricingEnabled: listing.distance_pricing_enabled,
           baseFare: listing.base_fare === null ? null : Number(listing.base_fare),
           perKm: listing.per_km === null ? null : Number(listing.per_km),
           hourlyRate: listing.hourly_rate === null ? null : Number(listing.hourly_rate),
@@ -169,20 +197,13 @@ export async function getMyListing(): Promise<MoveListingView | null> {
       endsAt: row.ends_at,
       note: row.note,
     })),
-    vehicle: vehicle
-      ? {
-          id: vehicle.id,
-          label: `${vehicle.make} ${vehicle.model} ${vehicle.year}`,
-          seats: vehicle.passenger_capacity,
-          luggageLarge: vehicle.luggage_large,
-          luggageCarryOn: vehicle.luggage_carry_on,
-          photos: (photos.data ?? []).map((row) => ({ id: row.id, kind: row.kind, path: row.storage_path })),
-        }
-      : null,
+    vehicle: null,
+    vehicles: vehicles,
     openFlags: (flags.data ?? []).map((row) => ({ id: row.id, kind: row.kind })),
     readiness: { ready: false, missing: [] },
   };
 
+  view.vehicle = vehicles.find((v) => v.isActive) ?? null;
   view.readiness = readiness({
     profileApproved: profile.status === "approved",
     vehicle: view.vehicle
@@ -196,6 +217,7 @@ export async function getMyListing(): Promise<MoveListingView | null> {
     islandWide: view.listing?.islandWide ?? false,
     placeCount: view.placeIds.length,
     flatRateCount: view.flatRates.length,
+    distancePricingEnabled: view.listing?.distancePricingEnabled ?? true,
     baseFare: view.listing?.baseFare ?? null,
     perKm: view.listing?.perKm ?? null,
     windowCount: view.windows.length,

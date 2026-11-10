@@ -5,9 +5,11 @@ import { z } from "zod";
 
 import { GENERIC, failure, requireUser, type Client } from "@/lib/auth/action-helpers";
 import { fromZod, type ActionResult, type FailedResult } from "@/lib/auth/result";
+import { listMyVibeEntities, pickVibeEntity } from "./entities";
 import {
   addressSchema,
   closeDateSchema,
+  closeRangeSchema,
   isOwnVibePhotoPath,
   manualSlotSchema,
   policySchema,
@@ -51,13 +53,10 @@ export async function createListingAction(input: unknown): Promise<ActionResult<
   const parsed = vibeBasicsSchema.safeParse(input);
   if (!parsed.success) return fromZod(parsed.error);
 
-  const { data: profile } = await session.supabase
-    .from("vendor_profiles")
-    .select("id")
-    .eq("account_id", session.userId)
-    .eq("category", "vibe")
-    .maybeSingle();
-  if (!profile) return { ok: false, error: NEED_BUSINESS };
+  const entities = await listMyVibeEntities(session.supabase, session.userId);
+  if (entities.length === 0) return { ok: false, error: NEED_BUSINESS };
+  const profile = pickVibeEntity(entities, parsed.data.entityId);
+  if (!profile) return { ok: false, error: "Choose which business this listing is for." };
 
   const d = parsed.data;
   // The id is chosen here: asking the insert to return the row would be refused, because the
@@ -280,6 +279,25 @@ export async function setDateClosedAction(listingId: string, input: unknown): Pr
     p_closed: parsed.data.closed,
   });
   if (error) return failure("Changing the date failed", error);
+
+  refresh(listingId);
+  return { ok: true };
+}
+
+/** Closes or reopens a run of days. If any day has bookings, none change. */
+export async function setDatesClosedAction(listingId: string, input: unknown): Promise<ActionResult> {
+  const owned = await requireListing(listingId);
+  if ("failure" in owned) return owned.failure;
+  const parsed = closeRangeSchema.safeParse(input);
+  if (!parsed.success) return fromZod(parsed.error);
+
+  const { error } = await owned.supabase.rpc("set_vibe_dates_closed", {
+    p_listing_id: listingId,
+    p_from: parsed.data.from,
+    p_to: parsed.data.to,
+    p_closed: parsed.data.closed,
+  });
+  if (error) return failure("Changing the dates failed", error);
 
   refresh(listingId);
   return { ok: true };

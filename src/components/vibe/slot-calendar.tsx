@@ -1,26 +1,25 @@
 "use client";
 
-import { ChevronLeftIcon, ChevronRightIcon, Trash2Icon } from "lucide-react";
-import Link from "next/link";
+import { Trash2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { Legend, MonthGrid, MonthNav, pickDay, type DayCell, type DayRange } from "@/components/calendar/month-grid";
+import { RangeActions } from "@/components/calendar/range-actions";
 import { ItemSelect, type Item } from "@/components/move/item-select";
 import { useSave } from "@/components/move/use-save";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toJamaica } from "@/lib/move/time";
-import { addSlotAction, deleteSlotAction, editSlotAction, setDateClosedAction } from "@/lib/vibe/actions";
-import { groupSlotsByDay, monthGrid, shiftMonth } from "@/lib/vibe/calendar";
-import { WEEKDAYS, jamaicaToIso, minutesLabel } from "@/lib/vibe/time";
+import { addSlotAction, deleteSlotAction, editSlotAction, setDatesClosedAction } from "@/lib/vibe/actions";
+import { groupRuns, groupSlotsByDay, shiftMonth } from "@/lib/vibe/calendar";
+import { jamaicaToIso, minutesLabel } from "@/lib/vibe/time";
 import type { VibeSlot } from "@/lib/vibe/types";
-import { cn } from "@/lib/utils";
 
 const TIME_ITEMS: Item[] = Array.from({ length: 48 }, (_, i) => ({ value: String(i * 30), label: minutesLabel(i * 30) }));
-const HEADERS = [1, 2, 3, 4, 5, 6, 0].map((d) => WEEKDAYS[d].slice(0, 3));
-const monthLabel = new Intl.DateTimeFormat("en-JM", { timeZone: "UTC", month: "long", year: "numeric" });
 const dayLabel = new Intl.DateTimeFormat("en-JM", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" });
 const at = (day: string): Date => new Date(`${day}T00:00:00Z`);
 const timeOf = (slot: VibeSlot): string => minutesLabel(toJamaica(new Date(slot.startsAt)).minutes);
@@ -130,7 +129,85 @@ function AddSlot({ listingId, day }: { listingId: string; day: string }): React.
   );
 }
 
-/** Month view of one listing's slots. Pick a day to change its slots, add one, or close the whole day. */
+function Card({ id, title, children }: { id: string; title: string; children: React.ReactNode }): React.JSX.Element {
+  return (
+    <section aria-labelledby={id} className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 md:p-5">
+      <h2 id={id} className="text-lg font-semibold">
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+function Insights({ booked, cancellations }: { booked: number; cancellations: number | null }): React.JSX.Element {
+  return (
+    <Card id="insights-heading" title="Next 7 days">
+      <dl className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1 rounded-xl bg-muted/50 p-4">
+          <dt className="text-sm text-muted-foreground">Booked</dt>
+          <dd className="text-3xl font-semibold tabular-nums">{booked}</dd>
+          <dd className="text-xs text-muted-foreground">Tickets and seats across your slots</dd>
+        </div>
+        <div className="flex flex-col gap-1 rounded-xl bg-muted/50 p-4">
+          <dt className="text-sm text-muted-foreground">Cancellations</dt>
+          <dd className="text-3xl font-semibold tabular-nums">{cancellations ?? "None yet"}</dd>
+          {cancellations === null ? <dd className="text-xs text-muted-foreground">Counted once travelers can book</dd> : null}
+        </div>
+      </dl>
+    </Card>
+  );
+}
+
+const shortDay = (day: string): string =>
+  new Intl.DateTimeFormat("en-JM", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" }).format(at(day));
+
+function BlockedDates({ days, pending, onFree }: { days: string[]; pending: boolean; onFree: (run: { from: string; to: string }) => void }): React.JSX.Element {
+  const runs = groupRuns(days);
+  return (
+    <Card id="blocked-heading" title="Blocked dates">
+      {runs.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">Nothing blocked.</p>
+      ) : (
+        <div className="overflow-hidden rounded-xl border border-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Dates</TableHead>
+                <TableHead className="text-right">Days</TableHead>
+                <TableHead className="w-12">
+                  <span className="sr-only">Free</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {runs.map((run) => {
+                const text = run.from === run.to ? shortDay(run.from) : `${shortDay(run.from)} to ${shortDay(run.to)}`;
+                const count = Math.round((Date.parse(run.to) - Date.parse(run.from)) / 86_400_000) + 1;
+                return (
+                  <TableRow key={run.from}>
+                    <TableCell className="whitespace-normal tabular-nums">{text}</TableCell>
+                    <TableCell className="text-right tabular-nums">{count}</TableCell>
+                    <TableCell>
+                      <Button type="button" variant="ghost" size="icon" disabled={pending} aria-label={`Free ${text}`} onClick={() => onFree(run)}>
+                        <Trash2Icon aria-hidden />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+/**
+ * Month view of one listing: pick days to block or free them, see the next seven days, and (when the listing
+ * takes slots) change or add the slots on a day.
+ */
 export function SlotCalendar({
   listingId,
   listings,
@@ -138,144 +215,91 @@ export function SlotCalendar({
   today,
   slots,
   blockedDays,
+  weekBooked,
+  usesSlots,
 }: {
   listingId: string;
   listings: { id: string; title: string }[];
   month: string;
   today: string;
   slots: VibeSlot[];
+  /** Every closed day from the start of this month, or today if earlier, to a year ahead. */
   blockedDays: string[];
+  weekBooked: number;
+  usesSlots: boolean;
 }): React.JSX.Element {
   const router = useRouter();
   const { pending, run } = useSave();
   const byDay = groupSlotsByDay(slots);
   const blocked = new Set(blockedDays);
-  const firstWithSlots = [...byDay.keys()].sort()[0];
-  const [selected, setSelected] = useState<string>(today.startsWith(month) ? today : (firstWithSlots ?? `${month}-01`));
-  const [closeError, setCloseError] = useState<string | undefined>();
+  const [selected, setSelected] = useState<DayRange | null>(null);
   const link = (m: string): string => `/v/vibe/calendar?listing=${listingId}&month=${m}`;
-  const daySlots = byDay.get(selected) ?? [];
-  const closed = blocked.has(selected);
+  const slotDay = selected?.from ?? (today.startsWith(month) ? today : `${month}-01`);
+  const daySlots = byDay.get(slotDay) ?? [];
+
+  const change = (range: { from: string; to: string }, closed: boolean): void =>
+    run(() => setDatesClosedAction(listingId, { ...range, closed }), {
+      success: closed ? "Dates blocked" : "Dates freed",
+      onDone: () => setSelected(null),
+    });
+
+  const cellFor = (day: string): DayCell => {
+    const list = byDay.get(day) ?? [];
+    const booked = list.reduce((sum, s) => sum + s.booked, 0);
+    const capacity = list.reduce((sum, s) => sum + s.capacity, 0);
+    if (blocked.has(day)) return { label: "blocked", lines: ["Blocked"], tone: "closed" };
+    if (list.length === 0) return { label: "no slots" };
+    return {
+      label: `${list.length} slot${list.length === 1 ? "" : "s"}, ${booked} of ${capacity} booked`,
+      lines: [list.length === 1 ? "1 slot" : `${list.length} slots`, `${booked}/${capacity} booked`],
+      tone: booked > 0 ? "booked" : undefined,
+    };
+  };
 
   return (
-    <div className="flex flex-col gap-8">
-      {listings.length > 1 ? (
-        <div className="max-w-sm">
-          <ItemSelect
-            id="calendar-listing"
-            label="Listing"
-            items={listings.map((l) => ({ value: l.id, label: l.title }))}
-            value={listingId}
-            onChange={(id) => router.push(`/v/vibe/calendar?listing=${id}&month=${month}`)}
-          />
-        </div>
-      ) : null}
-
-      <section aria-labelledby="month-heading" className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="month-heading" className="text-xl font-semibold">
-            {monthLabel.format(at(`${month}-01`))}
-          </h2>
-          <nav aria-label="Month" className="flex gap-2">
-            <Link href={link(shiftMonth(month, -1))} className={buttonVariants({ variant: "outline", size: "icon" })} aria-label="Previous month">
-              <ChevronLeftIcon aria-hidden />
-            </Link>
-            <Link href={link(today.slice(0, 7))} className={buttonVariants({ variant: "outline" })}>
-              Today
-            </Link>
-            <Link href={link(shiftMonth(month, 1))} className={buttonVariants({ variant: "outline", size: "icon" })} aria-label="Next month">
-              <ChevronRightIcon aria-hidden />
-            </Link>
-          </nav>
-        </div>
-
-        <div className="grid grid-cols-7 gap-1 md:gap-2">
-          {HEADERS.map((name) => (
-            <span key={name} aria-hidden className="pb-1 text-center text-sm text-muted-foreground">
-              {name}
-            </span>
-          ))}
-          {monthGrid(month)
-            .flat()
-            .map((day, index) => {
-              if (!day) return <span key={`pad-${index}`} aria-hidden />;
-              const list = byDay.get(day) ?? [];
-              const isClosed = blocked.has(day);
-              const booked = list.reduce((sum, s) => sum + s.booked, 0);
-              const capacity = list.reduce((sum, s) => sum + s.capacity, 0);
-              const label = `${dayLabel.format(at(day))}, ${isClosed ? "closed" : list.length === 0 ? "no slots" : `${list.length} slot${list.length === 1 ? "" : "s"}, ${booked} of ${capacity} booked`}`;
-              return (
-                <button
-                  key={day}
-                  type="button"
-                  aria-label={label}
-                  aria-pressed={day === selected}
-                  onClick={() => {
-                    setSelected(day);
-                    setCloseError(undefined);
-                  }}
-                  className={cn(
-                    "flex min-h-14 flex-col items-start gap-0.5 rounded-lg border border-border bg-card p-1.5 text-left text-sm md:min-h-20 md:p-2",
-                    "focus-visible:outline-2 focus-visible:outline-ring",
-                    day === selected && "border-primary bg-brand-light/40 dark:bg-primary/20",
-                    day === today && "ring-2 ring-ring",
-                    isClosed && "bg-muted text-muted-foreground",
-                  )}
-                >
-                  <span className="font-medium tabular-nums">{Number(day.slice(8))}</span>
-                  <span aria-hidden className="flex flex-col text-xs tabular-nums text-muted-foreground">
-                    {isClosed ? (
-                      "Closed"
-                    ) : list.length > 0 ? (
-                      <>
-                        <span>{list.length === 1 ? "1 slot" : `${list.length} slots`}</span>
-                        <span>{`${booked}/${capacity} booked`}</span>
-                      </>
-                    ) : null}
-                  </span>
-                </button>
-              );
-            })}
-        </div>
-      </section>
-
-      <section aria-labelledby="day-heading" className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 id="day-heading" className="text-xl font-semibold">
-            {dayLabel.format(at(selected))}
-          </h2>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={pending}
-            onClick={() =>
-              run(() => setDateClosedAction(listingId, { day: selected, closed: !closed }), {
-                success: closed ? "Day reopened" : "Day closed",
-                onFail: (result) => setCloseError(result.error),
-                onDone: () => setCloseError(undefined),
-              })
-            }
-          >
-            {closed ? "Reopen this day" : "Close this day"}
-          </Button>
-        </div>
-        {closeError ? (
-          <p role="alert" className="text-sm text-destructive">
-            {closeError}
-          </p>
+    <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,40rem)_minmax(0,34rem)]">
+      <div className="flex min-w-0 flex-col gap-4">
+        {listings.length > 1 ? (
+          <div className="max-w-sm">
+            <ItemSelect
+              id="calendar-listing"
+              label="Listing"
+              items={listings.map((l) => ({ value: l.id, label: l.title }))}
+              value={listingId}
+              onChange={(id) => router.push(`/v/vibe/calendar?listing=${id}&month=${month}`)}
+            />
+          </div>
         ) : null}
-        {closed ? <p className="text-sm text-muted-foreground">This day is closed, so weekly slots will not be created for it.</p> : null}
-        {daySlots.length === 0 ? (
-          <p className="text-muted-foreground">No slots on this day.</p>
-        ) : (
-          <ul className="flex flex-col divide-y divide-border rounded-2xl border border-border bg-card">
-            {daySlots.map((slot) => (
-              <SlotRow key={`${slot.id}-${slot.capacity}-${slot.status}`} slot={slot} />
-            ))}
-          </ul>
-        )}
-        <AddSlot key={selected} listingId={listingId} day={selected} />
-      </section>
+        <MonthNav month={month} prev={link(shiftMonth(month, -1))} today={link(today.slice(0, 7))} next={link(shiftMonth(month, 1))} />
+        <MonthGrid month={month} today={today} minDay={today} selected={selected} onPick={(day) => setSelected((cur) => pickDay(cur, day))} cellFor={cellFor} />
+        <Legend
+          items={[
+            { tone: "closed", text: "blocked" },
+            { tone: "booked", text: "has bookings" },
+          ]}
+        />
+        <RangeActions selected={selected} pending={pending} onBlock={() => selected && change(selected, true)} onFree={() => selected && change(selected, false)} />
+      </div>
+
+      <div className="flex min-w-0 flex-col gap-6">
+        <Insights booked={weekBooked} cancellations={null} />
+        {usesSlots ? (
+          <Card id="day-heading" title={`Slots on ${dayLabel.format(at(slotDay))}`}>
+            {blocked.has(slotDay) ? <p className="text-sm text-muted-foreground">This day is blocked, so weekly slots will not be created for it.</p> : null}
+            {daySlots.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No slots on this day.</p>
+            ) : (
+              <ul className="flex flex-col divide-y divide-border rounded-xl border border-border">
+                {daySlots.map((slot) => (
+                  <SlotRow key={`${slot.id}-${slot.capacity}-${slot.status}`} slot={slot} />
+                ))}
+              </ul>
+            )}
+            <AddSlot key={slotDay} listingId={listingId} day={slotDay} />
+          </Card>
+        ) : null}
+        <BlockedDates days={blockedDays} pending={pending} onFree={(r) => change(r, false)} />
+      </div>
     </div>
   );
 }

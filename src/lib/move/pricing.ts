@@ -20,7 +20,7 @@ export function quoteTrip(
   );
   if (flat) return { source: "flat", amount: cents(flat.price), currency: listing.currency };
 
-  if (listing.baseFare === null || listing.perKm === null) return NONE;
+  if (!listing.distancePricingEnabled || listing.baseFare === null || listing.perKm === null) return NONE;
   const route = routes(fromId, toId);
   if (!route) return NONE;
   return {
