@@ -261,7 +261,8 @@ export function BasicsTab({ listing }: { listing: VibeListingView }): React.JSX.
   });
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className={listing.status === "draft" ? "grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]" : "flex flex-col gap-8"}>
+      <div className="flex min-w-0 flex-col gap-8">
       <div className="flex flex-wrap items-center gap-3">
         <Badge variant={listing.status === "live" ? "default" : "outline"}>{STATUS_LABEL[listing.status]}</Badge>
         {listing.paused ? <Badge variant="outline">Paused</Badge> : null}
@@ -272,6 +273,9 @@ export function BasicsTab({ listing }: { listing: VibeListingView }): React.JSX.
         </p>
       ) : null}
 
+      <BasicsForm listing={listing} />
+      </div>
+      <aside aria-label="Things to do" className="flex flex-col gap-6 empty:hidden lg:sticky lg:top-6">
       {listing.status === "draft" ? (
         <>
           <ReadinessCard listingId={listing.id} missing={readiness.missing} />
@@ -290,7 +294,7 @@ export function BasicsTab({ listing }: { listing: VibeListingView }): React.JSX.
         </>
       ) : null}
 
-      <BasicsForm listing={listing} />
+      </aside>
     </div>
   );
 }

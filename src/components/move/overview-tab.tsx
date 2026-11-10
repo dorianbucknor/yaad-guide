@@ -46,7 +46,8 @@ export function OverviewTab({ view }: { view: MoveListingView }): React.JSX.Elem
   );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="flex min-w-0 flex-col gap-8">
       <div className="flex flex-wrap items-center gap-3">
         <Badge variant={listing?.status === "live" ? "default" : "outline"}>
           {STATUS_LABEL[listing?.status ?? "draft"]}
@@ -59,17 +60,6 @@ export function OverviewTab({ view }: { view: MoveListingView }): React.JSX.Elem
           Review note: {listing.reviewNote}
         </p>
       ) : null}
-
-      <ReadinessCard missing={view.readiness.missing} />
-
-      <div className="flex flex-wrap items-center gap-3">
-        <p className="max-w-[65ch] text-sm text-muted-foreground">
-          {profileOk ? "Your profile photo has been checked." : "Travelers see your face. Add a clear photo; an admin checks it."}
-        </p>
-        <Link href="/profile" className={buttonVariants({ variant: "outline", size: "sm" })}>
-          {view.profilePhotoLink ? "Change profile photo" : "Add profile photo"}
-        </Link>
-      </div>
 
       <form onSubmit={save} noValidate>
         <FieldGroup>
@@ -98,6 +88,19 @@ export function OverviewTab({ view }: { view: MoveListingView }): React.JSX.Elem
           </Field>
         </FieldGroup>
       </form>
+
+      </div>
+      <aside aria-label="Things to do" className="flex flex-col gap-6 empty:hidden lg:sticky lg:top-6">
+      <ReadinessCard missing={view.readiness.missing} />
+
+      <div className="flex flex-wrap items-center gap-3">
+        <p className="max-w-[65ch] text-sm text-muted-foreground">
+          {profileOk ? "Your profile photo has been checked." : "Travelers see your face. Add a clear photo; an admin checks it."}
+        </p>
+        <Link href="/profile" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          {view.profilePhotoLink ? "Change profile photo" : "Add profile photo"}
+        </Link>
+      </div>
 
       {listing ? (
         <div className="flex flex-col gap-6">
@@ -130,6 +133,7 @@ export function OverviewTab({ view }: { view: MoveListingView }): React.JSX.Elem
           ) : null}
         </div>
       ) : null}
+      </aside>
     </div>
   );
 }
