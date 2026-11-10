@@ -20,7 +20,14 @@ const nextSlotFormat = new Intl.DateTimeFormat("en-JM", {
 });
 
 /** The listing rows with a sort control. Live listings stay at the top whichever order is chosen. */
-export function SortedListings({ listings }: { listings: VibeListingSummary[] }): React.JSX.Element {
+export function SortedListings({
+  listings,
+  showEntity = false,
+}: {
+  listings: VibeListingSummary[];
+  /** Name each listing's business, for a vendor who has several. */
+  showEntity?: boolean;
+}): React.JSX.Element {
   const [sort, setSort] = useState<ListingSort>("newest");
   return (
     <div className="flex flex-col gap-4">
@@ -38,6 +45,9 @@ export function SortedListings({ listings }: { listings: VibeListingSummary[] })
             >
               <span className="flex min-w-0 flex-col gap-1">
                 <span className="font-medium">{listing.title}</span>
+                {showEntity && listing.entityName ? (
+                  <span className="text-sm text-muted-foreground">{listing.entityName}</span>
+                ) : null}
                 <span className="text-sm text-muted-foreground tabular-nums">
                   {listing.nextSlotAt ? `Next: ${nextSlotFormat.format(new Date(listing.nextSlotAt))}` : "No open dates yet"}
                 </span>

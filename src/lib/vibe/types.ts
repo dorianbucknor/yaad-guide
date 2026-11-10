@@ -55,6 +55,9 @@ export type VibePhoto = { id: string; storagePath: string; isCover: boolean; pos
 
 export type VibeListingView = {
   id: string;
+  /** The business that owns the listing, and how many businesses the vendor has. */
+  entityName: string | null;
+  entityCount: number;
   subtype: VibeSubtype;
   title: string;
   description: string | null;
@@ -83,17 +86,25 @@ export type VibeListingView = {
   businessHours: BusinessHoursRow[];
 };
 
-import type { VendorDocument, VendorProfile } from "@/lib/vendor/types";
+import type { VendorDocument } from "@/lib/vendor/types";
+
+import type { VibeEntity } from "./entities";
 
 export type VibeOverview = {
   userId: string;
-  profile: VendorProfile | null;
+  /** Every VIBE business the account owns. */
+  entities: VibeEntity[];
+  /** The one in view: the one asked for, else the only one, else null. */
+  profile: VibeEntity | null;
   documents: VendorDocument[];
   hasGovernmentId: boolean;
 };
 
 export type VibeListingSummary = {
   id: string;
+  /** The business that owns the listing. */
+  entityId: string;
+  entityName: string | null;
   title: string;
   subtype: VibeSubtype;
   status: VibeStatus;

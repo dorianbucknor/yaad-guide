@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { GENERIC, failure, requireUser, type Client } from "@/lib/auth/action-helpers";
 import { fromZod, type ActionResult, type FailedResult } from "@/lib/auth/result";
+import { listMyVibeEntities, pickVibeEntity } from "./entities";
 import {
   addressSchema,
   closeDateSchema,
@@ -52,13 +53,10 @@ export async function createListingAction(input: unknown): Promise<ActionResult<
   const parsed = vibeBasicsSchema.safeParse(input);
   if (!parsed.success) return fromZod(parsed.error);
 
-  const { data: profile } = await session.supabase
-    .from("vendor_profiles")
-    .select("id")
-    .eq("account_id", session.userId)
-    .eq("category", "vibe")
-    .maybeSingle();
-  if (!profile) return { ok: false, error: NEED_BUSINESS };
+  const entities = await listMyVibeEntities(session.supabase, session.userId);
+  if (entities.length === 0) return { ok: false, error: NEED_BUSINESS };
+  const profile = pickVibeEntity(entities, parsed.data.entityId);
+  if (!profile) return { ok: false, error: "Choose which business this listing is for." };
 
   const d = parsed.data;
   // The id is chosen here: asking the insert to return the row would be refused, because the

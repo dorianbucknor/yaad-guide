@@ -31,9 +31,11 @@ function statusLine(listings: VibeListingSummary[]): string {
 export function VibeDashboard({
   upcoming,
   listings,
+  showEntity = false,
 }: {
   upcoming: UpcomingSlot[];
   listings: VibeListingSummary[];
+  showEntity?: boolean;
 }): React.JSX.Element {
   return (
     <div className="flex flex-col gap-10">
@@ -74,7 +76,7 @@ export function VibeDashboard({
           </h2>
           {listings.length > 0 ? <p className="text-sm text-muted-foreground">{statusLine(listings)}</p> : null}
         </div>
-        <ListingList listings={listings} />
+        <ListingList listings={listings} showEntity={showEntity} />
       </section>
     </div>
   );

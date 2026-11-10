@@ -11,6 +11,7 @@ import { SlotCalendar } from "@/components/vibe/slot-calendar";
 import { VendorPage } from "@/components/vendor/vendor-page";
 import { localDayOf } from "@/lib/move/time";
 import { addDays, monthRange } from "@/lib/vibe/calendar";
+import { withEntity } from "@/lib/vibe/entity-view";
 import { getMyVibeListings, getVibeBlockedDays, getVibeOverview, getVibeSlots } from "@/lib/vibe/queries";
 
 export const metadata: Metadata = {
@@ -21,9 +22,10 @@ async function Body({ searchParams }: { searchParams: Promise<{ listing?: string
   const overview = await getVibeOverview();
   if (!overview) redirect("/auth/sign-in?next=%2Fv%2Fvibe%2Fcalendar");
 
-  const listings = overview.profile ? await getMyVibeListings() : [];
+  const hasBusiness = overview.entities.length > 0;
+  const listings = hasBusiness ? await getMyVibeListings() : [];
   if (listings.length === 0) {
-    return overview.profile ? (
+    return hasBusiness ? (
       <VendorPrompt
         icon={SHELL_ICONS.vibe}
         title="No listings yet"
@@ -62,7 +64,7 @@ async function Body({ searchParams }: { searchParams: Promise<{ listing?: string
     <SlotCalendar
       key={`${listing.id}-${month}`}
       listingId={listing.id}
-      listings={listings.map((l) => ({ id: l.id, title: l.title }))}
+      listings={listings.map((l) => ({ id: l.id, title: withEntity(l.title, l.entityName, overview.entities.length > 1) }))}
       month={month}
       today={today}
       slots={slots}

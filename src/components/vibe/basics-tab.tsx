@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { applyFailure } from "@/components/auth/apply-failure";
 import { TextField } from "@/components/auth/text-field";
+import { ItemSelect } from "@/components/move/item-select";
 import { useSave } from "@/components/move/use-save";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { vibeBasicsSchema, type VibeBasicsInput } from "@/lib/schemas/vibe";
 import { createListingAction, saveBasicsAction, submitListingAction } from "@/lib/vibe/actions";
+import type { VibeEntity } from "@/lib/vibe/entities";
 import { splitCutoff, toCutoffMinutes, type CutoffUnit } from "@/lib/vibe/cutoff";
 import { VIBE_CONFIG } from "@/lib/vibe/config";
 import { vibeReadiness } from "@/lib/vibe/readiness";
@@ -31,7 +33,14 @@ const UNIT_LABEL: Record<CutoffUnit, string> = { minutes: "Minutes", hours: "Hou
 type Output = ReturnType<typeof vibeBasicsSchema.parse>;
 
 /** Title, subtype, description, area, currency, length and booking cutoff. Creates the listing when none is given. */
-export function BasicsForm({ listing }: { listing?: VibeListingView }): React.JSX.Element {
+export function BasicsForm({
+  listing,
+  entities = [],
+}: {
+  listing?: VibeListingView;
+  /** The businesses a new listing can belong to; a choice is asked for when there are several. */
+  entities?: readonly VibeEntity[];
+}): React.JSX.Element {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
@@ -49,6 +58,7 @@ export function BasicsForm({ listing }: { listing?: VibeListingView }): React.JS
   } = useForm<VibeBasicsInput, unknown, Output>({
     resolver: zodResolver(vibeBasicsSchema),
     defaultValues: {
+      entityId: undefined,
       subtype: listing?.subtype ?? "attraction",
       title: listing?.title ?? "",
       description: listing?.description ?? "",
@@ -85,6 +95,11 @@ export function BasicsForm({ listing }: { listing?: VibeListingView }): React.JS
           }
           return;
         }
+        if (entities.length > 1 && !values.entityId) {
+          setError("entityId", { message: "Choose which business this listing is for." });
+          toast.error("Choose which business this listing is for.");
+          return;
+        }
         const result = await createListingAction(values);
         if (result.ok && result.data) {
           toast.success("Created");
@@ -103,6 +118,23 @@ export function BasicsForm({ listing }: { listing?: VibeListingView }): React.JS
   return (
     <form onSubmit={onSubmit} noValidate>
       <FieldGroup>
+        {!listing && entities.length > 1 ? (
+          <Controller
+            control={control}
+            name="entityId"
+            render={({ field }) => (
+              <ItemSelect
+                id="vibe-entity"
+                label="Business"
+                items={entities.map((e) => ({ value: e.id, label: e.businessName ?? "Unnamed business" }))}
+                value={field.value ?? null}
+                onChange={field.onChange}
+                placeholder="Choose a business"
+                error={errors.entityId?.message}
+              />
+            )}
+          />
+        ) : null}
         <Controller
           control={control}
           name="subtype"

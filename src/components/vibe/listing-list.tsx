@@ -8,7 +8,13 @@ import type { VibeListingSummary } from "@/lib/vibe/types";
 import { SortedListings } from "./sorted-listings";
 
 /** The vendor's listings, one row each, with the next open slot and a sort control. */
-export function ListingList({ listings }: { listings: VibeListingSummary[] }): React.JSX.Element {
+export function ListingList({
+  listings,
+  showEntity = false,
+}: {
+  listings: VibeListingSummary[];
+  showEntity?: boolean;
+}): React.JSX.Element {
   if (listings.length === 0) {
     return (
       <VendorPrompt
@@ -31,7 +37,7 @@ export function ListingList({ listings }: { listings: VibeListingSummary[] }): R
           New listing
         </Link>
       </div>
-      <SortedListings listings={listings} />
+      <SortedListings listings={listings} showEntity={showEntity} />
     </div>
   );
 }
