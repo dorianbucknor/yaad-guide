@@ -2,7 +2,7 @@ import { connection } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 
-import { sortPending } from "./queue";
+import { belongsToProfile, sortPending } from "./queue";
 import type { TransferStatus, VendorDocument, VendorStatus, VendorVehicle } from "./types";
 
 export type QueueProfile = {
@@ -124,7 +124,7 @@ export async function getAdminProfile(id: string): Promise<AdminProfileDetail | 
       .order("created_at"),
     supabase
       .from("vendor_documents")
-      .select("id, doc_type, vehicle_id, expires_on, verified, storage_path")
+      .select("id, doc_type, vehicle_id, vendor_profile_id, expires_on, verified, storage_path")
       .or(`account_id.eq.${profile.account_id},vendor_profile_id.eq.${id}`),
   ]);
 
@@ -132,14 +132,14 @@ export async function getAdminProfile(id: string): Promise<AdminProfileDetail | 
   const { data: vehicleDocs } = vehicleIds.length
     ? await supabase
         .from("vendor_documents")
-        .select("id, doc_type, vehicle_id, expires_on, verified, storage_path")
+        .select("id, doc_type, vehicle_id, vendor_profile_id, expires_on, verified, storage_path")
         .in("vehicle_id", vehicleIds)
     : { data: [] };
 
   const seen = new Set<string>();
   const documents = [...(accountDocs ?? []), ...(vehicleDocs ?? [])]
     .filter((d) => (seen.has(d.id) ? false : (seen.add(d.id), true)))
-    .filter((d) => d.vehicle_id === null || vehicleIds.includes(d.vehicle_id))
+    .filter((d) => belongsToProfile(d, id, vehicleIds))
     .map((d) => ({
       id: d.id as string,
       docType: d.doc_type as VendorDocument["docType"],
